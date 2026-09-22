@@ -824,11 +824,8 @@ static spv::Id build_descriptor_heap_robustness(Converter::Impl &impl, spv::Id o
 
 static spv::Id build_bindless_heap_offset(Converter::Impl &impl,
                                           const Converter::Impl::ResourceReference &reference,
-                                          DescriptorQATypeFlags type,
                                           const llvm::Value *dynamic_offset)
 {
-	bool has_non_trivial_indexing = dynamic_offset || reference.local_root_signature_entry >= 0;
-
 	spv::Id offset_id;
 	if (reference.local_root_signature_entry >= 0)
 		offset_id = build_bindless_heap_offset_shader_record(impl, reference, dynamic_offset);
@@ -843,6 +840,16 @@ static spv::Id build_bindless_heap_offset(Converter::Impl &impl,
 		}
 		offset_id = impl.get_id_for_value(dynamic_offset);
 	}
+
+	return offset_id;
+}
+
+static spv::Id build_checked_descriptor_index(Converter::Impl &impl,
+                                               const Converter::Impl::ResourceReference &reference,
+                                               DescriptorQATypeFlags type,
+                                               const llvm::Value *dynamic_offset, spv::Id offset_id)
+{
+	bool has_non_trivial_indexing = dynamic_offset || reference.local_root_signature_entry >= 0;
 
 	bool need_heap_robustness_check =
 	    impl.options.descriptor_heap_robustness ||
@@ -861,6 +868,32 @@ static spv::Id build_bindless_heap_offset(Converter::Impl &impl,
 	}
 
 	return offset_id;
+}
+
+static spv::Id build_bindless_heap_offset(Converter::Impl &impl,
+                                          const Converter::Impl::ResourceReference &reference,
+                                          DescriptorQATypeFlags type,
+                                          const llvm::Value *dynamic_offset)
+{
+	spv::Id offset_id = build_bindless_heap_offset(impl, reference, dynamic_offset);
+	if (!offset_id)
+		return 0;
+	return build_checked_descriptor_index(impl, reference, type, dynamic_offset, offset_id);
+}
+
+static spv::Id build_resource_descriptor_index(Converter::Impl &impl,
+                                                const Converter::Impl::ResourceReference &reference,
+                                                const llvm::Value *instruction_offset)
+{
+	// All typed views of one handle use the same table and index. Share only
+	// their address calculation, keeping descriptor checks and loads per view.
+	if (reference.bindless)
+		return build_bindless_heap_offset(impl, reference,
+		                                  reference.base_resource_is_array ? instruction_offset : nullptr);
+	else if (reference.base_resource_is_array)
+		return build_adjusted_descriptor_indexing(impl, reference.base_offset, instruction_offset);
+	else
+		return 0;
 }
 
 static spv::Id build_physical_address_indexing_from_ssbo(Converter::Impl &impl, spv::Id offset_id)
@@ -1081,6 +1114,7 @@ static spv::Id build_instrumentation_size_query(Converter::Impl &impl,
 
 static bool build_load_resource_handle(Converter::Impl &impl, spv::Id base_resource_id,
                                        const Converter::Impl::ResourceReference &reference,
+                                       spv::Id descriptor_index,
                                        DescriptorQATypeFlagBits descriptor_type,
                                        const llvm::CallInst *instruction,
                                        llvm::Value *instruction_offset_value, bool instruction_is_non_uniform,
@@ -1104,6 +1138,9 @@ static bool build_load_resource_handle(Converter::Impl &impl, spv::Id base_resou
 
 	if (reference.base_resource_is_array || reference.bindless)
 	{
+		if (!descriptor_index)
+			return false;
+
 		if (reference.base_resource_is_array && instruction_offset_value && instruction_is_non_uniform)
 			is_non_uniform = true;
 
@@ -1116,11 +1153,8 @@ static bool build_load_resource_handle(Converter::Impl &impl, spv::Id base_resou
 
 		if (reference.bindless)
 		{
-			offset_id = build_bindless_heap_offset(
-			    impl, reference, descriptor_type, reference.base_resource_is_array ? instruction_offset_value : nullptr);
-
-			if (offset_id == 0)
-				return false;
+			offset_id = build_checked_descriptor_index(impl, reference, descriptor_type,
+			    reference.base_resource_is_array ? instruction_offset_value : nullptr, descriptor_index);
 
 			if (bindless_offset_id)
 				*bindless_offset_id = offset_id;
@@ -1136,9 +1170,7 @@ static bool build_load_resource_handle(Converter::Impl &impl, spv::Id base_resou
 		}
 		else
 		{
-			offset_id = build_adjusted_descriptor_indexing(
-				impl, reference.base_offset,
-				reference.base_resource_is_array ? instruction_offset_value : nullptr);
+			offset_id = descriptor_index;
 
 			if (bindless_offset_id)
 				*bindless_offset_id = 0;
@@ -1581,6 +1613,7 @@ static bool emit_create_handle(Converter::Impl &impl, const llvm::CallInst *inst
 			spv::Id loaded_id = 0;
 			spv::Id offset_id = 0;
 			spv::Id resource_id = 0;
+			spv::Id descriptor_index = build_resource_descriptor_index(impl, reference, instruction_offset);
 			raw_declarations.reserve(reference.var_alias_group.size());
 
 			Converter::Impl::ResourceMetaInstrumentation instrumentation = {};
@@ -1588,7 +1621,7 @@ static bool emit_create_handle(Converter::Impl &impl, const llvm::CallInst *inst
 			if (reference.var_id)
 			{
 				resource_id = reference.var_id;
-				if (!build_load_resource_handle(impl, resource_id, reference, descriptor_type, instruction,
+				if (!build_load_resource_handle(impl, resource_id, reference, descriptor_index, descriptor_type, instruction,
 												instruction_offset, non_uniform, is_non_uniform,
 												nullptr, &loaded_id, &offset_id, &instrumentation))
 				{
@@ -1600,7 +1633,7 @@ static bool emit_create_handle(Converter::Impl &impl, const llvm::CallInst *inst
 			for (auto &alias : reference.var_alias_group)
 			{
 				resource_id = alias.var_id;
-				if (!build_load_resource_handle(impl, resource_id, reference, descriptor_type,
+				if (!build_load_resource_handle(impl, resource_id, reference, descriptor_index, descriptor_type,
 												instruction, instruction_offset, non_uniform, is_non_uniform,
 												nullptr, &loaded_id, &offset_id, &instrumentation))
 				{
@@ -1700,6 +1733,7 @@ static bool emit_create_handle(Converter::Impl &impl, const llvm::CallInst *inst
 			spv::Id offset_id = 0;
 			spv::Id resource_id = 0;
 			spv::Id resource_ptr_id = 0;
+			spv::Id descriptor_index = build_resource_descriptor_index(impl, reference, instruction_offset);
 			raw_declarations.reserve(reference.var_alias_group.size());
 
 			Converter::Impl::ResourceMetaInstrumentation instrumentation = {};
@@ -1707,7 +1741,7 @@ static bool emit_create_handle(Converter::Impl &impl, const llvm::CallInst *inst
 			if (reference.var_id)
 			{
 				resource_id = reference.var_id;
-				if (!build_load_resource_handle(impl, resource_id, reference, descriptor_type, instruction,
+				if (!build_load_resource_handle(impl, resource_id, reference, descriptor_index, descriptor_type, instruction,
 				                                instruction_offset, non_uniform, is_non_uniform, &resource_ptr_id,
 				                                &loaded_id, &offset_id, &instrumentation))
 				{
@@ -1719,7 +1753,7 @@ static bool emit_create_handle(Converter::Impl &impl, const llvm::CallInst *inst
 			for (auto &alias : reference.var_alias_group)
 			{
 				resource_id = alias.var_id;
-				if (!build_load_resource_handle(impl, resource_id, reference, descriptor_type,
+				if (!build_load_resource_handle(impl, resource_id, reference, descriptor_index, descriptor_type,
 												instruction, instruction_offset, non_uniform, is_non_uniform,
 												nullptr, &loaded_id, &offset_id, &instrumentation))
 				{
@@ -1792,7 +1826,7 @@ static bool emit_create_handle(Converter::Impl &impl, const llvm::CallInst *inst
 					else
 					{
 						if (!build_load_resource_handle(impl, counter_reference.var_id, reference,
-						                                DESCRIPTOR_QA_TYPE_RAW_VA_BIT,
+						                                descriptor_index, DESCRIPTOR_QA_TYPE_RAW_VA_BIT,
 						                                instruction, instruction_offset, non_uniform,
 						                                is_non_uniform, &meta.counter_var_id, nullptr, nullptr, nullptr))
 						{
@@ -1915,6 +1949,7 @@ static bool emit_create_handle(Converter::Impl &impl, const llvm::CallInst *inst
 			Vector<Converter::Impl::RawDeclarationVariable> raw_declarations;
 			spv::Id loaded_id = 0;
 			spv::Id resource_id = 0;
+			spv::Id descriptor_index = build_resource_descriptor_index(impl, reference, instruction_offset);
 			raw_declarations.reserve(reference.var_alias_group.size());
 
 			Converter::Impl::ResourceMetaInstrumentation instrumentation = {};
@@ -1922,7 +1957,7 @@ static bool emit_create_handle(Converter::Impl &impl, const llvm::CallInst *inst
 			if (reference.var_id)
 			{
 				resource_id = reference.var_id;
-				if (!build_load_resource_handle(impl, resource_id, reference, descriptor_type, instruction,
+				if (!build_load_resource_handle(impl, resource_id, reference, descriptor_index, descriptor_type, instruction,
 												instruction_offset, non_uniform, is_non_uniform,
 												nullptr, &loaded_id, nullptr, &instrumentation))
 				{
@@ -1934,7 +1969,7 @@ static bool emit_create_handle(Converter::Impl &impl, const llvm::CallInst *inst
 			for (auto &alias : reference.var_alias_group)
 			{
 				resource_id = alias.var_id;
-				if (!build_load_resource_handle(impl, resource_id, reference, descriptor_type,
+				if (!build_load_resource_handle(impl, resource_id, reference, descriptor_index, descriptor_type,
 												instruction, instruction_offset, non_uniform, is_non_uniform,
 												nullptr, &loaded_id, nullptr, &instrumentation))
 				{
@@ -1974,7 +2009,8 @@ static bool emit_create_handle(Converter::Impl &impl, const llvm::CallInst *inst
 
 		bool is_non_uniform = false;
 		spv::Id loaded_id = 0;
-		if (!build_load_resource_handle(impl, base_sampler_id, reference, DESCRIPTOR_QA_TYPE_SAMPLER_BIT, instruction,
+		spv::Id descriptor_index = build_resource_descriptor_index(impl, reference, instruction_offset);
+		if (!build_load_resource_handle(impl, base_sampler_id, reference, descriptor_index, DESCRIPTOR_QA_TYPE_SAMPLER_BIT, instruction,
 		                                instruction_offset, non_uniform, is_non_uniform, nullptr, &loaded_id, nullptr, nullptr))
 		{
 			LOGE("Failed to load Sampler resource handle.\n");
