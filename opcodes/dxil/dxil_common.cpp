@@ -299,11 +299,10 @@ bool extract_raw_buffer_access_split(const llvm::Value *index, unsigned stride,
 	if (bias_negate)
 		bias_factor = -bias_factor;
 
-	// If there is no bit overlap between scale_factor and bias_factor
-	// then the bitwise OR is equivalent to add.
-	// The bias factor also cannot be larger than the scale factor since for some multiples of scale factor,
-	// there will be bit-overlap.
-	if (!bias_is_add && ((scale_factor & bias_factor) != 0 || bias_factor > int64_t(scale_factor)))
+	// Only the trailing zero bits of the scale are guaranteed zero in every product.
+	// OR and XOR are equivalent to add when the bias fits entirely in those bits.
+	uint64_t low_bit_mask = (scale_factor & -scale_factor) - 1;
+	if (!bias_is_add && (uint64_t(bias_factor) & ~low_bit_mask) != 0)
 		return false;
 
 	scale_factor *= stride;
