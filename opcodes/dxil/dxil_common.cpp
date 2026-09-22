@@ -229,6 +229,10 @@ bool extract_raw_buffer_access_split(const llvm::Value *index, unsigned stride,
 		{
 			if (const auto *const_lhs = llvm::dyn_cast<llvm::ConstantInt>(lhs))
 			{
+				// A constant on the left of subtraction negates the dynamic index.
+				// Keep the expression intact rather than extracting it as a bias.
+				if (binop->getOpcode() == llvm::BinaryOperator::BinaryOps::Sub)
+					break;
 				bias = const_lhs;
 				index = rhs;
 			}
