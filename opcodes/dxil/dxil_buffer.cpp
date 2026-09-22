@@ -276,8 +276,8 @@ bool raw_access_byte_address_can_vectorize(Converter::Impl &impl, const llvm::Ty
 	unsigned addr_shift_log2 = raw_buffer_data_type_to_addr_shift_log2(impl, type);
 
 	RawBufferAccessSplit split = {};
-	// If we achieve a successful split, we can vectorize.
-	return extract_raw_buffer_access_split(byte_offset, 1, addr_shift_log2, vecsize, split);
+	return extract_raw_buffer_access_split(byte_offset, 1, addr_shift_log2, vecsize, split) ||
+	       (!npot_vec_size && get_known_trailing_zeros(byte_offset) >= addr_shift_log2 + log2i_floor(vecsize));
 }
 
 bool raw_access_structured_can_vectorize(
@@ -306,8 +306,10 @@ bool raw_access_structured_can_vectorize(
 	}
 
 	RawBufferAccessSplit split = {};
-	return extract_raw_buffer_access_split(index, stride, addr_shift_log2, vecsize, split) &&
-	       extract_raw_buffer_access_split(byte_offset, 1, addr_shift_log2, vecsize, split);
+	return (extract_raw_buffer_access_split(index, stride, addr_shift_log2, vecsize, split) &&
+	        extract_raw_buffer_access_split(byte_offset, 1, addr_shift_log2, vecsize, split)) ||
+	       (!npot_vec_size && stride % element_size == 0 &&
+	        get_known_trailing_zeros(byte_offset) >= addr_shift_log2 + log2i_floor(vecsize));
 }
 
 unsigned raw_access_byte_address_vectorize(
@@ -446,22 +448,24 @@ static spv::Id build_structured_index(Converter::Impl &impl, const llvm::Value *
 	}
 	else
 	{
-		assert(vecsize == 1);
+		unsigned element_size = (1u << addr_shift_log2) * vecsize;
+		assert(vecsize == 1 || ((vecsize & (vecsize - 1)) == 0 && stride % element_size == 0));
 		spv::Id offsets_id[2] = {};
 
-		// Do it the conservative way.
-		if (stride != (1u << addr_shift_log2))
+		// Keep the original index and byte offset. Vectorization here requires
+		// the stride itself to be divisible by the vector's byte size.
+		if (stride != element_size)
 		{
 			auto *scale_op = impl.allocate(spv::OpIMul, builder.makeUintType(32));
 			scale_op->add_id(impl.get_id_for_value(index));
-			scale_op->add_id(builder.makeUintConstant(stride / (1u << addr_shift_log2)));
+			scale_op->add_id(builder.makeUintConstant(stride / element_size));
 			impl.add(scale_op);
 			offsets_id[0] = scale_op->id;
 		}
 		else
 			offsets_id[0] = impl.get_id_for_value(index);
 
-		offsets_id[1] = build_index_divider(impl, byte_offset, addr_shift_log2, 1, false);
+		offsets_id[1] = build_index_divider(impl, byte_offset, addr_shift_log2, vecsize, false);
 
 		return build_accumulate_offsets(impl, offsets_id, 2);
 	}
@@ -812,7 +816,7 @@ static RawAccessChain emit_raw_access_chain(Converter::Impl &impl, const Convert
 		unsigned addr_shift_log2 = raw_buffer_data_type_to_addr_shift_log2(impl, element_type);
 
 		// We can never infer more than 16 byte of alignment since the BAB descriptor is at most 16 bytes.
-		if (raw_access_byte_address_can_vectorize(impl, element_type, inst->getOperand(2), 4))
+		if (scalar_size <= 4 && raw_access_byte_address_can_vectorize(impl, element_type, inst->getOperand(2), 4))
 			raw.alignment = 4;
 		else if (raw_access_byte_address_can_vectorize(impl, element_type, inst->getOperand(2), 2))
 			raw.alignment = 2;
