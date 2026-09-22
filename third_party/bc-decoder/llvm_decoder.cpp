@@ -24,6 +24,7 @@
 
 #include "thread_local_allocator.hpp"
 #include "llvm_decoder.h"
+#include <utility>
 
 namespace LLVMBC
 {
@@ -142,7 +143,7 @@ void BitcodeReader::ReadBlockContents(BlockOrRecord &block)
 
       ReadBlockContents(sub);
 
-      block.children.push_back(sub);
+      block.children.push_back(std::move(sub));
     }
     else if(abbrevID == DEFINE_ABBREV)
     {
@@ -224,7 +225,7 @@ void BitcodeReader::ReadBlockContents(BlockOrRecord &block)
         }
       }
 
-      block.children.push_back(r);
+      block.children.push_back(std::move(r));
     }
     else
     {
@@ -272,7 +273,7 @@ void BitcodeReader::ReadBlockContents(BlockOrRecord &block)
         }
       }
 
-      block.children.push_back(r);
+      block.children.push_back(std::move(r));
     }
   } while(abbrevID != END_BLOCK);
 
