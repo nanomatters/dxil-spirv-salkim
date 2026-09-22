@@ -49,6 +49,9 @@ struct RawBufferAccessSplit
 	const llvm::Value *dynamic_index;
 };
 
+// Lower bound on the number of zero low bits, without changing the expression.
+unsigned get_known_trailing_zeros(const llvm::Value *value);
+
 bool extract_raw_buffer_access_split(const llvm::Value *index, unsigned stride,
 									 uint32_t addr_shift_log2, unsigned vecsize,
 									 RawBufferAccessSplit &split);

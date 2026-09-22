@@ -187,6 +187,95 @@ static spv::Id build_index_divider_fallback(Converter::Impl &impl, const llvm::V
 	return op->id;
 }
 
+static unsigned get_known_trailing_zeros(const llvm::Value *value, unsigned &budget)
+{
+	if (!value->getType()->isIntegerTy())
+		return 0;
+	unsigned width = value->getType()->getIntegerBitWidth();
+	if (!width || width > 64)
+		return 0;
+
+	if (const auto *constant = llvm::dyn_cast<llvm::ConstantInt>(value))
+	{
+		uint64_t bits = constant->getUniqueInteger().getZExtValue();
+		unsigned zeros = 0;
+		while (zeros < width && !(bits & 1))
+		{
+			zeros++;
+			bits >>= 1;
+		}
+		return zeros;
+	}
+
+	if (!budget)
+		return 0;
+	budget--;
+
+	if (const auto *cast = llvm::dyn_cast<llvm::CastInst>(value))
+	{
+		switch (cast->getOpcode())
+		{
+		case llvm::Instruction::Trunc:
+		case llvm::Instruction::ZExt:
+		case llvm::Instruction::SExt:
+		case llvm::Instruction::BitCast:
+			return std::min(width, get_known_trailing_zeros(cast->getOperand(0), budget));
+		default:
+			return 0;
+		}
+	}
+	else if (const auto *select = llvm::dyn_cast<llvm::SelectInst>(value))
+	{
+		unsigned a = get_known_trailing_zeros(select->getOperand(1), budget);
+		unsigned b = get_known_trailing_zeros(select->getOperand(2), budget);
+		return std::min(a, b);
+	}
+	else if (const auto *binop = llvm::dyn_cast<llvm::BinaryOperator>(value))
+	{
+		switch (binop->getOpcode())
+		{
+		case llvm::Instruction::Shl:
+		case llvm::Instruction::LShr:
+		case llvm::Instruction::AShr:
+		{
+			const auto *shift = llvm::dyn_cast<llvm::ConstantInt>(binop->getOperand(1));
+			if (!shift || shift->getUniqueInteger().getZExtValue() >= width)
+				return 0;
+			unsigned amount = unsigned(shift->getUniqueInteger().getZExtValue());
+			unsigned zeros = get_known_trailing_zeros(binop->getOperand(0), budget);
+			return binop->getOpcode() == llvm::Instruction::Shl ? std::min(width, zeros + amount) :
+			       zeros > amount ? zeros - amount : 0;
+		}
+		case llvm::Instruction::And:
+		case llvm::Instruction::Or:
+		case llvm::Instruction::Xor:
+		case llvm::Instruction::Add:
+		case llvm::Instruction::Sub:
+		case llvm::Instruction::Mul:
+		{
+			unsigned a = get_known_trailing_zeros(binop->getOperand(0), budget);
+			unsigned b = get_known_trailing_zeros(binop->getOperand(1), budget);
+			if (binop->getOpcode() == llvm::Instruction::And)
+				return std::max(a, b);
+			else if (binop->getOpcode() == llvm::Instruction::Mul)
+				return std::min(width, a + b);
+			else
+				return std::min(a, b);
+		}
+		default:
+			break;
+		}
+	}
+	return 0;
+}
+
+unsigned get_known_trailing_zeros(const llvm::Value *value)
+{
+	// Bound total work, including shared expression trees. Do not follow PHIs.
+	unsigned budget = 32;
+	return get_known_trailing_zeros(value, budget);
+}
+
 bool extract_raw_buffer_access_split(const llvm::Value *index, unsigned stride,
                                      uint32_t addr_shift_log2, unsigned vecsize,
                                      RawBufferAccessSplit &split)
@@ -418,8 +507,8 @@ spv::Id build_index_divider(Converter::Impl &impl, const llvm::Value *offset,
 	{
 		// This path implicitly gets the wrapping right since it starts with the final byte address offset,
 		// and shifts down. This will always work as intended.
-		assert(vecsize == 1);
-		index_id = build_index_divider_fallback(impl, offset, addr_shift_log2);
+		assert((vecsize & (vecsize - 1)) == 0);
+		index_id = build_index_divider_fallback(impl, offset, addr_shift_log2 + log2i_floor(vecsize));
 	}
 
 	return index_id;
