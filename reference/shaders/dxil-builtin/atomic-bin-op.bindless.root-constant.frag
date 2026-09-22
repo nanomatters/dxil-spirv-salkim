@@ -83,7 +83,7 @@ OpDecorate %17 Flat
 OpDecorate %17 Location 0
 OpDecorate %17 Component 1
 OpDecorate %19 Location 0
-OpDecorate %35 NonUniform
+OpDecorate %33 NonUniform
 OpDecorate %36 NonUniform
 OpDecorate %40 NonUniform
 %1 = OpTypeVoid
@@ -106,9 +106,9 @@ OpDecorate %40 NonUniform
 %21 = OpConstant %5 0
 %24 = OpConstant %5 1
 %28 = OpConstant %5 2
-%29 = OpTypePointer UniformConstant %9
-%31 = OpTypePointer PushConstant %5
-%33 = OpConstant %5 3
+%29 = OpTypePointer PushConstant %5
+%31 = OpConstant %5 3
+%34 = OpTypePointer UniformConstant %9
 %37 = OpTypeVector %5 2
 %39 = OpTypePointer Image %5
 %3 = OpFunction %1 None %2
@@ -121,14 +121,14 @@ OpBranch %42
 %25 = OpLoad %5 %23
 %26 = OpLoad %5 %14
 %27 = OpIAdd %5 %26 %28
-%32 = OpAccessChain %31 %8 %33
-%34 = OpLoad %5 %32
-%35 = OpIAdd %5 %34 %27
-%30 = OpAccessChain %29 %12 %35
-%36 = OpLoad %9 %30
+%30 = OpAccessChain %29 %8 %31
+%32 = OpLoad %5 %30
+%33 = OpIAdd %5 %32 %27
+%35 = OpAccessChain %34 %12 %33
+%36 = OpLoad %9 %35
 %38 = OpCompositeConstruct %37 %22 %25
-%40 = OpImageTexelPointer %39 %30 %38 %21
-%41 = OpAtomicIAdd %5 %40 %24 %21 %33
+%40 = OpImageTexelPointer %39 %35 %38 %21
+%41 = OpAtomicIAdd %5 %40 %24 %21 %31
 OpStore %19 %41
 OpReturn
 OpFunctionEnd

@@ -52,10 +52,10 @@ OpDecorate %16 Location 0
 %14 = OpTypeVector %5 4
 %15 = OpTypePointer Output %14
 %16 = OpVariable %15 Output
-%18 = OpTypePointer UniformConstant %6
-%20 = OpConstant %7 0
+%18 = OpConstant %7 0
+%19 = OpTypePointer UniformConstant %6
 %23 = OpTypeVector %7 2
-%30 = OpConstant %7 2
+%29 = OpConstant %7 2
 %43 = OpConstant %7 5
 %56 = OpTypePointer Output %5
 %59 = OpConstant %7 1
@@ -64,17 +64,17 @@ OpDecorate %16 Location 0
 OpBranch %62
 %62 = OpLabel
 %17 = OpLoad %7 %13
-%19 = OpAccessChain %18 %11 %20
-%21 = OpLoad %6 %19
-%24 = OpCompositeConstruct %23 %20 %20
+%20 = OpAccessChain %19 %11 %18
+%21 = OpLoad %6 %20
+%24 = OpCompositeConstruct %23 %18 %18
 %22 = OpImageRead %14 %21 %24 None
 %25 = OpCompositeExtract %5 %22 0
 %26 = OpCompositeExtract %5 %22 1
 %27 = OpCompositeExtract %5 %22 2
 %28 = OpCompositeExtract %5 %22 3
-%29 = OpAccessChain %18 %11 %30
-%31 = OpLoad %6 %29
-%33 = OpCompositeConstruct %23 %20 %20
+%30 = OpAccessChain %19 %11 %29
+%31 = OpLoad %6 %30
+%33 = OpCompositeConstruct %23 %18 %18
 %32 = OpImageRead %14 %31 %33 None
 %34 = OpCompositeExtract %5 %32 0
 %35 = OpCompositeExtract %5 %32 1
@@ -85,9 +85,9 @@ OpBranch %62
 %40 = OpFAdd %5 %36 %27
 %41 = OpFAdd %5 %37 %28
 %42 = OpIAdd %7 %17 %43
-%44 = OpAccessChain %18 %11 %17
+%44 = OpAccessChain %19 %11 %17
 %45 = OpLoad %6 %44
-%47 = OpCompositeConstruct %23 %20 %20
+%47 = OpCompositeConstruct %23 %18 %18
 %46 = OpImageRead %14 %45 %47 None
 %48 = OpCompositeExtract %5 %46 0
 %49 = OpCompositeExtract %5 %46 1
@@ -97,11 +97,11 @@ OpBranch %62
 %53 = OpFAdd %5 %39 %49
 %54 = OpFAdd %5 %40 %50
 %55 = OpFAdd %5 %41 %51
-%57 = OpAccessChain %56 %16 %20
+%57 = OpAccessChain %56 %16 %18
 OpStore %57 %52
 %58 = OpAccessChain %56 %16 %59
 OpStore %58 %53
-%60 = OpAccessChain %56 %16 %30
+%60 = OpAccessChain %56 %16 %29
 OpStore %60 %54
 %61 = OpAccessChain %56 %16 %8
 OpStore %61 %55

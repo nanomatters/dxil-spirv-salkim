@@ -132,8 +132,8 @@ OpDecorate %18 NonReadable
 %47 = OpTypePointer RayPayloadKHR %22
 %61 = OpConstant %5 1
 %64 = OpTypePointer RayPayloadKHR %14
-%71 = OpTypePointer UniformConstant %15
-%76 = OpConstant %5 10
+%74 = OpConstant %5 10
+%75 = OpTypePointer UniformConstant %15
 %3 = OpFunction %1 None %2
 %4 = OpLabel
 OpBranch %80
@@ -170,11 +170,11 @@ OpTraceRayKHR %60 %28 %61 %28 %28 %28 %62 %39 %63 %43 %21
 %68 = OpFAdd %14 %66 %51
 %69 = OpFAdd %14 %66 %52
 %70 = OpFAdd %14 %66 %53
-%73 = OpAccessChain %26 %8 %33
-%74 = OpLoad %5 %73
-%75 = OpIAdd %5 %74 %76
-%72 = OpAccessChain %71 %18 %75
-%77 = OpLoad %15 %72
+%71 = OpAccessChain %26 %8 %33
+%72 = OpLoad %5 %71
+%73 = OpIAdd %5 %72 %74
+%76 = OpAccessChain %75 %18 %73
+%77 = OpLoad %15 %76
 %78 = OpCompositeConstruct %9 %28 %28
 %79 = OpCompositeConstruct %22 %67 %68 %69 %70
 OpImageWrite %77 %78 %79

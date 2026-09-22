@@ -61,9 +61,9 @@ OpDecorate %45 NonUniform
 %16 = OpVariable %15 Input
 %17 = OpTypePointer Output %8
 %18 = OpVariable %17 Output
-%19 = OpTypePointer Uniform %10
-%21 = OpConstant %5 2
-%23 = OpConstant %5 0
+%19 = OpConstant %5 2
+%20 = OpTypePointer Uniform %10
+%22 = OpConstant %5 0
 %25 = OpTypePointer Uniform %8
 %43 = OpConstant %5 5
 %55 = OpTypePointer Output %7
@@ -71,16 +71,16 @@ OpDecorate %45 NonUniform
 %4 = OpLabel
 OpBranch %60
 %60 = OpLabel
-%20 = OpAccessChain %19 %14 %21
-%22 = OpAccessChain %19 %14 %23
+%21 = OpAccessChain %20 %14 %19
+%23 = OpAccessChain %20 %14 %22
 %24 = OpLoad %5 %16
-%26 = OpAccessChain %25 %22 %23 %23
+%26 = OpAccessChain %25 %23 %22 %22
 %27 = OpLoad %8 %26
 %28 = OpCompositeExtract %7 %27 0
 %29 = OpCompositeExtract %7 %27 1
 %30 = OpCompositeExtract %7 %27 2
 %31 = OpCompositeExtract %7 %27 3
-%32 = OpAccessChain %25 %20 %23 %23
+%32 = OpAccessChain %25 %21 %22 %22
 %33 = OpLoad %8 %32
 %34 = OpCompositeExtract %7 %33 0
 %35 = OpCompositeExtract %7 %33 1
@@ -91,8 +91,8 @@ OpBranch %60
 %40 = OpFAdd %7 %36 %30
 %41 = OpFAdd %7 %37 %31
 %42 = OpIAdd %5 %24 %43
-%44 = OpAccessChain %19 %14 %24
-%45 = OpAccessChain %25 %44 %23 %23
+%44 = OpAccessChain %20 %14 %24
+%45 = OpAccessChain %25 %44 %22 %22
 %46 = OpLoad %8 %45
 %47 = OpCompositeExtract %7 %46 0
 %48 = OpCompositeExtract %7 %46 1
@@ -102,11 +102,11 @@ OpBranch %60
 %52 = OpFAdd %7 %39 %48
 %53 = OpFAdd %7 %40 %49
 %54 = OpFAdd %7 %41 %50
-%56 = OpAccessChain %55 %18 %23
+%56 = OpAccessChain %55 %18 %22
 OpStore %56 %51
 %57 = OpAccessChain %55 %18 %6
 OpStore %57 %52
-%58 = OpAccessChain %55 %18 %21
+%58 = OpAccessChain %55 %18 %19
 OpStore %58 %53
 %59 = OpAccessChain %55 %18 %11
 OpStore %59 %54

@@ -42,11 +42,11 @@ layout(push_constant, std430) uniform RootConstants
 
 void main()
 {
-    uint _32 = registers._m4 + 1u;
-    uvec2 _40 = _13._m0[subgroupBroadcastFirst(_32)] >> uvec2(2u);
+    uint _30 = registers._m4 + 1u;
+    uvec2 _40 = _13._m0[subgroupBroadcastFirst(_30)] >> uvec2(2u);
     uvec2 _50 = _13._m0[subgroupBroadcastFirst(registers._m4)] >> uvec2(2u);
     f16vec2 _69 = uint16BitsToFloat16(_20[registers._m4]._m0[(gl_GlobalInvocationID.x < _50.y) ? (gl_GlobalInvocationID.x + _50.x) : 1073741823u]);
-    _25[_32]._m0[(gl_GlobalInvocationID.x < _40.y) ? (gl_GlobalInvocationID.x + _40.x) : 1073741823u] = u16vec2(float16BitsToUint16(_69.x), float16BitsToUint16(_69.y));
+    _25[_30]._m0[(gl_GlobalInvocationID.x < _40.y) ? (gl_GlobalInvocationID.x + _40.x) : 1073741823u] = u16vec2(float16BitsToUint16(_69.x), float16BitsToUint16(_69.y));
 }
 
 
@@ -130,16 +130,16 @@ OpDecorate %53 BuiltIn GlobalInvocationId
 %23 = OpTypeRuntimeArray %22
 %24 = OpTypePointer StorageBuffer %23
 %25 = OpVariable %24 StorageBuffer
-%26 = OpTypePointer StorageBuffer %22
-%28 = OpTypePointer PushConstant %5
-%30 = OpConstant %5 4
-%33 = OpConstant %5 1
+%26 = OpTypePointer PushConstant %5
+%28 = OpConstant %5 4
+%31 = OpConstant %5 1
+%32 = OpTypePointer StorageBuffer %22
 %35 = OpConstant %5 3
 %36 = OpTypePointer StorageBuffer %9
 %38 = OpConstant %5 0
 %41 = OpConstant %5 2
 %42 = OpConstantComposite %9 %41 %41
-%43 = OpTypePointer StorageBuffer %17
+%45 = OpTypePointer StorageBuffer %17
 %51 = OpTypeVector %5 3
 %52 = OpTypePointer Input %51
 %53 = OpVariable %52 Input
@@ -153,18 +153,18 @@ OpDecorate %53 BuiltIn GlobalInvocationId
 %4 = OpLabel
 OpBranch %81
 %81 = OpLabel
-%29 = OpAccessChain %28 %8 %30
-%31 = OpLoad %5 %29
-%32 = OpIAdd %5 %31 %33
-%27 = OpAccessChain %26 %25 %32
-%34 = OpGroupNonUniformBroadcastFirst %5 %35 %32
+%27 = OpAccessChain %26 %8 %28
+%29 = OpLoad %5 %27
+%30 = OpIAdd %5 %29 %31
+%33 = OpAccessChain %32 %25 %30
+%34 = OpGroupNonUniformBroadcastFirst %5 %35 %30
 %37 = OpAccessChain %36 %13 %38 %34
 %39 = OpLoad %9 %37
 %40 = OpShiftRightLogical %9 %39 %42
-%45 = OpAccessChain %28 %8 %30
-%46 = OpLoad %5 %45
-%44 = OpAccessChain %43 %20 %46
-%47 = OpGroupNonUniformBroadcastFirst %5 %35 %46
+%43 = OpAccessChain %26 %8 %28
+%44 = OpLoad %5 %43
+%46 = OpAccessChain %45 %20 %44
+%47 = OpGroupNonUniformBroadcastFirst %5 %35 %44
 %48 = OpAccessChain %36 %13 %38 %47
 %49 = OpLoad %9 %48
 %50 = OpShiftRightLogical %9 %49 %42
@@ -175,7 +175,7 @@ OpBranch %81
 %59 = OpIAdd %5 %56 %57
 %61 = OpULessThan %60 %56 %58
 %62 = OpSelect %5 %61 %59 %63
-%65 = OpAccessChain %64 %44 %38 %62
+%65 = OpAccessChain %64 %46 %38 %62
 %66 = OpLoad %15 %65
 %69 = OpBitcast %68 %66
 %70 = OpCompositeExtract %67 %69 0
@@ -188,7 +188,7 @@ OpBranch %81
 %77 = OpBitcast %14 %70
 %78 = OpBitcast %14 %71
 %79 = OpCompositeConstruct %15 %77 %78
-%80 = OpAccessChain %64 %27 %38 %76
+%80 = OpAccessChain %64 %33 %38 %76
 OpStore %80 %79
 OpReturn
 OpFunctionEnd

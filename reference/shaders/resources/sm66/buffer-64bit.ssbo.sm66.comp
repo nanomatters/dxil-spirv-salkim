@@ -166,12 +166,12 @@ OpDecorate %30 BuiltIn GlobalInvocationId
 %31 = OpTypePointer Input %27
 %33 = OpConstant %27 0
 %35 = OpTypePointer StorageBuffer %8
-%37 = OpTypePointer StorageBuffer %13
-%39 = OpConstant %27 1
-%40 = OpTypePointer StorageBuffer %18
-%42 = OpConstant %27 2
-%43 = OpTypePointer StorageBuffer %23
-%45 = OpConstant %27 3
+%37 = OpConstant %27 1
+%38 = OpTypePointer StorageBuffer %13
+%40 = OpConstant %27 2
+%41 = OpTypePointer StorageBuffer %18
+%43 = OpConstant %27 3
+%44 = OpTypePointer StorageBuffer %23
 %48 = OpTypePointer StorageBuffer %6
 %67 = OpConstant %27 8
 %86 = OpTypeFunction %5 %5 %5
@@ -195,20 +195,20 @@ OpBranch %177
 %32 = OpAccessChain %31 %30 %33
 %34 = OpLoad %27 %32
 %36 = OpAccessChain %35 %11 %33
-%38 = OpAccessChain %37 %16 %39
-%41 = OpAccessChain %40 %21 %42
-%44 = OpAccessChain %43 %26 %45
-%46 = OpShiftLeftLogical %27 %34 %39
-%47 = OpIMul %27 %34 %42
-%49 = OpAccessChain %48 %38 %33 %47
+%39 = OpAccessChain %38 %16 %37
+%42 = OpAccessChain %41 %21 %40
+%45 = OpAccessChain %44 %26 %43
+%46 = OpShiftLeftLogical %27 %34 %37
+%47 = OpIMul %27 %34 %40
+%49 = OpAccessChain %48 %39 %33 %47
 %50 = OpLoad %6 %49
 %51 = OpCompositeExtract %5 %50 0
 %52 = OpCompositeExtract %5 %50 1
 %53 = OpCompositeExtract %5 %50 2
-%54 = OpBitwiseOr %27 %46 %39
-%55 = OpIMul %27 %34 %42
-%56 = OpIAdd %27 %55 %39
-%57 = OpAccessChain %48 %38 %33 %56
+%54 = OpBitwiseOr %27 %46 %37
+%55 = OpIMul %27 %34 %40
+%56 = OpIAdd %27 %55 %37
+%57 = OpAccessChain %48 %39 %33 %56
 %58 = OpLoad %6 %57
 %59 = OpCompositeExtract %5 %58 0
 %60 = OpCompositeExtract %5 %58 1
@@ -216,7 +216,7 @@ OpBranch %177
 %62 = OpIAdd %5 %59 %51
 %63 = OpIAdd %5 %60 %52
 %64 = OpIAdd %5 %61 %53
-%65 = OpShiftLeftLogical %27 %34 %45
+%65 = OpShiftLeftLogical %27 %34 %43
 %66 = OpIMul %27 %34 %67
 %68 = OpCompositeConstruct %6 %62 %63 %64
 %69 = OpAccessChain %48 %36 %33 %66
@@ -224,27 +224,27 @@ OpStore %69 %68
 %70 = OpISub %5 %51 %59
 %71 = OpISub %5 %52 %60
 %72 = OpISub %5 %53 %61
-%73 = OpBitwiseOr %27 %65 %39
+%73 = OpBitwiseOr %27 %65 %37
 %74 = OpIMul %27 %34 %67
-%75 = OpIAdd %27 %74 %39
+%75 = OpIAdd %27 %74 %37
 %76 = OpCompositeConstruct %6 %70 %71 %72
 %77 = OpAccessChain %48 %36 %33 %75
 OpStore %77 %76
 %78 = OpIMul %5 %59 %51
 %79 = OpIMul %5 %60 %52
 %80 = OpIMul %5 %61 %53
-%81 = OpBitwiseOr %27 %65 %42
+%81 = OpBitwiseOr %27 %65 %40
 %82 = OpIMul %27 %34 %67
-%83 = OpIAdd %27 %82 %42
+%83 = OpIAdd %27 %82 %40
 %84 = OpCompositeConstruct %6 %78 %79 %80
 %85 = OpAccessChain %48 %36 %33 %83
 OpStore %85 %84
 %100 = OpFunctionCall %5 %89 %51 %59
 %101 = OpFunctionCall %5 %89 %52 %60
 %102 = OpFunctionCall %5 %89 %53 %61
-%103 = OpBitwiseOr %27 %65 %45
+%103 = OpBitwiseOr %27 %65 %43
 %104 = OpIMul %27 %34 %67
-%105 = OpIAdd %27 %104 %45
+%105 = OpIAdd %27 %104 %43
 %106 = OpCompositeConstruct %6 %100 %101 %102
 %107 = OpAccessChain %48 %36 %33 %105
 OpStore %107 %106
@@ -288,24 +288,24 @@ OpStore %138 %137
 %147 = OpAccessChain %48 %36 %33 %145
 OpStore %147 %146
 %148 = OpIMul %27 %34 %149
-%150 = OpIMul %27 %34 %45
+%150 = OpIMul %27 %34 %43
 %160 = OpFunctionCall %27 %154 %150 %67
-%162 = OpAccessChain %161 %44 %33 %160
+%162 = OpAccessChain %161 %45 %33 %160
 %163 = OpLoad %5 %162
-%165 = OpIAdd %27 %160 %39
-%164 = OpAccessChain %161 %44 %33 %165
+%165 = OpIAdd %27 %160 %37
+%164 = OpAccessChain %161 %45 %33 %165
 %166 = OpLoad %5 %164
 %168 = OpCompositeConstruct %167 %163 %166
 %169 = OpCompositeExtract %5 %168 0
 %170 = OpCompositeExtract %5 %168 1
 %171 = OpFunctionCall %27 %154 %34 %67
-%172 = OpAccessChain %161 %41 %33 %171
+%172 = OpAccessChain %161 %42 %33 %171
 OpStore %172 %169
-%174 = OpIAdd %27 %171 %39
-%173 = OpAccessChain %161 %41 %33 %174
+%174 = OpIAdd %27 %171 %37
+%173 = OpAccessChain %161 %42 %33 %174
 OpStore %173 %170
-%176 = OpIAdd %27 %171 %42
-%175 = OpAccessChain %161 %41 %33 %176
+%176 = OpIAdd %27 %171 %40
+%175 = OpAccessChain %161 %42 %33 %176
 OpStore %175 %53
 OpReturn
 OpFunctionEnd

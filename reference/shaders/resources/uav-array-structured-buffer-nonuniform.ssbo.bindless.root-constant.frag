@@ -89,8 +89,8 @@ OpDecorate %14 NonWritable
 OpDecorate %16 Flat
 OpDecorate %16 Location 0
 OpDecorate %20 Location 0
+OpDecorate %28 NonUniform
 OpDecorate %30 NonUniform
-OpDecorate %25 NonUniform
 OpDecorate %32 NonUniform
 %1 = OpTypeVoid
 %2 = OpTypeFunction %1
@@ -111,9 +111,9 @@ OpDecorate %32 NonUniform
 %19 = OpTypePointer Output %18
 %20 = OpVariable %19 Output
 %23 = OpConstant %5 0
-%24 = OpTypePointer StorageBuffer %11
-%26 = OpTypePointer PushConstant %5
-%28 = OpConstant %5 4
+%24 = OpTypePointer PushConstant %5
+%26 = OpConstant %5 4
+%29 = OpTypePointer StorageBuffer %11
 %31 = OpTypePointer StorageBuffer %9
 %39 = OpTypePointer Output %17
 %42 = OpConstant %5 1
@@ -125,11 +125,11 @@ OpBranch %47
 %47 = OpLabel
 %21 = OpLoad %5 %16
 %22 = OpIAdd %5 %21 %23
-%27 = OpAccessChain %26 %8 %28
-%29 = OpLoad %5 %27
-%30 = OpIAdd %5 %29 %22
-%25 = OpAccessChain %24 %14 %30
-%32 = OpAccessChain %31 %25 %23 %21
+%25 = OpAccessChain %24 %8 %26
+%27 = OpLoad %5 %25
+%28 = OpIAdd %5 %27 %22
+%30 = OpAccessChain %29 %14 %28
+%32 = OpAccessChain %31 %30 %23 %21
 %33 = OpLoad %9 %32
 %34 = OpBitcast %18 %33
 %35 = OpCompositeExtract %17 %34 0

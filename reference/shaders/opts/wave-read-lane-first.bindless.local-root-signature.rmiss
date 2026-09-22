@@ -48,13 +48,13 @@ layout(location = 0) rayPayloadInEXT _25 payload;
 
 void main()
 {
-    uint _38 = (SBT._m9.x >> 6u) + 12u;
+    uint _36 = (SBT._m9.x >> 6u) + 12u;
     vec4 _53 = uintBitsToFloat(uvec4(SBT._m0[0u], SBT._m0[1u], SBT._m0[2u], SBT._m0[3u]));
     vec4 _88;
-    _88.x = (payload._m0.x + subgroupBroadcastFirst(_53.x)) + subgroupBroadcastFirst(_24[nonuniformEXT(_38)]._m0[0u].x);
-    _88.y = subgroupBroadcastFirst(_24[nonuniformEXT(_38)]._m0[0u].y) + (payload._m0.y + subgroupBroadcastFirst(_53.y));
-    _88.z = subgroupBroadcastFirst(_24[nonuniformEXT(_38)]._m0[0u].z) + (payload._m0.z + subgroupBroadcastFirst(_53.z));
-    _88.w = subgroupBroadcastFirst(_24[nonuniformEXT(_38)]._m0[0u].w) + (payload._m0.w + subgroupBroadcastFirst(_53.w));
+    _88.x = (payload._m0.x + subgroupBroadcastFirst(_53.x)) + subgroupBroadcastFirst(_24[nonuniformEXT(_36)]._m0[0u].x);
+    _88.y = subgroupBroadcastFirst(_24[nonuniformEXT(_36)]._m0[0u].y) + (payload._m0.y + subgroupBroadcastFirst(_53.y));
+    _88.z = subgroupBroadcastFirst(_24[nonuniformEXT(_36)]._m0[0u].z) + (payload._m0.z + subgroupBroadcastFirst(_53.z));
+    _88.w = subgroupBroadcastFirst(_24[nonuniformEXT(_36)]._m0[0u].w) + (payload._m0.w + subgroupBroadcastFirst(_53.w));
     payload._m0 = _88;
 }
 
@@ -120,7 +120,7 @@ OpDecorate %21 Block
 OpMemberDecorate %21 0 Offset 0
 OpDecorate %24 DescriptorSet 5
 OpDecorate %24 Binding 0
-OpDecorate %32 NonUniform
+OpDecorate %39 NonUniform
 OpDecorate %74 NonUniform
 %1 = OpTypeVoid
 %2 = OpTypeFunction %1
@@ -149,10 +149,10 @@ OpDecorate %74 NonUniform
 %27 = OpVariable %26 IncomingRayPayloadKHR
 %28 = OpTypePointer ShaderRecordBufferKHR %10
 %30 = OpConstant %5 0
-%31 = OpTypePointer Uniform %21
-%33 = OpTypePointer ShaderRecordBufferKHR %5
-%35 = OpConstant %5 9
-%39 = OpConstant %5 12
+%31 = OpTypePointer ShaderRecordBufferKHR %5
+%33 = OpConstant %5 9
+%37 = OpConstant %5 12
+%38 = OpTypePointer Uniform %21
 %43 = OpConstant %5 1
 %46 = OpConstant %5 2
 %49 = OpConstant %5 3
@@ -165,18 +165,18 @@ OpDecorate %74 NonUniform
 OpBranch %93
 %93 = OpLabel
 %29 = OpAccessChain %28 %16 %30
-%34 = OpAccessChain %33 %16 %35 %30
-%36 = OpLoad %5 %34
-%37 = OpShiftRightLogical %5 %36 %11
-%38 = OpIAdd %5 %37 %39
-%32 = OpAccessChain %31 %24 %38
-%40 = OpAccessChain %33 %29 %30
+%32 = OpAccessChain %31 %16 %33 %30
+%34 = OpLoad %5 %32
+%35 = OpShiftRightLogical %5 %34 %11
+%36 = OpIAdd %5 %35 %37
+%39 = OpAccessChain %38 %24 %36
+%40 = OpAccessChain %31 %29 %30
 %41 = OpLoad %5 %40
-%42 = OpAccessChain %33 %29 %43
+%42 = OpAccessChain %31 %29 %43
 %44 = OpLoad %5 %42
-%45 = OpAccessChain %33 %29 %46
+%45 = OpAccessChain %31 %29 %46
 %47 = OpLoad %5 %45
-%48 = OpAccessChain %33 %29 %49
+%48 = OpAccessChain %31 %29 %49
 %50 = OpLoad %5 %48
 %52 = OpCompositeConstruct %51 %41 %44 %47 %50
 %53 = OpBitcast %18 %52
@@ -198,7 +198,7 @@ OpBranch %93
 %70 = OpFAdd %17 %69 %60
 %71 = OpCompositeExtract %17 %64 3
 %72 = OpFAdd %17 %71 %61
-%74 = OpAccessChain %73 %32 %30 %30
+%74 = OpAccessChain %73 %39 %30 %30
 %75 = OpLoad %18 %74
 %76 = OpCompositeExtract %17 %75 0
 %77 = OpCompositeExtract %17 %75 1

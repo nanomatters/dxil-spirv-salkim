@@ -32,14 +32,14 @@ layout(location = 0) out vec4 SV_Target;
 
 void main()
 {
-    uint _27 = registers._m5 + 3u;
-    uint _32 = registers._m5 + 5u;
-    uint _70 = registers._m5 + (uvec4(registers._m4, registers._m5, registers._m6, registers._m7).x + 4u);
-    uint _86 = registers._m5 + (INDEX + 100u);
-    SV_Target.x = ((_16[_32]._m0[0u].x + _16[_27]._m0[0u].x) + _16[_70]._m0[0u].x) + _16[nonuniformEXT(_86)]._m0[0u].x;
-    SV_Target.y = ((_16[_32]._m0[0u].y + _16[_27]._m0[0u].y) + _16[_70]._m0[0u].y) + _16[nonuniformEXT(_86)]._m0[0u].y;
-    SV_Target.z = ((_16[_32]._m0[0u].z + _16[_27]._m0[0u].z) + _16[_70]._m0[0u].z) + _16[nonuniformEXT(_86)]._m0[0u].z;
-    SV_Target.w = ((_16[_32]._m0[0u].w + _16[_27]._m0[0u].w) + _16[_70]._m0[0u].w) + _16[nonuniformEXT(_86)]._m0[0u].w;
+    uint _25 = registers._m5 + 3u;
+    uint _31 = registers._m5 + 5u;
+    uint _69 = registers._m5 + (uvec4(registers._m4, registers._m5, registers._m6, registers._m7).x + 4u);
+    uint _85 = registers._m5 + (INDEX + 100u);
+    SV_Target.x = ((_16[_31]._m0[0u].x + _16[_25]._m0[0u].x) + _16[_69]._m0[0u].x) + _16[nonuniformEXT(_85)]._m0[0u].x;
+    SV_Target.y = ((_16[_31]._m0[0u].y + _16[_25]._m0[0u].y) + _16[_69]._m0[0u].y) + _16[nonuniformEXT(_85)]._m0[0u].y;
+    SV_Target.z = ((_16[_31]._m0[0u].z + _16[_25]._m0[0u].z) + _16[_69]._m0[0u].z) + _16[nonuniformEXT(_85)]._m0[0u].z;
+    SV_Target.w = ((_16[_31]._m0[0u].w + _16[_25]._m0[0u].w) + _16[_69]._m0[0u].w) + _16[nonuniformEXT(_85)]._m0[0u].w;
 }
 
 
@@ -92,8 +92,8 @@ OpDecorate %16 Binding 0
 OpDecorate %18 Flat
 OpDecorate %18 Location 0
 OpDecorate %20 Location 0
+OpDecorate %85 NonUniform
 OpDecorate %86 NonUniform
-OpDecorate %83 NonUniform
 OpDecorate %87 NonUniform
 %1 = OpTypeVoid
 %2 = OpTypeFunction %1
@@ -113,10 +113,10 @@ OpDecorate %87 NonUniform
 %18 = OpVariable %17 Input
 %19 = OpTypePointer Output %10
 %20 = OpVariable %19 Output
-%21 = OpTypePointer StorageBuffer %13
-%23 = OpTypePointer PushConstant %5
-%25 = OpConstant %5 5
-%28 = OpConstant %5 3
+%21 = OpTypePointer PushConstant %5
+%23 = OpConstant %5 5
+%26 = OpConstant %5 3
+%27 = OpTypePointer StorageBuffer %13
 %34 = OpConstant %5 0
 %35 = OpTypePointer StorageBuffer %10
 %53 = OpConstant %5 4
@@ -131,22 +131,22 @@ OpDecorate %87 NonUniform
 %4 = OpLabel
 OpBranch %104
 %104 = OpLabel
-%24 = OpAccessChain %23 %8 %25
-%26 = OpLoad %5 %24
-%27 = OpIAdd %5 %26 %28
-%22 = OpAccessChain %21 %16 %27
-%30 = OpAccessChain %23 %8 %25
-%31 = OpLoad %5 %30
-%32 = OpIAdd %5 %31 %25
-%29 = OpAccessChain %21 %16 %32
+%22 = OpAccessChain %21 %8 %23
+%24 = OpLoad %5 %22
+%25 = OpIAdd %5 %24 %26
+%28 = OpAccessChain %27 %16 %25
+%29 = OpAccessChain %21 %8 %23
+%30 = OpLoad %5 %29
+%31 = OpIAdd %5 %30 %23
+%32 = OpAccessChain %27 %16 %31
 %33 = OpLoad %5 %18
-%36 = OpAccessChain %35 %22 %34 %34
+%36 = OpAccessChain %35 %28 %34 %34
 %37 = OpLoad %10 %36
 %38 = OpCompositeExtract %9 %37 0
 %39 = OpCompositeExtract %9 %37 1
 %40 = OpCompositeExtract %9 %37 2
 %41 = OpCompositeExtract %9 %37 3
-%42 = OpAccessChain %35 %29 %34 %34
+%42 = OpAccessChain %35 %32 %34 %34
 %43 = OpLoad %10 %42
 %44 = OpCompositeExtract %9 %43 0
 %45 = OpCompositeExtract %9 %43 1
@@ -156,22 +156,22 @@ OpBranch %104
 %49 = OpFAdd %9 %45 %39
 %50 = OpFAdd %9 %46 %40
 %51 = OpFAdd %9 %47 %41
-%52 = OpAccessChain %23 %8 %53
+%52 = OpAccessChain %21 %8 %53
 %54 = OpLoad %5 %52
-%55 = OpAccessChain %23 %8 %25
+%55 = OpAccessChain %21 %8 %23
 %56 = OpLoad %5 %55
-%57 = OpAccessChain %23 %8 %58
+%57 = OpAccessChain %21 %8 %58
 %59 = OpLoad %5 %57
-%60 = OpAccessChain %23 %8 %61
+%60 = OpAccessChain %21 %8 %61
 %62 = OpLoad %5 %60
 %64 = OpCompositeConstruct %63 %54 %56 %59 %62
 %65 = OpCompositeExtract %5 %64 0
 %66 = OpIAdd %5 %65 %53
-%68 = OpAccessChain %23 %8 %25
-%69 = OpLoad %5 %68
-%70 = OpIAdd %5 %69 %66
-%67 = OpAccessChain %21 %16 %70
-%71 = OpAccessChain %35 %67 %34 %34
+%67 = OpAccessChain %21 %8 %23
+%68 = OpLoad %5 %67
+%69 = OpIAdd %5 %68 %66
+%70 = OpAccessChain %27 %16 %69
+%71 = OpAccessChain %35 %70 %34 %34
 %72 = OpLoad %10 %71
 %73 = OpCompositeExtract %9 %72 0
 %74 = OpCompositeExtract %9 %72 1
@@ -182,11 +182,11 @@ OpBranch %104
 %79 = OpFAdd %9 %50 %75
 %80 = OpFAdd %9 %51 %76
 %81 = OpIAdd %5 %33 %82
-%84 = OpAccessChain %23 %8 %25
-%85 = OpLoad %5 %84
-%86 = OpIAdd %5 %85 %81
-%83 = OpAccessChain %21 %16 %86
-%87 = OpAccessChain %35 %83 %34 %34
+%83 = OpAccessChain %21 %8 %23
+%84 = OpLoad %5 %83
+%85 = OpIAdd %5 %84 %81
+%86 = OpAccessChain %27 %16 %85
+%87 = OpAccessChain %35 %86 %34 %34
 %88 = OpLoad %10 %87
 %89 = OpCompositeExtract %9 %88 0
 %90 = OpCompositeExtract %9 %88 1
@@ -202,7 +202,7 @@ OpStore %98 %93
 OpStore %99 %94
 %101 = OpAccessChain %97 %20 %102
 OpStore %101 %95
-%103 = OpAccessChain %97 %20 %28
+%103 = OpAccessChain %97 %20 %26
 OpStore %103 %96
 OpReturn
 OpFunctionEnd

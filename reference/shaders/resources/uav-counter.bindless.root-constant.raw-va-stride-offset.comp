@@ -117,9 +117,9 @@ OpDecorate %17 DescriptorSet 7
 OpDecorate %17 Binding 0
 OpDecorate %17 AliasedPointer
 OpDecorate %20 BuiltIn GlobalInvocationId
-OpDecorate %33 NonUniform
+OpDecorate %31 NonUniform
 OpDecorate %34 NonUniform
-OpDecorate %70 NonUniform
+OpDecorate %69 NonUniform
 OpDecorate %71 NonUniform
 %1 = OpTypeVoid
 %2 = OpTypeFunction %1
@@ -142,9 +142,9 @@ OpDecorate %71 NonUniform
 %21 = OpTypePointer Input %5
 %23 = OpConstant %5 0
 %26 = OpConstant %5 2
-%27 = OpTypePointer UniformConstant %9
-%29 = OpTypePointer PushConstant %5
-%31 = OpConstant %5 4
+%27 = OpTypePointer PushConstant %5
+%29 = OpConstant %5 4
+%32 = OpTypePointer UniformConstant %9
 %35 = OpTypePointer StorageBuffer %13
 %42 = OpConstant %5 3
 %44 = OpTypeFunction %5 %13 %5 %5
@@ -160,30 +160,30 @@ OpBranch %80
 %22 = OpAccessChain %21 %20 %23
 %24 = OpLoad %5 %22
 %25 = OpIAdd %5 %24 %26
-%30 = OpAccessChain %29 %8 %31
-%32 = OpLoad %5 %30
-%33 = OpIAdd %5 %32 %25
-%28 = OpAccessChain %27 %12 %33
-%34 = OpLoad %9 %28
-%37 = OpAccessChain %29 %8 %31
+%28 = OpAccessChain %27 %8 %29
+%30 = OpLoad %5 %28
+%31 = OpIAdd %5 %30 %25
+%33 = OpAccessChain %32 %12 %31
+%34 = OpLoad %9 %33
+%37 = OpAccessChain %27 %8 %29
 %38 = OpLoad %5 %37
 %39 = OpIAdd %5 %38 %25
-%40 = OpIMul %5 %31 %39
+%40 = OpIMul %5 %29 %39
 %41 = OpIAdd %5 %40 %42
 %36 = OpAccessChain %35 %17 %23 %41
 %43 = OpLoad %13 %36
 %64 = OpFunctionCall %5 %48 %43 %60 %23
 %65 = OpBitwiseXor %5 %24 %60
 %66 = OpIAdd %5 %65 %26
-%68 = OpAccessChain %29 %8 %31
-%69 = OpLoad %5 %68
-%70 = OpIAdd %5 %69 %66
-%67 = OpAccessChain %27 %12 %70
-%71 = OpLoad %9 %67
-%73 = OpAccessChain %29 %8 %31
+%67 = OpAccessChain %27 %8 %29
+%68 = OpLoad %5 %67
+%69 = OpIAdd %5 %68 %66
+%70 = OpAccessChain %32 %12 %69
+%71 = OpLoad %9 %70
+%73 = OpAccessChain %27 %8 %29
 %74 = OpLoad %5 %73
 %75 = OpIAdd %5 %74 %66
-%76 = OpIMul %5 %31 %75
+%76 = OpIMul %5 %29 %75
 %77 = OpIAdd %5 %76 %42
 %72 = OpAccessChain %35 %17 %23 %77
 %78 = OpLoad %13 %72

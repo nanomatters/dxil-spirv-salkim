@@ -199,33 +199,33 @@ OpDecorate %59 Binding 0
 OpDecorate %62 DescriptorSet 2
 OpDecorate %62 Binding 0
 OpDecorate %65 BuiltIn GlobalInvocationId
-OpDecorate %76 NonUniform
+OpDecorate %74 NonUniform
 OpDecorate %77 NonUniform
-OpDecorate %84 NonUniform
+OpDecorate %82 NonUniform
 OpDecorate %85 NonUniform
 OpDecorate %87 NonUniform
-OpDecorate %115 NonUniform
+OpDecorate %114 NonUniform
 OpDecorate %116 NonUniform
-OpDecorate %120 NonUniform
+OpDecorate %119 NonUniform
 OpDecorate %121 NonUniform
 OpDecorate %122 NonUniform
-OpDecorate %135 NonUniform
+OpDecorate %133 NonUniform
 OpDecorate %136 NonUniform
+OpDecorate %143 NonUniform
 OpDecorate %145 NonUniform
-OpDecorate %141 NonUniform
 OpDecorate %147 NonUniform
-OpDecorate %158 NonUniform
+OpDecorate %156 NonUniform
 OpDecorate %159 NonUniform
-OpDecorate %164 NonUniform
+OpDecorate %163 NonUniform
 OpDecorate %165 NonUniform
-OpDecorate %169 NonUniform
+OpDecorate %168 NonUniform
 OpDecorate %170 NonUniform
 OpDecorate %171 NonUniform
+OpDecorate %181 NonUniform
 OpDecorate %182 NonUniform
-OpDecorate %179 NonUniform
 OpDecorate %188 NonUniform
+OpDecorate %191 NonUniform
 OpDecorate %192 NonUniform
-OpDecorate %189 NonUniform
 OpDecorate %69 NonUniform
 OpDecorate %221 NonUniform
 OpDecorate %222 NonUniform
@@ -306,25 +306,25 @@ OpDecorate %286 NonUniform
 %65 = OpVariable %64 Input
 %66 = OpTypePointer Input %5
 %68 = OpConstant %5 0
-%71 = OpTypePointer UniformConstant %10
-%73 = OpTypePointer PushConstant %5
-%79 = OpTypePointer UniformConstant %14
-%82 = OpConstant %5 2
+%71 = OpTypePointer PushConstant %5
+%75 = OpTypePointer UniformConstant %10
+%80 = OpConstant %5 2
+%83 = OpTypePointer UniformConstant %14
 %86 = OpTypeSampledImage %10
 %88 = OpConstant %9 0.5
 %89 = OpConstant %9 0
 %91 = OpTypeVector %9 2
-%97 = OpTypePointer StorageBuffer %51
-%100 = OpConstant %5 4
-%103 = OpConstant %5 100
+%98 = OpConstant %5 4
+%101 = OpConstant %5 100
+%102 = OpTypePointer StorageBuffer %51
 %109 = OpTypePointer StorageBuffer %31
 %111 = OpConstant %5 264
-%130 = OpTypePointer UniformConstant %18
-%133 = OpConstant %5 3
-%140 = OpTypePointer Uniform %56
-%143 = OpConstant %5 5
+%131 = OpConstant %5 3
+%134 = OpTypePointer UniformConstant %18
+%141 = OpConstant %5 5
+%144 = OpTypePointer Uniform %56
 %146 = OpTypePointer Uniform %37
-%154 = OpTypePointer UniformConstant %22
+%157 = OpTypePointer UniformConstant %22
 %193 = OpTypePointer StorageBuffer %26
 %199 = OpTypeFunction %5 %26 %5 %5
 %207 = OpTypeBool
@@ -345,17 +345,17 @@ OpBranch %288
 %67 = OpAccessChain %66 %65 %68
 %69 = OpLoad %5 %67
 %70 = OpIAdd %5 %69 %68
-%74 = OpAccessChain %73 %8 %68
-%75 = OpLoad %5 %74
-%76 = OpIAdd %5 %75 %70
-%72 = OpAccessChain %71 %13 %76
-%77 = OpLoad %10 %72
+%72 = OpAccessChain %71 %8 %68
+%73 = OpLoad %5 %72
+%74 = OpIAdd %5 %73 %70
+%76 = OpAccessChain %75 %13 %74
+%77 = OpLoad %10 %76
 %78 = OpIAdd %5 %69 %68
-%81 = OpAccessChain %73 %8 %82
-%83 = OpLoad %5 %81
-%84 = OpIAdd %5 %83 %78
-%80 = OpAccessChain %79 %62 %84
-%85 = OpLoad %14 %80
+%79 = OpAccessChain %71 %8 %80
+%81 = OpLoad %5 %79
+%82 = OpIAdd %5 %81 %78
+%84 = OpAccessChain %83 %62 %82
+%85 = OpLoad %14 %84
 %87 = OpSampledImage %86 %77 %85
 %92 = OpCompositeConstruct %91 %88 %88
 %90 = OpImageSampleExplicitLod %37 %87 %92 Lod %89
@@ -363,28 +363,28 @@ OpBranch %288
 %94 = OpCompositeExtract %9 %90 1
 %95 = OpCompositeExtract %9 %90 2
 %96 = OpCompositeExtract %9 %90 3
-%99 = OpAccessChain %73 %8 %100
-%101 = OpLoad %5 %99
-%102 = OpIAdd %5 %101 %103
-%98 = OpAccessChain %97 %54 %102
+%97 = OpAccessChain %71 %8 %98
+%99 = OpLoad %5 %97
+%100 = OpIAdd %5 %99 %101
+%103 = OpAccessChain %102 %54 %100
 %104 = OpBitcast %5 %93
 %105 = OpBitcast %5 %94
 %106 = OpBitcast %5 %95
 %107 = OpBitcast %5 %96
 %108 = OpCompositeConstruct %31 %104 %105 %106 %107
-%110 = OpAccessChain %109 %98 %68 %69
+%110 = OpAccessChain %109 %103 %68 %69
 OpStore %110 %108
-OpControlBarrier %82 %82 %111
-%113 = OpAccessChain %73 %8 %68
-%114 = OpLoad %5 %113
-%115 = OpIAdd %5 %114 %70
-%112 = OpAccessChain %71 %13 %115
-%116 = OpLoad %10 %112
-%118 = OpAccessChain %73 %8 %82
-%119 = OpLoad %5 %118
-%120 = OpIAdd %5 %119 %78
-%117 = OpAccessChain %79 %62 %120
-%121 = OpLoad %14 %117
+OpControlBarrier %80 %80 %111
+%112 = OpAccessChain %71 %8 %68
+%113 = OpLoad %5 %112
+%114 = OpIAdd %5 %113 %70
+%115 = OpAccessChain %75 %13 %114
+%116 = OpLoad %10 %115
+%117 = OpAccessChain %71 %8 %80
+%118 = OpLoad %5 %117
+%119 = OpIAdd %5 %118 %78
+%120 = OpAccessChain %83 %62 %119
+%121 = OpLoad %14 %120
 %122 = OpSampledImage %86 %116 %121
 %124 = OpCompositeConstruct %91 %88 %88
 %123 = OpImageSampleExplicitLod %37 %122 %124 Lod %89
@@ -393,45 +393,45 @@ OpControlBarrier %82 %82 %111
 %127 = OpCompositeExtract %9 %123 2
 %128 = OpCompositeExtract %9 %123 3
 %129 = OpIAdd %5 %69 %68
-%132 = OpAccessChain %73 %8 %133
-%134 = OpLoad %5 %132
-%135 = OpIAdd %5 %134 %129
-%131 = OpAccessChain %130 %46 %135
-%136 = OpLoad %18 %131
+%130 = OpAccessChain %71 %8 %131
+%132 = OpLoad %5 %130
+%133 = OpIAdd %5 %132 %129
+%135 = OpAccessChain %134 %46 %133
+%136 = OpLoad %18 %135
 %137 = OpCompositeConstruct %26 %69 %68
 %138 = OpCompositeConstruct %37 %125 %126 %127 %128
 OpImageWrite %136 %137 %138
-OpControlBarrier %82 %82 %111
+OpControlBarrier %80 %80 %111
 %139 = OpIAdd %5 %69 %68
-%142 = OpAccessChain %73 %8 %143
-%144 = OpLoad %5 %142
-%145 = OpIAdd %5 %144 %139
-%141 = OpAccessChain %140 %59 %145
-%147 = OpAccessChain %146 %141 %68 %68
+%140 = OpAccessChain %71 %8 %141
+%142 = OpLoad %5 %140
+%143 = OpIAdd %5 %142 %139
+%145 = OpAccessChain %144 %59 %143
+%147 = OpAccessChain %146 %145 %68 %68
 %148 = OpLoad %37 %147
 %149 = OpCompositeExtract %9 %148 0
 %150 = OpCompositeExtract %9 %148 1
 %151 = OpCompositeExtract %9 %148 2
 %152 = OpCompositeExtract %9 %148 3
 %153 = OpIAdd %5 %69 %68
-%156 = OpAccessChain %73 %8 %100
-%157 = OpLoad %5 %156
-%158 = OpIAdd %5 %157 %153
-%155 = OpAccessChain %154 %49 %158
-%159 = OpLoad %22 %155
+%154 = OpAccessChain %71 %8 %98
+%155 = OpLoad %5 %154
+%156 = OpIAdd %5 %155 %153
+%158 = OpAccessChain %157 %49 %156
+%159 = OpLoad %22 %158
 %160 = OpCompositeConstruct %37 %149 %150 %151 %152
 OpImageWrite %159 %69 %160
-OpControlBarrier %82 %82 %111
-%162 = OpAccessChain %73 %8 %68
-%163 = OpLoad %5 %162
-%164 = OpIAdd %5 %163 %70
-%161 = OpAccessChain %71 %13 %164
-%165 = OpLoad %10 %161
-%167 = OpAccessChain %73 %8 %82
-%168 = OpLoad %5 %167
-%169 = OpIAdd %5 %168 %78
-%166 = OpAccessChain %79 %62 %169
-%170 = OpLoad %14 %166
+OpControlBarrier %80 %80 %111
+%161 = OpAccessChain %71 %8 %68
+%162 = OpLoad %5 %161
+%163 = OpIAdd %5 %162 %70
+%164 = OpAccessChain %75 %13 %163
+%165 = OpLoad %10 %164
+%166 = OpAccessChain %71 %8 %80
+%167 = OpLoad %5 %166
+%168 = OpIAdd %5 %167 %78
+%169 = OpAccessChain %83 %62 %168
+%170 = OpLoad %14 %169
 %171 = OpSampledImage %86 %165 %170
 %173 = OpCompositeConstruct %91 %88 %88
 %172 = OpImageSampleExplicitLod %37 %171 %173 Lod %89
@@ -440,39 +440,39 @@ OpControlBarrier %82 %82 %111
 %176 = OpCompositeExtract %9 %172 2
 %177 = OpCompositeExtract %9 %172 3
 %178 = OpIAdd %5 %69 %68
-%180 = OpAccessChain %73 %8 %100
-%181 = OpLoad %5 %180
-%182 = OpIAdd %5 %181 %178
-%179 = OpAccessChain %97 %54 %182
+%179 = OpAccessChain %71 %8 %98
+%180 = OpLoad %5 %179
+%181 = OpIAdd %5 %180 %178
+%182 = OpAccessChain %102 %54 %181
 %183 = OpBitcast %5 %174
 %184 = OpBitcast %5 %175
 %185 = OpBitcast %5 %176
 %186 = OpBitcast %5 %177
 %187 = OpCompositeConstruct %31 %183 %184 %185 %186
-%188 = OpAccessChain %109 %179 %68 %69
+%188 = OpAccessChain %109 %182 %68 %69
 OpStore %188 %187
-OpControlBarrier %82 %82 %111
-%190 = OpAccessChain %73 %8 %100
-%191 = OpLoad %5 %190
-%192 = OpIAdd %5 %191 %178
-%189 = OpAccessChain %97 %54 %192
-%195 = OpAccessChain %73 %8 %100
+OpControlBarrier %80 %80 %111
+%189 = OpAccessChain %71 %8 %98
+%190 = OpLoad %5 %189
+%191 = OpIAdd %5 %190 %178
+%192 = OpAccessChain %102 %54 %191
+%195 = OpAccessChain %71 %8 %98
 %196 = OpLoad %5 %195
 %197 = OpIAdd %5 %196 %178
 %194 = OpAccessChain %193 %30 %68 %197
 %198 = OpLoad %26 %194
 %219 = OpFunctionCall %5 %203 %198 %215 %68
-OpControlBarrier %82 %82 %111
-%220 = OpAccessChain %71 %13 %69
+OpControlBarrier %80 %80 %111
+%220 = OpAccessChain %75 %13 %69
 %221 = OpLoad %10 %220
-%222 = OpIAdd %5 %69 %103
-%223 = OpAccessChain %79 %17 %222
+%222 = OpIAdd %5 %69 %101
+%223 = OpAccessChain %83 %17 %222
 %224 = OpLoad %14 %223
 %225 = OpIAdd %5 %69 %226
-%227 = OpAccessChain %130 %21 %225
+%227 = OpAccessChain %134 %21 %225
 %228 = OpLoad %18 %227
 %229 = OpIAdd %5 %69 %230
-%231 = OpAccessChain %154 %25 %229
+%231 = OpAccessChain %157 %25 %229
 %232 = OpLoad %22 %231
 %233 = OpIAdd %5 %69 %234
 %236 = OpAccessChain %235 %36 %233
@@ -487,18 +487,18 @@ OpControlBarrier %82 %82 %111
 %247 = OpCompositeExtract %9 %244 1
 %248 = OpCompositeExtract %9 %244 2
 %249 = OpCompositeExtract %9 %244 3
-%251 = OpAccessChain %73 %8 %100
-%252 = OpLoad %5 %251
-%253 = OpIAdd %5 %252 %103
-%250 = OpAccessChain %97 %54 %253
+%250 = OpAccessChain %71 %8 %98
+%251 = OpLoad %5 %250
+%252 = OpIAdd %5 %251 %101
+%253 = OpAccessChain %102 %54 %252
 %254 = OpBitcast %5 %246
 %255 = OpBitcast %5 %247
 %256 = OpBitcast %5 %248
 %257 = OpBitcast %5 %249
 %258 = OpCompositeConstruct %31 %254 %255 %256 %257
-%259 = OpAccessChain %109 %250 %68 %69
+%259 = OpAccessChain %109 %253 %68 %69
 OpStore %259 %258
-OpControlBarrier %82 %82 %111
+OpControlBarrier %80 %80 %111
 %261 = OpCompositeConstruct %91 %88 %88
 %260 = OpImageSampleExplicitLod %37 %243 %261 Lod %89
 %262 = OpCompositeExtract %9 %260 0
@@ -508,7 +508,7 @@ OpControlBarrier %82 %82 %111
 %266 = OpCompositeConstruct %26 %69 %68
 %267 = OpCompositeConstruct %37 %262 %263 %264 %265
 OpImageWrite %228 %266 %267
-OpControlBarrier %82 %82 %111
+OpControlBarrier %80 %80 %111
 %268 = OpAccessChain %146 %242 %68 %68
 %269 = OpLoad %37 %268
 %270 = OpCompositeExtract %9 %269 0
@@ -517,7 +517,7 @@ OpControlBarrier %82 %82 %111
 %273 = OpCompositeExtract %9 %269 3
 %274 = OpCompositeConstruct %37 %270 %271 %272 %273
 OpImageWrite %232 %69 %274
-OpControlBarrier %82 %82 %111
+OpControlBarrier %80 %80 %111
 %276 = OpCompositeConstruct %91 %88 %88
 %275 = OpImageSampleExplicitLod %37 %243 %276 Lod %89
 %277 = OpCompositeExtract %9 %275 0
@@ -531,9 +531,9 @@ OpControlBarrier %82 %82 %111
 %285 = OpCompositeConstruct %31 %281 %282 %283 %284
 %286 = OpAccessChain %109 %236 %68 %69
 OpStore %286 %285
-OpControlBarrier %82 %82 %111
+OpControlBarrier %80 %80 %111
 %287 = OpFunctionCall %5 %203 %238 %215 %68
-OpControlBarrier %82 %82 %111
+OpControlBarrier %80 %80 %111
 OpReturn
 OpFunctionEnd
 %203 = OpFunction %5 None %199

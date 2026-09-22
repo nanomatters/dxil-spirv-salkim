@@ -405,9 +405,9 @@ OpDecorate %463 Binding 3
 %32 = OpTypePointer StorageBuffer %5
 %34 = OpConstant %5 0
 %36 = OpConstant %5 1103633207
-%39 = OpTypePointer UniformConstant %19
-%41 = OpTypePointer PushConstant %5
-%43 = OpConstant %5 4
+%39 = OpTypePointer PushConstant %5
+%41 = OpConstant %5 4
+%43 = OpTypePointer UniformConstant %19
 %45 = OpTypePointer StorageBuffer %9
 %50 = OpConstant %5 16
 %53 = OpTypeVector %5 3
@@ -505,30 +505,30 @@ OpBranch %452
 %452 = OpLabel
 %38 = OpFunctionCall %5 %28
 OpStore %18 %38
-%42 = OpAccessChain %41 %8 %43
-%44 = OpLoad %5 %42
-%46 = OpAccessChain %45 %16 %34 %44 %34 %34
+%40 = OpAccessChain %39 %8 %41
+%42 = OpLoad %5 %40
+%46 = OpAccessChain %45 %16 %34 %42 %34 %34
 %47 = OpLoad %9 %46
 %48 = OpCompositeExtract %5 %47 1
 %49 = OpShiftRightLogical %5 %48 %50
-%40 = OpAccessChain %39 %22 %44
-%51 = OpLoad %19 %40
+%44 = OpAccessChain %43 %22 %42
+%51 = OpLoad %19 %44
 %52 = OpImageQuerySize %5 %51
 %57 = OpAccessChain %56 %55 %34
 %58 = OpLoad %5 %57
 %59 = OpIMul %5 %58 %49
 %441 = OpLoad %5 %18
 %442 = OpULessThan %101 %58 %52
-%440 = OpFunctionCall %101 %117 %47 %59 %43 %147 %441 %442
+%440 = OpFunctionCall %101 %117 %47 %59 %41 %147 %441 %442
 %505 = OpFunctionCall %1 %467 %440 %10
-%444 = OpImageTexelPointer %443 %40 %58 %34
+%444 = OpImageTexelPointer %443 %44 %58 %34
 %445 = OpAtomicIAdd %5 %444 %10 %34 %10
 %446 = OpIMul %5 %58 %49
 %448 = OpLoad %5 %18
 %449 = OpULessThan %101 %58 %52
-%447 = OpFunctionCall %101 %117 %47 %446 %43 %147 %448 %449
+%447 = OpFunctionCall %101 %117 %47 %446 %41 %147 %448 %449
 %506 = OpFunctionCall %1 %467 %447 %147
-%450 = OpImageTexelPointer %443 %40 %58 %34
+%450 = OpImageTexelPointer %443 %44 %58 %34
 %451 = OpAtomicCompareExchange %5 %450 %10 %34 %34 %147 %10
 OpReturn
 OpFunctionEnd
@@ -546,7 +546,7 @@ OpFunctionEnd
 %64 = OpLabel
 %65 = OpCompositeExtract %5 %61 0
 %66 = OpCompositeExtract %5 %61 1
-%67 = OpShiftRightLogical %5 %65 %43
+%67 = OpShiftRightLogical %5 %65 %41
 %68 = OpBitwiseAnd %5 %66 %71
 %69 = OpCompositeConstruct %9 %67 %68
 %70 = OpCompositeConstruct %9 %62 %62
@@ -667,7 +667,7 @@ OpReturnValue %121
 %218 = OpIAdd %5 %217 %155
 %224 = OpVectorExtractDynamic %100 %223 %114
 %225 = OpShiftLeftLogical %5 %135 %50
-%226 = OpShiftLeftLogical %5 %145 %43
+%226 = OpShiftLeftLogical %5 %145 %41
 %227 = OpBitwiseOr %5 %135 %225
 %228 = OpBitwiseOr %5 %145 %226
 %229 = OpCompositeConstruct %9 %227 %228
@@ -840,7 +840,7 @@ OpReturnValue %121
 OpSelectionMerge %425 None
 OpSwitch %114 %424 0 %421 1 %422 2 %423
 %424 = OpLabel
-%433 = OpShiftLeftLogical %5 %145 %43
+%433 = OpShiftLeftLogical %5 %145 %41
 %434 = OpBitwiseAnd %5 %282 %433
 %435 = OpINotEqual %101 %434 %34
 OpBranch %425
@@ -884,7 +884,7 @@ OpBranchConditional %473 %470 %469
 %487 = OpArrayLength %5 %463 0
 %488 = OpISub %5 %487 %10
 %489 = OpBitwiseAnd %5 %486 %488
-%490 = OpShiftRightLogical %5 %489 %43
+%490 = OpShiftRightLogical %5 %489 %41
 %491 = OpBitwiseAnd %5 %489 %137
 %492 = OpShiftLeftLogical %5 %10 %491
 %493 = OpAccessChain %32 %459 %34 %490

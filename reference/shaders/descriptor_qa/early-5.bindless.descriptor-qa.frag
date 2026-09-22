@@ -215,9 +215,9 @@ OpDecorate %89 NonWritable
 %33 = OpConstant %5 1
 %35 = OpTypeBool
 %37 = OpConstant %9 0
-%38 = OpTypePointer UniformConstant %14
-%40 = OpTypePointer PushConstant %5
-%42 = OpConstant %5 3
+%38 = OpTypePointer PushConstant %5
+%40 = OpConstant %5 3
+%42 = OpTypePointer UniformConstant %14
 %45 = OpTypeVector %5 2
 %46 = OpTypeRuntimeArray %5
 %47 = OpTypeStruct %45 %5 %5 %5 %5 %5 %5 %5 %5 %5 %46
@@ -246,8 +246,8 @@ OpDecorate %89 NonWritable
 %111 = OpConstant %5 31
 %113 = OpConstant %5 10
 %138 = OpConstant %9 2
-%141 = OpTypePointer UniformConstant %10
-%147 = OpTypePointer UniformConstant %18
+%143 = OpTypePointer UniformConstant %10
+%149 = OpTypePointer UniformConstant %18
 %152 = OpTypeSampledImage %10
 %160 = OpTypePointer Output %9
 %3 = OpFunction %1 None %2
@@ -262,11 +262,11 @@ OpBranch %165
 OpSelectionMerge %167 None
 OpBranchConditional %36 %166 %167
 %166 = OpLabel
-%41 = OpAccessChain %40 %8 %42
-%43 = OpLoad %5 %41
-%44 = OpFunctionCall %5 %94 %43 %70 %33
-%39 = OpAccessChain %38 %17 %44
-%135 = OpLoad %14 %39
+%39 = OpAccessChain %38 %8 %40
+%41 = OpLoad %5 %39
+%44 = OpFunctionCall %5 %94 %41 %70 %33
+%43 = OpAccessChain %42 %17 %44
+%135 = OpLoad %14 %43
 %136 = OpConvertFToS %5 %31
 %137 = OpConvertFToS %5 %34
 %139 = OpCompositeConstruct %45 %136 %137
@@ -274,15 +274,15 @@ OpBranchConditional %36 %166 %167
 OpImageWrite %135 %139 %140
 OpBranch %167
 %167 = OpLabel
-%143 = OpAccessChain %40 %8 %30
-%144 = OpLoad %5 %143
-%145 = OpFunctionCall %5 %94 %144 %33 %70
-%142 = OpAccessChain %141 %13 %145
-%146 = OpLoad %10 %142
-%149 = OpAccessChain %40 %8 %70
-%150 = OpLoad %5 %149
-%148 = OpAccessChain %147 %21 %150
-%151 = OpLoad %18 %148
+%141 = OpAccessChain %38 %8 %30
+%142 = OpLoad %5 %141
+%145 = OpFunctionCall %5 %94 %142 %33 %70
+%144 = OpAccessChain %143 %13 %145
+%146 = OpLoad %10 %144
+%147 = OpAccessChain %38 %8 %70
+%148 = OpLoad %5 %147
+%150 = OpAccessChain %149 %21 %148
+%151 = OpLoad %18 %150
 %153 = OpSampledImage %152 %146 %151
 %155 = OpCompositeConstruct %22 %31 %34
 %154 = OpImageSampleImplicitLod %25 %153 %155 None
@@ -296,7 +296,7 @@ OpStore %161 %156
 OpStore %162 %157
 %163 = OpAccessChain %160 %27 %70
 OpStore %163 %158
-%164 = OpAccessChain %160 %27 %42
+%164 = OpAccessChain %160 %27 %40
 OpStore %164 %159
 OpReturn
 OpFunctionEnd
@@ -315,7 +315,7 @@ OpFunctionEnd
 OpSelectionMerge %66 None
 OpBranchConditional %64 %65 %66
 %65 = OpLabel
-%67 = OpAccessChain %60 %49 %42
+%67 = OpAccessChain %60 %49 %40
 OpStore %67 %53
 %68 = OpAccessChain %60 %49 %33
 OpStore %68 %52

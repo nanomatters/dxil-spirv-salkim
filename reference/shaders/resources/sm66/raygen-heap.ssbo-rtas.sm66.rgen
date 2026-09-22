@@ -94,8 +94,8 @@ OpDecorate %15 NonReadable
 %25 = OpConstant %5 3
 %26 = OpTypePointer StorageBuffer %6
 %29 = OpTypeAccelerationStructureKHR
-%31 = OpTypePointer UniformConstant %12
-%33 = OpConstant %5 1
+%31 = OpConstant %5 1
+%32 = OpTypePointer UniformConstant %12
 %35 = OpConstant %11 1
 %36 = OpConstant %11 0
 %37 = OpConstant %11 2
@@ -112,8 +112,8 @@ OpBranch %61
 %27 = OpAccessChain %26 %10 %23 %24
 %28 = OpLoad %6 %27
 %30 = OpConvertUToAccelerationStructureKHR %29 %28
-%32 = OpAccessChain %31 %15 %33
-%34 = OpLoad %12 %32
+%33 = OpAccessChain %32 %15 %31
+%34 = OpLoad %12 %33
 %41 = OpCompositeConstruct %40 %35 %37 %38
 %42 = OpCompositeConstruct %40 %36 %36 %35
 OpTraceRayKHR %30 %23 %23 %23 %23 %23 %41 %35 %42 %39 %22
@@ -125,7 +125,7 @@ OpTraceRayKHR %30 %23 %23 %23 %23 %23 %41 %35 %42 %39 %22
 %49 = OpCompositeExtract %11 %45 3
 %50 = OpCompositeConstruct %40 %35 %37 %38
 %51 = OpCompositeConstruct %40 %36 %36 %35
-OpTraceRayKHR %30 %23 %33 %23 %23 %23 %50 %35 %51 %39 %18
+OpTraceRayKHR %30 %23 %31 %23 %23 %23 %50 %35 %51 %39 %18
 %53 = OpInBoundsAccessChain %52 %18 %23
 %54 = OpLoad %11 %53
 %55 = OpFAdd %11 %54 %46

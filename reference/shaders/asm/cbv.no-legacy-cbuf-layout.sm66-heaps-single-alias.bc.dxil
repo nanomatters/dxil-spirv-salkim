@@ -71,11 +71,11 @@ OpDecorate %21 Location 0
 %19 = OpVariable %18 Uniform
 %20 = OpTypePointer Output %13
 %21 = OpVariable %20 Output
-%22 = OpTypePointer Uniform %9
-%24 = OpConstant %6 0
-%26 = OpConstant %6 1
-%27 = OpTypePointer Uniform %16
-%29 = OpConstant %6 2
+%22 = OpConstant %6 0
+%23 = OpTypePointer Uniform %9
+%25 = OpConstant %6 1
+%27 = OpConstant %6 2
+%28 = OpTypePointer Uniform %16
 %30 = OpTypePointer Uniform %5
 %37 = OpTypePointer Output %5
 %42 = OpConstant %6 3
@@ -83,20 +83,20 @@ OpDecorate %21 Location 0
 %4 = OpLabel
 OpBranch %43
 %43 = OpLabel
-%23 = OpAccessChain %22 %12 %24
-%25 = OpAccessChain %22 %12 %26
-%28 = OpAccessChain %27 %19 %29
-%31 = OpAccessChain %30 %25 %24 %26
+%24 = OpAccessChain %23 %12 %22
+%26 = OpAccessChain %23 %12 %25
+%29 = OpAccessChain %28 %19 %27
+%31 = OpAccessChain %30 %26 %22 %25
 %32 = OpLoad %5 %31
 %33 = OpBitcast %6 %32
-%34 = OpShiftRightLogical %6 %33 %29
-%35 = OpAccessChain %30 %23 %24 %34
+%34 = OpShiftRightLogical %6 %33 %27
+%35 = OpAccessChain %30 %24 %22 %34
 %36 = OpLoad %5 %35
-%38 = OpAccessChain %37 %21 %24
+%38 = OpAccessChain %37 %21 %22
 OpStore %38 %36
-%39 = OpAccessChain %37 %21 %26
+%39 = OpAccessChain %37 %21 %25
 OpStore %39 %36
-%40 = OpAccessChain %37 %21 %29
+%40 = OpAccessChain %37 %21 %27
 OpStore %40 %36
 %41 = OpAccessChain %37 %21 %42
 OpStore %41 %36

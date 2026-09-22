@@ -109,9 +109,9 @@ OpDecorate %16 BuiltIn FragCoord
 %14 = OpTypeVector %13 4
 %15 = OpTypePointer Input %14
 %16 = OpVariable %15 Input
-%17 = OpTypePointer UniformConstant %9
-%19 = OpTypePointer PushConstant %5
-%21 = OpConstant %5 4
+%17 = OpTypePointer PushConstant %5
+%19 = OpConstant %5 4
+%21 = OpTypePointer UniformConstant %9
 %24 = OpTypePointer Input %13
 %26 = OpConstant %5 0
 %29 = OpConstant %5 1
@@ -125,10 +125,10 @@ OpDecorate %16 BuiltIn FragCoord
 %4 = OpLabel
 OpBranch %80
 %80 = OpLabel
-%20 = OpAccessChain %19 %8 %21
-%22 = OpLoad %5 %20
-%18 = OpAccessChain %17 %12 %22
-%23 = OpLoad %9 %18
+%18 = OpAccessChain %17 %8 %19
+%20 = OpLoad %5 %18
+%22 = OpAccessChain %21 %12 %20
+%23 = OpLoad %9 %22
 %25 = OpAccessChain %24 %16 %26
 %27 = OpLoad %13 %25
 %28 = OpAccessChain %24 %16 %29
@@ -137,9 +137,9 @@ OpBranch %80
 %32 = OpConvertFToU %5 %30
 %33 = OpIMul %5 %32 %34
 %35 = OpIAdd %5 %33 %31
-%36 = OpShiftLeftLogical %5 %35 %21
-%37 = OpIMul %5 %35 %21
-%47 = OpFunctionCall %5 %41 %37 %21
+%36 = OpShiftLeftLogical %5 %35 %19
+%37 = OpIMul %5 %35 %19
+%47 = OpFunctionCall %5 %41 %37 %19
 OpBeginInvocationInterlockEXT
 %49 = OpImageRead %48 %23 %47
 %50 = OpCompositeExtract %5 %49 0
@@ -160,9 +160,9 @@ OpBeginInvocationInterlockEXT
 %67 = OpIAdd %5 %63 %29
 %68 = OpIAdd %5 %64 %56
 %69 = OpIAdd %5 %65 %60
-%70 = OpIAdd %5 %66 %21
-%71 = OpIMul %5 %35 %21
-%72 = OpFunctionCall %5 %41 %71 %21
+%70 = OpIAdd %5 %66 %19
+%71 = OpIMul %5 %35 %19
+%72 = OpFunctionCall %5 %41 %71 %19
 %73 = OpCompositeConstruct %48 %67 %67 %67 %67
 OpImageWrite %23 %72 %73
 %74 = OpCompositeConstruct %48 %68 %68 %68 %68

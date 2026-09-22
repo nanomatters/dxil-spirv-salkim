@@ -93,9 +93,9 @@ OpDecorate %16 BuiltIn FragCoord
 %14 = OpTypeVector %9 4
 %15 = OpTypePointer Input %14
 %16 = OpVariable %15 Input
-%17 = OpTypePointer UniformConstant %10
-%19 = OpTypePointer PushConstant %5
-%21 = OpConstant %5 3
+%17 = OpTypePointer PushConstant %5
+%19 = OpConstant %5 3
+%21 = OpTypePointer UniformConstant %10
 %24 = OpTypePointer Input %9
 %26 = OpConstant %5 0
 %29 = OpConstant %5 1
@@ -108,10 +108,10 @@ OpDecorate %16 BuiltIn FragCoord
 %4 = OpLabel
 OpBranch %50
 %50 = OpLabel
-%20 = OpAccessChain %19 %8 %21
-%22 = OpLoad %5 %20
-%18 = OpAccessChain %17 %13 %22
-%23 = OpLoad %10 %18
+%18 = OpAccessChain %17 %8 %19
+%20 = OpLoad %5 %18
+%22 = OpAccessChain %21 %13 %20
+%23 = OpLoad %10 %22
 %25 = OpAccessChain %24 %16 %26
 %27 = OpLoad %9 %25
 %28 = OpAccessChain %24 %16 %29

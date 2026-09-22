@@ -31,13 +31,13 @@ void main()
 {
     uint _36 = uint(int(gl_FragCoord.x));
     float _40 = uintBitsToFloat(imageLoad(_12[registers._m4 + 3u], int(_36)).x);
-    uint _58 = registers._m4 + (uvec4(registers._m4, registers._m5, registers._m6, registers._m7).x + 4u);
+    uint _57 = registers._m4 + (uvec4(registers._m4, registers._m5, registers._m6, registers._m7).x + 4u);
     uint _60 = _36 * 2u;
-    vec2 _71 = uintBitsToFloat(uvec2(imageLoad(_12[_58], int(_60)).x, imageLoad(_12[_58], int(_60 + 1u)).x));
+    vec2 _71 = uintBitsToFloat(uvec2(imageLoad(_12[_57], int(_60)).x, imageLoad(_12[_57], int(_60 + 1u)).x));
     float _74 = _71.x + _40;
-    uint _81 = registers._m4 + (INDEX + 100u);
+    uint _80 = registers._m4 + (INDEX + 100u);
     uint _83 = _36 * 3u;
-    vec3 _94 = uintBitsToFloat(uvec3(imageLoad(_12[nonuniformEXT(_81)], int(_83)).x, imageLoad(_12[nonuniformEXT(_81)], int(_83 + 1u)).x, imageLoad(_12[nonuniformEXT(_81)], int(_83 + 2u)).x));
+    vec3 _94 = uintBitsToFloat(uvec3(imageLoad(_12[nonuniformEXT(_80)], int(_83)).x, imageLoad(_12[nonuniformEXT(_80)], int(_83 + 1u)).x, imageLoad(_12[nonuniformEXT(_80)], int(_83 + 2u)).x));
     SV_Target.x = _94.x + _74;
     SV_Target.y = (_71.y + _40) + _94.y;
     SV_Target.z = _94.z + _74;
@@ -92,7 +92,7 @@ OpDecorate %16 BuiltIn FragCoord
 OpDecorate %18 Flat
 OpDecorate %18 Location 1
 OpDecorate %21 Location 0
-OpDecorate %81 NonUniform
+OpDecorate %80 NonUniform
 OpDecorate %82 NonUniform
 %1 = OpTypeVoid
 %2 = OpTypeFunction %1
@@ -113,10 +113,10 @@ OpDecorate %82 NonUniform
 %19 = OpTypeVector %13 3
 %20 = OpTypePointer Output %19
 %21 = OpVariable %20 Output
-%22 = OpTypePointer UniformConstant %9
-%24 = OpTypePointer PushConstant %5
-%26 = OpConstant %5 4
-%29 = OpConstant %5 3
+%22 = OpTypePointer PushConstant %5
+%24 = OpConstant %5 4
+%27 = OpConstant %5 3
+%28 = OpTypePointer UniformConstant %9
 %32 = OpTypePointer Input %13
 %34 = OpConstant %5 0
 %37 = OpTypeVector %5 4
@@ -134,11 +134,11 @@ OpDecorate %82 NonUniform
 %4 = OpLabel
 OpBranch %105
 %105 = OpLabel
-%25 = OpAccessChain %24 %8 %26
-%27 = OpLoad %5 %25
-%28 = OpIAdd %5 %27 %29
-%23 = OpAccessChain %22 %12 %28
-%30 = OpLoad %9 %23
+%23 = OpAccessChain %22 %8 %24
+%25 = OpLoad %5 %23
+%26 = OpIAdd %5 %25 %27
+%29 = OpAccessChain %28 %12 %26
+%30 = OpLoad %9 %29
 %31 = OpLoad %5 %18
 %33 = OpAccessChain %32 %16 %34
 %35 = OpLoad %13 %33
@@ -146,22 +146,22 @@ OpBranch %105
 %38 = OpImageRead %37 %30 %36
 %39 = OpCompositeExtract %5 %38 0
 %40 = OpBitcast %13 %39
-%41 = OpAccessChain %24 %8 %26
+%41 = OpAccessChain %22 %8 %24
 %42 = OpLoad %5 %41
-%43 = OpAccessChain %24 %8 %44
+%43 = OpAccessChain %22 %8 %44
 %45 = OpLoad %5 %43
-%46 = OpAccessChain %24 %8 %47
+%46 = OpAccessChain %22 %8 %47
 %48 = OpLoad %5 %46
-%49 = OpAccessChain %24 %8 %50
+%49 = OpAccessChain %22 %8 %50
 %51 = OpLoad %5 %49
 %52 = OpCompositeConstruct %37 %42 %45 %48 %51
 %53 = OpCompositeExtract %5 %52 0
-%54 = OpIAdd %5 %53 %26
-%56 = OpAccessChain %24 %8 %26
-%57 = OpLoad %5 %56
-%58 = OpIAdd %5 %57 %54
-%55 = OpAccessChain %22 %12 %58
-%59 = OpLoad %9 %55
+%54 = OpIAdd %5 %53 %24
+%55 = OpAccessChain %22 %8 %24
+%56 = OpLoad %5 %55
+%57 = OpIAdd %5 %56 %54
+%58 = OpAccessChain %28 %12 %57
+%59 = OpLoad %9 %58
 %60 = OpIMul %5 %36 %61
 %62 = OpImageRead %37 %59 %60
 %63 = OpCompositeExtract %5 %62 0
@@ -175,12 +175,12 @@ OpBranch %105
 %74 = OpFAdd %13 %72 %40
 %75 = OpFAdd %13 %73 %40
 %76 = OpIAdd %5 %31 %77
-%79 = OpAccessChain %24 %8 %26
-%80 = OpLoad %5 %79
-%81 = OpIAdd %5 %80 %76
-%78 = OpAccessChain %22 %12 %81
-%82 = OpLoad %9 %78
-%83 = OpIMul %5 %36 %29
+%78 = OpAccessChain %22 %8 %24
+%79 = OpLoad %5 %78
+%80 = OpIAdd %5 %79 %76
+%81 = OpAccessChain %28 %12 %80
+%82 = OpLoad %9 %81
+%83 = OpIMul %5 %36 %27
 %84 = OpImageRead %37 %82 %83
 %85 = OpCompositeExtract %5 %84 0
 %87 = OpIAdd %5 %83 %66

@@ -147,10 +147,10 @@ OpDecorate %33 BuiltIn LocalInvocationIndex
 %31 = OpVariable %30 Uniform
 %32 = OpTypePointer Input %5
 %33 = OpVariable %32 Input
-%35 = OpTypePointer StorageBuffer %8
-%37 = OpConstant %5 0
+%35 = OpConstant %5 0
+%36 = OpTypePointer StorageBuffer %8
 %38 = OpTypePointer StorageBuffer %13
-%41 = OpConstant %5 2
+%40 = OpConstant %5 2
 %42 = OpConstant %26 0
 %48 = OpTypePointer StorageBuffer %6
 %50 = OpConstant %5 5
@@ -165,32 +165,32 @@ OpDecorate %33 BuiltIn LocalInvocationIndex
 OpBranch %111
 %111 = OpLabel
 %34 = OpLoad %5 %33
-%36 = OpAccessChain %35 %11 %37
+%37 = OpAccessChain %36 %11 %35
 %39 = OpAccessChain %38 %16 %25
-%40 = OpAccessChain %38 %16 %41
+%41 = OpAccessChain %38 %16 %40
 %43 = OpBitcast %5 %42
 %44 = OpBitcast %5 %42
 %45 = OpBitcast %5 %42
 %46 = OpBitcast %5 %42
 %47 = OpCompositeConstruct %6 %43 %44 %45 %46
-%49 = OpAccessChain %48 %36 %37 %34
+%49 = OpAccessChain %48 %37 %35 %34
 OpStore %49 %47 MakePointerAvailable|NonPrivatePointer %50
-%52 = OpAccessChain %51 %31 %37 %37
+%52 = OpAccessChain %51 %31 %35 %35
 %53 = OpLoad %27 %52
 %54 = OpBitcast %6 %53
 %55 = OpCompositeExtract %5 %54 0
-%57 = OpIEqual %56 %55 %37
+%57 = OpIEqual %56 %55 %35
 OpSelectionMerge %119 None
 OpBranchConditional %57 %119 %112
 %112 = OpLabel
 OpBranch %113
 %113 = OpLabel
-%71 = OpPhi %5 %37 %112 %72 %117
+%71 = OpPhi %5 %35 %112 %72 %117
 %73 = OpShiftLeftLogical %5 %71 %74
 %75 = OpIAdd %5 %73 %34
-%77 = OpAccessChain %76 %20 %37 %75
+%77 = OpAccessChain %76 %20 %35 %75
 %78 = OpLoad %5 %77
-OpControlBarrier %41 %41 %79
+OpControlBarrier %40 %40 %79
 %80 = OpULessThan %56 %78 %81
 OpLoopMerge %118 %117 None
 OpBranch %114
@@ -198,14 +198,14 @@ OpBranch %114
 OpSelectionMerge %116 None
 OpBranchConditional %80 %115 %116
 %115 = OpLabel
-%82 = OpAccessChain %48 %24 %37 %75
+%82 = OpAccessChain %48 %24 %35 %75
 %83 = OpLoad %6 %82
 %84 = OpBitcast %27 %83
 %85 = OpCompositeExtract %26 %84 0
 %86 = OpCompositeExtract %26 %84 1
 %87 = OpCompositeExtract %26 %84 2
 %88 = OpCompositeExtract %26 %84 3
-%89 = OpAccessChain %48 %36 %37 %78
+%89 = OpAccessChain %48 %37 %35 %78
 %90 = OpLoad %6 %89 MakePointerVisible|NonPrivatePointer %50
 %91 = OpBitcast %27 %90
 %92 = OpCompositeExtract %26 %91 0
@@ -221,14 +221,14 @@ OpBranchConditional %80 %115 %116
 %102 = OpBitcast %5 %98
 %103 = OpBitcast %5 %99
 %104 = OpCompositeConstruct %6 %100 %101 %102 %103
-%105 = OpAccessChain %48 %36 %37 %78
+%105 = OpAccessChain %48 %37 %35 %78
 OpStore %105 %104 MakePointerAvailable|NonPrivatePointer %50
 OpBranch %116
 %116 = OpLabel
 OpBranch %117
 %117 = OpLabel
 %72 = OpIAdd %5 %71 %25
-%106 = OpAccessChain %51 %31 %37 %37
+%106 = OpAccessChain %51 %31 %35 %35
 %107 = OpLoad %27 %106
 %108 = OpBitcast %6 %107
 %109 = OpCompositeExtract %5 %108 0
@@ -237,7 +237,7 @@ OpBranchConditional %110 %113 %118
 %118 = OpLabel
 OpBranch %119
 %119 = OpLabel
-%58 = OpAccessChain %48 %39 %37 %34
+%58 = OpAccessChain %48 %39 %35 %34
 %59 = OpLoad %6 %58 NonPrivatePointer
 %60 = OpBitcast %27 %59
 %61 = OpCompositeExtract %26 %60 0
@@ -249,7 +249,7 @@ OpBranch %119
 %67 = OpBitcast %5 %63
 %68 = OpBitcast %5 %64
 %69 = OpCompositeConstruct %6 %65 %66 %67 %68
-%70 = OpAccessChain %48 %40 %37 %34
+%70 = OpAccessChain %48 %41 %35 %34
 OpStore %70 %69 NonPrivatePointer
 OpReturn
 OpFunctionEnd

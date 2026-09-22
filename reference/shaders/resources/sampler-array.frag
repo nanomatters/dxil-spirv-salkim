@@ -59,13 +59,13 @@ OpDecorate %20 Location 0
 %18 = OpTypeVector %5 4
 %19 = OpTypePointer Output %18
 %20 = OpVariable %19 Output
-%22 = OpTypePointer UniformConstant %9
-%24 = OpConstant %13 2
+%22 = OpConstant %13 2
+%23 = OpTypePointer UniformConstant %9
 %26 = OpTypeSampledImage %6
 %28 = OpConstant %5 0.5
 %29 = OpConstant %5 0
 %31 = OpTypeVector %5 2
-%38 = OpConstant %13 3
+%37 = OpConstant %13 3
 %51 = OpTypePointer Output %5
 %53 = OpConstant %13 0
 %55 = OpConstant %13 1
@@ -74,8 +74,8 @@ OpDecorate %20 Location 0
 OpBranch %58
 %58 = OpLabel
 %21 = OpLoad %6 %8
-%23 = OpAccessChain %22 %12 %24
-%25 = OpLoad %9 %23
+%24 = OpAccessChain %23 %12 %22
+%25 = OpLoad %9 %24
 %27 = OpSampledImage %26 %21 %25
 %32 = OpCompositeConstruct %31 %28 %28
 %30 = OpImageSampleImplicitLod %18 %27 %32 None
@@ -83,8 +83,8 @@ OpBranch %58
 %34 = OpCompositeExtract %5 %30 1
 %35 = OpCompositeExtract %5 %30 2
 %36 = OpCompositeExtract %5 %30 3
-%37 = OpAccessChain %22 %17 %38
-%39 = OpLoad %9 %37
+%38 = OpAccessChain %23 %17 %37
+%39 = OpLoad %9 %38
 %40 = OpSampledImage %26 %21 %39
 %42 = OpCompositeConstruct %31 %28 %28
 %41 = OpImageSampleImplicitLod %18 %40 %42 None
@@ -100,9 +100,9 @@ OpBranch %58
 OpStore %52 %47
 %54 = OpAccessChain %51 %20 %55
 OpStore %54 %48
-%56 = OpAccessChain %51 %20 %24
+%56 = OpAccessChain %51 %20 %22
 OpStore %56 %49
-%57 = OpAccessChain %51 %20 %38
+%57 = OpAccessChain %51 %20 %37
 OpStore %57 %50
 OpReturn
 OpFunctionEnd

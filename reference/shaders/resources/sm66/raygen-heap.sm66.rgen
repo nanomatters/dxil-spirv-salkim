@@ -74,11 +74,11 @@ OpDecorate %13 NonReadable
 %18 = OpTypeStruct %17
 %19 = OpTypePointer RayPayloadKHR %18
 %20 = OpVariable %19 RayPayloadKHR
-%21 = OpTypePointer UniformConstant %5
-%23 = OpTypeInt 32 0
-%24 = OpConstant %23 0
-%26 = OpTypePointer UniformConstant %10
-%28 = OpConstant %23 1
+%21 = OpTypeInt 32 0
+%22 = OpConstant %21 0
+%23 = OpTypePointer UniformConstant %5
+%26 = OpConstant %21 1
+%27 = OpTypePointer UniformConstant %10
 %30 = OpConstant %9 1
 %31 = OpConstant %9 0
 %32 = OpConstant %9 2
@@ -87,19 +87,19 @@ OpDecorate %13 NonReadable
 %35 = OpTypeVector %9 3
 %38 = OpTypePointer RayPayloadKHR %17
 %47 = OpTypePointer RayPayloadKHR %9
-%54 = OpTypeVector %23 2
+%54 = OpTypeVector %21 2
 %3 = OpFunction %1 None %2
 %4 = OpLabel
 OpBranch %57
 %57 = OpLabel
-%22 = OpAccessChain %21 %8 %24
-%25 = OpLoad %5 %22
-%27 = OpAccessChain %26 %13 %28
-%29 = OpLoad %10 %27
+%24 = OpAccessChain %23 %8 %22
+%25 = OpLoad %5 %24
+%28 = OpAccessChain %27 %13 %26
+%29 = OpLoad %10 %28
 %36 = OpCompositeConstruct %35 %30 %32 %33
 %37 = OpCompositeConstruct %35 %31 %31 %30
-OpTraceRayKHR %25 %24 %24 %24 %24 %24 %36 %30 %37 %34 %20
-%39 = OpInBoundsAccessChain %38 %20 %24
+OpTraceRayKHR %25 %22 %22 %22 %22 %22 %36 %30 %37 %34 %20
+%39 = OpInBoundsAccessChain %38 %20 %22
 %40 = OpLoad %17 %39
 %41 = OpCompositeExtract %9 %40 0
 %42 = OpCompositeExtract %9 %40 1
@@ -107,14 +107,14 @@ OpTraceRayKHR %25 %24 %24 %24 %24 %24 %36 %30 %37 %34 %20
 %44 = OpCompositeExtract %9 %40 3
 %45 = OpCompositeConstruct %35 %30 %32 %33
 %46 = OpCompositeConstruct %35 %31 %31 %30
-OpTraceRayKHR %25 %24 %28 %24 %24 %24 %45 %30 %46 %34 %16
-%48 = OpInBoundsAccessChain %47 %16 %24
+OpTraceRayKHR %25 %22 %26 %22 %22 %22 %45 %30 %46 %34 %16
+%48 = OpInBoundsAccessChain %47 %16 %22
 %49 = OpLoad %9 %48
 %50 = OpFAdd %9 %49 %41
 %51 = OpFAdd %9 %49 %42
 %52 = OpFAdd %9 %49 %43
 %53 = OpFAdd %9 %49 %44
-%55 = OpCompositeConstruct %54 %24 %24
+%55 = OpCompositeConstruct %54 %22 %22
 %56 = OpCompositeConstruct %17 %50 %51 %52 %53
 OpImageWrite %29 %55 %56
 OpReturn
