@@ -113,7 +113,7 @@ OpBranch %86
 %69 = OpShiftLeftLogical %5 %20 %70
 %71 = OpIAdd %5 %69 %72
 %76 = OpRawAccessChainNV %75 %9 %19 %19 %71 RobustnessPerComponentNV
-%77 = OpLoad %74 %76 Aligned 32
+%77 = OpLoad %74 %76 Aligned 16
 %79 = OpFunctionCall %5 %30 %20 %37
 %78 = OpRawAccessChainNV %25 %13 %37 %79 %19 RobustnessPerElementNV
 OpStore %78 %38 Aligned 4
@@ -126,7 +126,7 @@ OpStore %81 %59 Aligned 8
 %84 = OpRawAccessChainNV %66 %13 %19 %19 %62 RobustnessPerComponentNV
 OpStore %84 %68 Aligned 8
 %85 = OpRawAccessChainNV %75 %13 %19 %19 %71 RobustnessPerComponentNV
-OpStore %85 %77 Aligned 32
+OpStore %85 %77 Aligned 16
 OpReturn
 OpFunctionEnd
 %30 = OpFunction %5 None %27

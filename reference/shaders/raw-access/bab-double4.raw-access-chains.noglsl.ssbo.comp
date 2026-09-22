@@ -101,7 +101,7 @@ OpStore %69 %70 Aligned 8
 %71 = OpShiftLeftLogical %5 %18 %8
 %72 = OpAccessChain %21 %11 %20
 %73 = OpRawAccessChainNV %25 %72 %17 %17 %71 RobustnessPerComponentNV
-%74 = OpLoad %24 %73 Aligned 32
+%74 = OpLoad %24 %73 Aligned 16
 %75 = OpCompositeExtract %23 %74 0
 %76 = OpCompositeExtract %23 %74 1
 %77 = OpCompositeExtract %23 %74 2
@@ -112,7 +112,7 @@ OpStore %69 %70 Aligned 8
 %82 = OpFAdd %23 %78 %33
 %83 = OpRawAccessChainNV %25 %72 %17 %17 %71 RobustnessPerComponentNV
 %84 = OpCompositeConstruct %24 %79 %80 %81 %82
-OpStore %83 %84 Aligned 32
+OpStore %83 %84 Aligned 16
 %85 = OpIMul %5 %18 %86
 %87 = OpAccessChain %21 %11 %40
 %88 = OpRawAccessChainNV %25 %87 %17 %17 %85 RobustnessPerComponentNV
