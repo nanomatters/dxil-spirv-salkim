@@ -25,16 +25,20 @@
 #include "thread_local_allocator.hpp"
 #include <assert.h>
 #include <stdint.h>
+#include <array>
 #include <memory>
+#include <mutex>
 
 namespace dxil_spv
 {
 static constexpr size_t BLOCK_SIZE = 64 * 1024;
+static constexpr size_t CACHED_BLOCK_COUNT = 128;
+static constexpr size_t CACHED_ALLOCATOR_COUNT = 4;
 
 class ChainAllocator
 {
 public:
-	void reset();
+	bool reset(size_t max_blocks = SIZE_MAX);
 	void *allocate(size_t size);
 
 private:
@@ -83,12 +87,29 @@ void *ChainAllocator::Block::allocate(size_t size)
 
 static thread_local ChainAllocator *allocator;
 
-void ChainAllocator::reset()
+// Bound idle memory across all threads, without thread-exit callbacks which
+// can keep a compiler DLL loaded. Active contexts never share an allocator.
+static std::mutex allocator_cache_mutex;
+static std::array<std::unique_ptr<ChainAllocator>, CACHED_ALLOCATOR_COUNT> allocator_cache;
+static size_t allocator_cache_count;
+
+bool ChainAllocator::reset(size_t max_blocks)
 {
+	// Discard oversized arenas rather than allocate metadata while shrinking
+	// them. Cleanup must not allocate, especially after an allocation failure.
+	if (blocks.capacity() > max_blocks)
+		return false;
+	// A failed allocation must not leave an unusable block in the next context.
+	if (!blocks.empty() && !blocks.back().block)
+		blocks.pop_back();
+
 	for (auto &block : blocks)
 		block.offset = 0;
 	block_index = 0;
 	huge_blocks.clear();
+	if (max_blocks != SIZE_MAX)
+		std::vector<Block>().swap(huge_blocks);
+	return true;
 }
 
 bool ChainAllocator::ensure_block()
@@ -144,14 +165,27 @@ void free_in_thread(void *ptr)
 void begin_thread_allocator_context()
 {
 	assert(!allocator);
-	allocator = new ChainAllocator;
+	{
+		std::lock_guard<std::mutex> holder(allocator_cache_mutex);
+		if (allocator_cache_count)
+			allocator = allocator_cache[--allocator_cache_count].release();
+	}
+	if (!allocator)
+		allocator = new ChainAllocator;
 }
 
 void end_thread_allocator_context()
 {
 	assert(allocator);
-	delete allocator;
+	std::unique_ptr<ChainAllocator> retired(allocator);
 	allocator = nullptr;
+	if (!retired->reset(CACHED_BLOCK_COUNT))
+		return;
+	{
+		std::lock_guard<std::mutex> holder(allocator_cache_mutex);
+		if (allocator_cache_count < allocator_cache.size())
+			allocator_cache[allocator_cache_count++] = std::move(retired);
+	}
 }
 
 void reset_thread_allocator_context()

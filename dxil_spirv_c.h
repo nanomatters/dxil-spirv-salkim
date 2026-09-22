@@ -1148,6 +1148,8 @@ DXIL_SPV_PUBLIC_API dxil_spv_result dxil_spv_converter_set_meta_descriptor(
 /* Use an optimized allocation scheme.
  * Call begin before allocating any dxil_spv objects,
  * and end after all dxil_spv created by this thread is destroyed.
+ * End deactivates the context but may retain a bounded amount of storage for
+ * later contexts. Allocations outside a context still use the ordinary heap.
  * Reset is an optimized variant of end() -> begin(). Useful if compiling multiple shaders one after another. */
 DXIL_SPV_PUBLIC_API void dxil_spv_begin_thread_allocator_context(void);
 DXIL_SPV_PUBLIC_API void dxil_spv_end_thread_allocator_context(void);

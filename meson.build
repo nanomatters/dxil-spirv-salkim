@@ -3,6 +3,7 @@ project('dxil-spirv', ['cpp'], version : '0.0', meson_version : '>= 0.49', defau
 dxil_spirv_compiler      = meson.get_compiler('cpp')
 dxil_spirv_cpp_std       = 'c++14'
 dxil_spirv_warning_level = '2' # Equivelant of -Wall -Wextra
+dxil_spirv_threads_dep   = dependency('threads')
 
 add_project_arguments('-DAMD_EXTENSIONS',          language : 'cpp')
 add_project_arguments('-DHAVE_LLVMBC',             language : 'cpp')
@@ -113,6 +114,7 @@ dxbc_spv_module = static_library('dxbc_spv_module', files('bc/module_dxbc_ir.cpp
 
 dxil_spirv_lib = static_library('dxil-spirv', dxil_spirv_src,
   include_directories : [ dxil_spirv_include_dirs ],
+  dependencies        : [ dxil_spirv_threads_dep ],
   link_with           : [ dxbc_spv_module ],
   override_options    : [
     'cpp_std='       + dxil_spirv_cpp_std,
@@ -121,4 +123,5 @@ dxil_spirv_lib = static_library('dxil-spirv', dxil_spirv_src,
 
 dxil_spirv_dep = declare_dependency(
   include_directories : include_directories('.'),
+  dependencies        : [ dxil_spirv_threads_dep ],
   link_with           : [ dxil_spirv_lib ])
