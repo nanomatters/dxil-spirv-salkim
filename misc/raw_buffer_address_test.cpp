@@ -93,10 +93,57 @@ static void test_bitwise()
 	}
 }
 
+static void test_arithmetic()
+{
+	for (Op opcode : { Op::Add, Op::Sub })
+	for (bool constant_lhs : { false, true })
+	for (uint32_t scale : { 4u, 16u, 32u })
+	for (uint32_t bias : { 0u, 16u, 256u, 0xfffffff0u })
+	{
+		llvm::LLVMContext context;
+		auto *type = llvm::Type::getInt32Ty(context);
+		llvm::Argument index(type, 0);
+		llvm::ConstantInt factor(type, scale);
+		llvm::ConstantInt constant(type, bias);
+		llvm::BinaryOperator scaled(&index, &factor, Op::Mul);
+		llvm::BinaryOperator address(constant_lhs ? static_cast<llvm::Value *>(&constant) : &scaled,
+		                             constant_lhs ? static_cast<llvm::Value *>(&scaled) : &constant, opcode);
+		bool reversed_sub = opcode == Op::Sub && constant_lhs;
+
+		for (unsigned stride : { 1u, 4u, 16u })
+		for (unsigned vecsize : { 1u, 2u, 4u })
+		{
+			unsigned element_size = 4 * vecsize;
+			dxil_spv::RawBufferAccessSplit split = {};
+			bool result = dxil_spv::extract_raw_buffer_access_split(&address, stride, 2, vecsize, split);
+			bool aligned = reversed_sub ? stride % element_size == 0 :
+			               (uint64_t(scale) * stride) % element_size == 0 &&
+			               (int64_t(int32_t(bias)) * stride) % element_size == 0;
+			check(result == aligned);
+			if (!result)
+				continue;
+			// A constant on the left of subtraction must remain in the dynamic expression.
+			check(split.dynamic_index == (reversed_sub ? static_cast<llvm::Value *>(&address) : &index));
+
+			for (uint32_t input : { 0u, 1u, 2u, 15u, 16u, 17u, 31u, 0x10000000u,
+			                        0x7fffffffu, 0x80000000u, 0xffffffffu })
+			{
+				uint32_t product = input * scale;
+				uint32_t expected = opcode == Op::Add ? product + bias :
+				                    constant_lhs ? bias - product : product - bias;
+				uint32_t dynamic = reversed_sub ? expected : input;
+				uint32_t actual = uint32_t((split.scale * dynamic + uint64_t(split.bias)) * element_size);
+				check(actual == expected * stride);
+			}
+		}
+	}
+}
+
 int main()
 {
 	dxil_spv::begin_thread_allocator_context();
 	test_bitwise();
+	test_arithmetic();
 	dxil_spv::end_thread_allocator_context();
 	std::puts("Raw buffer address tests passed.");
 }
