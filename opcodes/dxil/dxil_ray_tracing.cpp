@@ -756,7 +756,9 @@ bool emit_hit_object_from_ray_query_instruction(Converter::Impl &impl, const llv
 	builder.addExtension("SPV_EXT_shader_invocation_reorder");
 	builder.addCapability(spv::CapabilityShaderInvocationReorderEXT);
 
-	spv::Id ray_query = impl.get_id_for_value(inst->getOperand(1));
+	spv::Id ray_query;
+	if (!build_ray_query_object(impl, inst->getOperand(1), ray_query))
+		return false;
 
 	spv::Id hit_object;
 	if (!build_hit_object(impl, inst, hit_object))
@@ -787,7 +789,9 @@ bool emit_hit_object_from_ray_query_with_attrs_instruction(Converter::Impl &impl
 	builder.addExtension("SPV_EXT_shader_invocation_reorder");
 	builder.addCapability(spv::CapabilityShaderInvocationReorderEXT);
 
-	spv::Id ray_query = impl.get_id_for_value(inst->getOperand(1));
+	spv::Id ray_query;
+	if (!build_ray_query_object(impl, inst->getOperand(1), ray_query))
+		return false;
 	spv::Id hit_kind = impl.get_id_for_value(inst->getOperand(2));
 	spv::Id attributes = impl.get_id_for_value(inst->getOperand(3));
 

@@ -1,0 +1,27 @@
+using namespace dx;
+RaytracingAccelerationStructure AS : register(t0);
+RWStructuredBuffer<uint> Output : register(u0);
+
+struct Attributes { float2 uv; };
+
+[shader("raygeneration")]
+void main()
+{
+#ifdef DIRECT_QUERY
+    RayQuery<RAY_FLAG_NONE> query;
+#else
+    RayQuery<RAY_FLAG_NONE, RAYQUERY_FLAG_ALLOW_OPACITY_MICROMAPS> query;
+#endif
+    RayDesc ray;
+    ray.Origin = float3(0, 0, 0);
+    ray.Direction = float3(0, 0, 1);
+    ray.TMin = 0;
+    ray.TMax = 100;
+    query.TraceRayInline(AS, RAY_FLAG_NONE, 255, ray);
+    while (query.Proceed()) {}
+    Attributes attributes;
+    attributes.uv = float2(1, 2);
+    HitObject plain = HitObject::FromRayQuery(query);
+    HitObject custom = HitObject::FromRayQuery(query, 1, attributes);
+    Output[DispatchRaysIndex().x] = uint(plain.IsHit()) + uint(custom.IsHit());
+}
