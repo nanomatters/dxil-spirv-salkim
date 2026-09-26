@@ -64,9 +64,29 @@ static void test_neutral_value(unsigned width, unsigned lanes, bool native, bool
 	check(block.back()->argument(2) == select->id);
 }
 
+static void test_uniform_analysis_budget()
+{
+	llvm::LLVMContext context;
+	LLVMBCParser parser;
+	SPIRVModule module;
+	Converter::Impl impl(parser, nullptr, module);
+	auto *type = llvm::Type::getInt32Ty(context);
+	llvm::ConstantInt constant(type, 3);
+	check(value_is_statically_wave_uniform(impl, &constant));
+	llvm::Value *value = &constant;
+	// No constant folding in this synthetic DAG. Without a shared budget this
+	// visits the same nodes 2^128 times instead of returning conservatively.
+	for (unsigned i = 0; i < 128; i++)
+		value = context.construct<llvm::BinaryOperator>(value, value, llvm::Instruction::Mul);
+	check(!value_is_statically_wave_uniform(impl, value));
+	// The budget is per query; previous exhaustion must not affect later calls.
+	check(value_is_statically_wave_uniform(impl, &constant));
+}
+
 int main()
 {
 	begin_thread_allocator_context();
+	test_uniform_analysis_budget();
 	unsigned cases = 0;
 	for (unsigned width : { 16u, 32u, 64u })
 	for (unsigned lanes : { 1u, 2u, 4u, 8u })
