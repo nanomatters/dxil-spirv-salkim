@@ -239,17 +239,23 @@ static DXIL::Semantic convert_semantic(ir::BuiltIn builtin)
 	}
 }
 
-static DXIL::InterpolationMode convert_interpolation_mode(ir::InterpolationMode mode)
+static DXIL::InterpolationMode convert_interpolation_mode(uint32_t mode)
 {
 	switch (mode)
 	{
-	case ir::InterpolationMode::eCentroid:
+	case 0:
+		return DXIL::InterpolationMode::Linear;
+	case uint32_t(ir::InterpolationMode::eCentroid):
 		return DXIL::InterpolationMode::LinearCentroid;
-	case ir::InterpolationMode::eNoPerspective:
+	case uint32_t(ir::InterpolationMode::eNoPerspective):
 		return DXIL::InterpolationMode::LinearNoperspective;
-	case ir::InterpolationMode::eFlat:
+	case uint32_t(ir::InterpolationMode::eNoPerspective) | uint32_t(ir::InterpolationMode::eCentroid):
+		return DXIL::InterpolationMode::LinearNoperspectiveCentroid;
+	case uint32_t(ir::InterpolationMode::eNoPerspective) | uint32_t(ir::InterpolationMode::eSample):
+		return DXIL::InterpolationMode::LinearNoperspectiveSample;
+	case uint32_t(ir::InterpolationMode::eFlat):
 		return DXIL::InterpolationMode::Constant;
-	case ir::InterpolationMode::eSample:
+	case uint32_t(ir::InterpolationMode::eSample):
 		return DXIL::InterpolationMode::LinearSample;
 	default:
 		return DXIL::InterpolationMode::Undefined;
@@ -3035,7 +3041,7 @@ MDNode *ParseContext::create_stage_io_meta()
 
 			auto interpolation = DXIL::InterpolationMode::Invalid;
 			if (is_input)
-				interpolation = convert_interpolation_mode(ir::InterpolationMode(io.op->getOperand(is_user ? 3 : 2)));
+				interpolation = convert_interpolation_mode(uint32_t(io.op->getOperand(is_user ? 3 : 2)));
 
 			bool is_geom = shader_stage == ir::ShaderStage::eGeometry;
 			bool is_tess = shader_stage == ir::ShaderStage::eHull || shader_stage == ir::ShaderStage::eDomain;
