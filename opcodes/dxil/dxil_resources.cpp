@@ -1650,7 +1650,7 @@ static bool emit_create_handle(Converter::Impl &impl, const llvm::CallInst *inst
 			if (offset_buffer_id)
 			{
 				offset_id = build_load_buffer_offset(impl, reference, incoming_meta,
-				                                     offset_buffer_id, offset_id, non_uniform);
+				                                     offset_buffer_id, offset_id, is_non_uniform);
 			}
 			else
 				offset_id = 0;
@@ -1770,7 +1770,7 @@ static bool emit_create_handle(Converter::Impl &impl, const llvm::CallInst *inst
 			if (offset_buffer_id)
 			{
 				offset_id = build_load_buffer_offset(impl, reference, incoming_meta,
-				                                     offset_buffer_id, offset_id, non_uniform);
+				                                     offset_buffer_id, offset_id, is_non_uniform);
 			}
 			else
 				offset_id = 0;
