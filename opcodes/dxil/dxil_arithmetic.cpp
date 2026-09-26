@@ -685,6 +685,8 @@ bool emit_dxil_std450_trinary_instruction(GLSLstd450 opcode, Converter::Impl &im
 		op->add_id(impl.get_id_for_value(instruction->getOperand(i)));
 
 	impl.add(op);
+	if (opcode == GLSLstd450Fma && (instruction->hasMetadata("dx.precise") || impl.options.force_precise))
+		add_nocontract_decoration(impl, op->id);
 	impl.decorate_relaxed_precision(instruction->getType(), op->id, false);
 	return true;
 }
