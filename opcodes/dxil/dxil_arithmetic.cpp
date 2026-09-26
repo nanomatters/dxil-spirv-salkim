@@ -832,7 +832,7 @@ bool emit_dxil_std450_unary_instruction(GLSLstd450 opcode, Converter::Impl &impl
 		if (!precise)
 		{
 			if ((opcode == GLSLstd450Exp2 && value_is_dx_op_instrinsic(instruction->getOperand(1), DXIL::Op::Log)) ||
-			    (value_is_dx_op_instrinsic(instruction->getOperand(1), DXIL::Op::Exp)))
+			    (opcode == GLSLstd450Log2 && value_is_dx_op_instrinsic(instruction->getOperand(1), DXIL::Op::Exp)))
 			{
 				auto *base_value = llvm::cast<llvm::CallInst>(instruction->getOperand(1))->getOperand(1);
 				impl.rewrite_value(instruction, impl.get_id_for_value(base_value));
