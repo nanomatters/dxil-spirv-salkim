@@ -115,7 +115,7 @@ void main()
     traceRayEXT(accelerationStructureEXT(_20._m0[_163]), 0u, 0u, 0u, 0u, 0u, vec3(1.0, 2.0, 3.0), 1.0, vec3(0.0, 0.0, 1.0), 4.0, 1);
     uint _177 = descriptor_qa_check((SBT._m7.x >> 6u) + 210u, 320u, 4u);
     _25._m0 = _26._m0;
-    traceRayEXT(accelerationStructureEXT(_20._m0[subgroupBroadcastFirst(_177)]), 0u, 0u, 0u, 0u, 0u, vec3(1.0, 2.0, 3.0), 1.0, vec3(0.0, 0.0, 1.0), 4.0, 0);
+    traceRayEXT(accelerationStructureEXT(_20._m0[_177]), 0u, 0u, 0u, 0u, 0u, vec3(1.0, 2.0, 3.0), 1.0, vec3(0.0, 0.0, 1.0), 4.0, 0);
 }
 
 
@@ -124,7 +124,7 @@ void main()
 ; SPIR-V
 ; Version: 1.4
 ; Generator: Unknown(30017); 21022
-; Bound: 187
+; Bound: 186
 ; Schema: 0
 OpCapability Shader
 OpCapability UniformBufferArrayDynamicIndexing
@@ -305,8 +305,8 @@ OpDecorate %80 NonWritable
 %176 = OpConstant %5 210
 %3 = OpFunction %1 None %2
 %4 = OpLabel
-OpBranch %185
-%185 = OpLabel
+OpBranch %184
+%184 = OpLabel
 %30 = OpAccessChain %29 %8 %31
 %32 = OpLoad %5 %30
 %33 = OpIAdd %5 %32 %34
@@ -356,15 +356,14 @@ OpTraceRayKHR %166 %31 %31 %31 %31 %31 %168 %134 %169 %137 %26
 %174 = OpShiftRightLogical %5 %173 %11
 %175 = OpIAdd %5 %174 %176
 %177 = OpFunctionCall %5 %85 %175 %126 %52
-%178 = OpGroupNonUniformBroadcastFirst %5 %60 %177
-%179 = OpAccessChain %70 %20 %31 %178
-%180 = OpLoad %13 %179
-%181 = OpConvertUToAccelerationStructureKHR %130 %180
-%182 = OpInBoundsAccessChain %132 %25 %31
-OpStore %182 %170
-%183 = OpCompositeConstruct %140 %134 %135 %136
-%184 = OpCompositeConstruct %140 %139 %139 %134
-OpTraceRayKHR %181 %31 %31 %31 %31 %31 %183 %134 %184 %137 %25
+%178 = OpAccessChain %70 %20 %31 %177
+%179 = OpLoad %13 %178
+%180 = OpConvertUToAccelerationStructureKHR %130 %179
+%181 = OpInBoundsAccessChain %132 %25 %31
+OpStore %181 %170
+%182 = OpCompositeConstruct %140 %134 %135 %136
+%183 = OpCompositeConstruct %140 %139 %139 %134
+OpTraceRayKHR %180 %31 %31 %31 %31 %31 %182 %134 %183 %137 %25
 OpReturn
 OpFunctionEnd
 %48 = OpFunction %1 None %40
