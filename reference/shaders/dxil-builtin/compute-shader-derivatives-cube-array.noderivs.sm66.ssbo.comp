@@ -29,7 +29,7 @@ void main()
     vec2 _90 = vec2(textureSize(_8, 0).xy);
     vec2 _91 = cube_gradients.xz * _90;
     vec2 _92 = cube_gradients.yw * _90;
-    _13._m0[gl_GlobalInvocationID.x] = floatBitsToUint(uintBitsToFloat(_13._m0[gl_GlobalInvocationID.x]) + max(min(log2(max(dot(_91, _91), dot(_92, _92))) * 0.5, float(textureQueryLevels(_8)) - (-1.0)), 0.0));
+    _13._m0[gl_GlobalInvocationID.x] = floatBitsToUint(uintBitsToFloat(_13._m0[gl_GlobalInvocationID.x]) + max(min(log2(max(dot(_91, _91), dot(_92, _92))) * 0.5, float(textureQueryLevels(_8)) - 1.0), 0.0));
 }
 
 
@@ -105,7 +105,7 @@ OpDecorate %19 BuiltIn GlobalInvocationId
 %85 = OpTypeVector %35 3
 %87 = OpConstant %35 0
 %88 = OpTypeVector %35 2
-%101 = OpConstant %5 -1
+%101 = OpConstant %5 1
 %104 = OpConstant %5 0
 %105 = OpTypePointer StorageBuffer %9
 %3 = OpFunction %1 None %2
