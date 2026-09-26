@@ -499,6 +499,7 @@ typedef enum dxil_spv_option
 	DXIL_SPV_OPTION_OPACITY_MICROMAP = 53,
 	DXIL_SPV_OPTION_FLOAT_CONTROLS_2 = 54,
 	DXIL_SPV_OPTION_SHADER_ABORT = 55,
+	DXIL_SPV_OPTION_SHADER_FMA = 56,
 	DXIL_SPV_OPTION_INT_MAX = 0x7fffffff
 } dxil_spv_option;
 
@@ -906,6 +907,14 @@ typedef struct dxil_spv_option_shader_abort
 	dxil_spv_option_base base;
 	dxil_spv_bool enabled;
 } dxil_spv_option_shader_abort;
+
+typedef struct dxil_spv_option_shader_fma
+{
+	dxil_spv_option_base base;
+	dxil_spv_bool supported_float16;
+	dxil_spv_bool supported_float32;
+	dxil_spv_bool supported_float64;
+} dxil_spv_option_shader_fma;
 
 /* Gets the ABI version used to build this library. Used to detect API/ABI mismatches. */
 DXIL_SPV_PUBLIC_API void dxil_spv_get_version(unsigned *major, unsigned *minor, unsigned *patch);

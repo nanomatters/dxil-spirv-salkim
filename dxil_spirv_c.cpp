@@ -1516,6 +1516,18 @@ dxil_spv_result dxil_spv_converter_add_option(dxil_spv_converter converter, cons
 		break;
 	}
 
+	case DXIL_SPV_OPTION_SHADER_FMA:
+	{
+		OptionShaderFma helper;
+		auto *fma = reinterpret_cast<const dxil_spv_option_shader_fma *>(option);
+		helper.supported_float16 = fma->supported_float16 == DXIL_SPV_TRUE;
+		helper.supported_float32 = fma->supported_float32 == DXIL_SPV_TRUE;
+		helper.supported_float64 = fma->supported_float64 == DXIL_SPV_TRUE;
+
+		converter->options.emplace_back(duplicate(helper));
+		break;
+	}
+
 	default:
 		return DXIL_SPV_ERROR_UNSUPPORTED_FEATURE;
 	}

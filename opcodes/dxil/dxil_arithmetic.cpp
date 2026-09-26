@@ -674,12 +674,31 @@ bool emit_dxbc_udiv_instruction(Converter::Impl &impl, const llvm::CallInst *ins
 bool emit_dxil_std450_trinary_instruction(GLSLstd450 opcode, Converter::Impl &impl, const llvm::CallInst *instruction)
 {
 	auto &builder = impl.builder();
-	if (!impl.glsl_std450_ext)
+	bool use_fma = false;
+	if (opcode == GLSLstd450Fma && (impl.options.supports_fma_float16 ||
+	                              impl.options.supports_fma_float32 || impl.options.supports_fma_float64))
+	{
+		// Minimum-precision half operations may be promoted to float32.
+		unsigned width = builder.getScalarTypeWidth(impl.get_type_id(instruction->getType()));
+		use_fma = (width == 16 && impl.options.supports_fma_float16) ||
+		          (width == 32 && impl.options.supports_fma_float32) ||
+		          (width == 64 && impl.options.supports_fma_float64);
+	}
+
+	if (use_fma)
+	{
+		builder.addExtension("SPV_KHR_fma");
+		builder.addCapability(spv::CapabilityFMAKHR);
+	}
+	else if (!impl.glsl_std450_ext)
 		impl.glsl_std450_ext = builder.import("GLSL.std.450");
 
-	Operation *op = impl.allocate(spv::OpExtInst, instruction);
-	op->add_id(impl.glsl_std450_ext);
-	op->add_literal(opcode);
+	Operation *op = impl.allocate(use_fma ? spv::OpFmaKHR : spv::OpExtInst, instruction);
+	if (!use_fma)
+	{
+		op->add_id(impl.glsl_std450_ext);
+		op->add_literal(opcode);
+	}
 
 	for (unsigned i = 1; i < 4; i++)
 		op->add_id(impl.get_id_for_value(instruction->getOperand(i)));

@@ -277,6 +277,7 @@ enum class Option : uint32_t
 	OpacityMicromap = 53,
 	FloatControls2 = 54,
 	ShaderAbort = 55,
+	ShaderFma = 56,
 	Count
 };
 
@@ -937,6 +938,18 @@ struct OptionShaderAbort : OptionBase
 	}
 
 	bool enabled = false;
+};
+
+struct OptionShaderFma : OptionBase
+{
+	OptionShaderFma()
+		: OptionBase(Option::ShaderFma)
+	{
+	}
+
+	bool supported_float16 = false;
+	bool supported_float32 = false;
+	bool supported_float64 = false;
 };
 
 struct DescriptorTableEntry
