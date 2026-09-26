@@ -923,11 +923,11 @@ static bool emit_nvapi_extn_op_hit_object_get_uint(Converter::Impl &impl, uint32
 	switch (opcode)
 	{
 	case NV_EXTN_OP_HIT_OBJECT_GET_INSTANCE_ID:
-		op = spv::OpHitObjectGetInstanceIdNV;
+		op = spv::OpHitObjectGetInstanceCustomIndexNV;
 		break;
 
 	case NV_EXTN_OP_HIT_OBJECT_GET_INSTANCE_INDEX:
-		op = spv::OpHitObjectGetInstanceCustomIndexNV;
+		op = spv::OpHitObjectGetInstanceIdNV;
 		break;
 
 	case NV_EXTN_OP_HIT_OBJECT_GET_PRIMITIVE_INDEX:
