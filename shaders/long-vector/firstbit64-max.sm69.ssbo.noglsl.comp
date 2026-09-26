@@ -1,0 +1,12 @@
+RWByteAddressBuffer Input : register(u0);
+RWByteAddressBuffer Output : register(u1);
+
+[numthreads(1, 1, 1)]
+void main()
+{
+	vector<uint64_t, 1024> x = Input.Load<uint64_t>(0);
+	vector<int64_t, 1024> y = Input.Load<int64_t>(0);
+	Output.Store(0, firstbitlow(x)[0]);
+	Output.Store(4, firstbithigh(x)[0]);
+	Output.Store(8, firstbithigh(y)[0]);
+}
