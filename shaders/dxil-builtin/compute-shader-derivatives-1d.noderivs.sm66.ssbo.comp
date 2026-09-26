@@ -1,0 +1,15 @@
+Texture1D<float> Tex;
+Texture1DArray<float> ArrayTex;
+SamplerState Samp;
+RWStructuredBuffer<float4> Output;
+
+[numthreads(8, 1, 1)]
+void main(uint tid : SV_DispatchThreadID)
+{
+	float u = tid * 0.01;
+	float bias = tid * 0.1;
+	Output[2 * tid] = float4(Tex.Sample(Samp, u), Tex.SampleBias(Samp, u, bias),
+	                        ArrayTex.Sample(Samp, float2(u, 1)), ArrayTex.SampleBias(Samp, float2(u, 1), bias));
+	Output[2 * tid + 1] = float4(Tex.CalculateLevelOfDetailUnclamped(Samp, u),
+	                            ArrayTex.CalculateLevelOfDetailUnclamped(Samp, u), 0, 0);
+}
