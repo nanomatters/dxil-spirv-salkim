@@ -202,6 +202,48 @@ static void test_handle(DXIL::ResourceType resource_type, IndexSource source,
 	}
 }
 
+static void test_rtas(bool local, bool non_uniform, bool force, bool constant_index)
+{
+	llvm::LLVMContext context;
+	LLVMBCParser parser;
+	SPIRVModule module;
+	Converter::Impl impl(parser, nullptr, module);
+	Vector<Operation *> block;
+	impl.current_block = &block;
+	impl.options.quirks.force_nonuniform = force;
+	auto &builder = impl.builder();
+	auto uint_type = builder.makeUintType(32);
+	auto *type = llvm::Type::getInt32Ty(context);
+	llvm::ConstantInt opcode(type, 57), resource_class(type, unsigned(DXIL::ResourceType::SRV));
+	llvm::ConstantInt range(type, 0), zero(type, 0), divergent(type, non_uniform);
+	llvm::Argument index(type, 0);
+	llvm::FunctionType function(context, type, { type, type, type, type, type });
+	llvm::CallInst call(&function, nullptr, { &opcode, &resource_class, &range,
+	    constant_index ? static_cast<llvm::Value *>(&zero) : &index, &divergent });
+	impl.srv_index_to_reference.resize(1);
+	auto &reference = impl.srv_index_to_reference[0];
+	reference.resource_kind = DXIL::ResourceKind::RTAccelerationStructure;
+	reference.bindless = true;
+	reference.base_resource_is_array = true;
+	reference.push_constant_member = UINT32_MAX;
+	auto address = builder.makeVectorType(uint_type, 2);
+	reference.var_id = builder.createVariable(spv::StorageClassStorageBuffer,
+	    builder.makeStructType({ builder.makeRuntimeArray(address) }, "rtas"));
+	if (local)
+	{
+		reference.local_root_signature_entry = 0;
+		impl.local_root_signature.resize(1);
+		impl.local_root_signature[0].type = LocalRootSignatureType::Table;
+		impl.shader_record_buffer_id = builder.createVariable(spv::StorageClassShaderRecordBufferKHR,
+		    builder.makeStructType({ address }, "record"));
+	}
+	check(emit_create_handle_instruction(impl, &call));
+	unsigned broadcasts = 0;
+	for (auto *op : block)
+		broadcasts += op->op == spv::OpGroupNonUniformBroadcastFirst;
+	check(broadcasts == unsigned(!local && !non_uniform && !(force && !constant_index)));
+}
+
 int main()
 {
 	begin_thread_allocator_context();
@@ -219,6 +261,11 @@ int main()
 	for (auto source : { IndexSource::Push, IndexSource::Record })
 	for (bool non_uniform : { false, true })
 		test_handle(type, source, non_uniform, false, false, false, false, true);
+	for (bool local : { false, true })
+	for (bool non_uniform : { false, true })
+	for (bool force : { false, true })
+	for (bool constant_index : { false, true })
+		test_rtas(local, non_uniform, force, constant_index);
 	end_thread_allocator_context();
-	std::puts("212 descriptor-index cases passed.");
+	std::puts("228 descriptor-index cases passed.");
 }
