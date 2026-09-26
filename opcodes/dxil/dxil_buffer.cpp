@@ -490,7 +490,6 @@ static BufferAccessInfo build_buffer_access(Converter::Impl &impl, const llvm::C
                                             const llvm::Type *data_type,
                                             uint32_t vecsize)
 {
-	auto &builder = impl.builder();
 	spv::Id image_id = impl.get_id_for_value(instruction->getOperand(1));
 	const auto &meta = impl.handle_to_resource_meta[image_id];
 
@@ -534,6 +533,15 @@ static BufferAccessInfo build_buffer_access(Converter::Impl &impl, const llvm::C
 	else
 		index_id = impl.get_id_for_value(instruction->getOperand(2 + operand_offset));
 
+	return { build_buffer_index_offset(impl, meta, index_id, index_offset_id,
+	                                   addr_shift_log2, raw_vecsize, vecsize), raw_vecsize };
+}
+
+spv::Id build_buffer_index_offset(Converter::Impl &impl, const Converter::Impl::ResourceMeta &meta,
+                                  spv::Id index_id, spv::Id index_offset_id, unsigned addr_shift_log2,
+                                  unsigned raw_vecsize, unsigned vecsize)
+{
+	auto &builder = impl.builder();
 	if (index_offset_id)
 	{
 		// If we need offset buffers, we should never hit this case.
@@ -608,7 +616,7 @@ static BufferAccessInfo build_buffer_access(Converter::Impl &impl, const llvm::C
 		index_id = select_op->id;
 	}
 
-	return { index_id, raw_vecsize };
+	return index_id;
 }
 
 static spv::Id build_physical_pointer_address_for_raw_load_store(Converter::Impl &impl, const llvm::CallInst *instruction)
