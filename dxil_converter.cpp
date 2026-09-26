@@ -9892,6 +9892,15 @@ void Converter::Impl::set_option(const OptionBase &cap)
 		break;
 	}
 
+	case Option::ShaderFma:
+	{
+		auto &c = static_cast<const OptionShaderFma &>(cap);
+		options.supports_fma_float16 = c.supported_float16;
+		options.supports_fma_float32 = c.supported_float32;
+		options.supports_fma_float64 = c.supported_float64;
+		break;
+	}
+
 	default:
 		break;
 	}
