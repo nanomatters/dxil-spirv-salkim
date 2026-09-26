@@ -259,10 +259,9 @@ static bool value_is_statically_wave_uniform(Converter::Impl &impl, const llvm::
 {
 	// A surprising amount of shaders try to broadcast a value that is provably wave-uniform already.
 	// Just forward this directly ...
-	// This is an SSA value, so the input must dominate the use. The active threads here must be a subset of
-	// the active threads when the wave uniform value was generated, so it is impossible for the input value to
-	// not be wave uniform. We might end up promoting an undef value to not undef, but that is fine, since undef is ...
-	// well, undef.
+	// Only prove uniformity independent of the active lanes and dynamic execution.
+	// A wave reduction can dominate a use after a divergent loop while lanes retain
+	// results from different iterations, so dominance alone is not sufficient.
 	// Shared expression DAGs can otherwise trigger exponential recursion.
 	// Exhausting the analysis budget only disables an optional optimization.
 	if (!budget)
@@ -298,14 +297,7 @@ static bool value_is_statically_wave_uniform(Converter::Impl &impl, const llvm::
 	if (llvm::isa<llvm::Constant>(value))
 		return true;
 
-	if (value_is_dx_op_instrinsic(value, DXIL::Op::WaveActiveOp) ||
-	    value_is_dx_op_instrinsic(value, DXIL::Op::WaveActiveAllEqual) ||
-	    value_is_dx_op_instrinsic(value, DXIL::Op::WaveActiveBit) ||
-	    value_is_dx_op_instrinsic(value, DXIL::Op::WaveActiveBallot) ||
-	    value_is_dx_op_instrinsic(value, DXIL::Op::WaveAnyTrue) ||
-	    value_is_dx_op_instrinsic(value, DXIL::Op::WaveAllTrue) ||
-	    value_is_dx_op_instrinsic(value, DXIL::Op::WaveReadLaneFirst) ||
-	    value_is_dx_op_instrinsic(value, DXIL::Op::GroupId))
+	if (value_is_dx_op_instrinsic(value, DXIL::Op::GroupId))
 	{
 		return true;
 	}
@@ -571,6 +563,14 @@ static bool lane_is_wave32_masked(const llvm::Value *lane)
 
 bool emit_wave_read_lane_at_instruction(Converter::Impl &impl, const llvm::CallInst *instruction)
 {
+	// Selecting any active lane of a wave-uniform value returns the value.
+	// An inactive source lane has an undefined result, as for ReadLaneFirst.
+	if (value_is_statically_wave_uniform(impl, instruction->getOperand(1)))
+	{
+		impl.rewrite_value(instruction, impl.get_id_for_value(instruction->getOperand(1)));
+		return true;
+	}
+
 	auto &builder = impl.builder();
 
 	auto *lane = instruction->getOperand(2);
