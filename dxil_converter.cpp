@@ -4880,7 +4880,7 @@ bool Converter::Impl::emit_stage_output_variables()
 		auto start_col = get_constant_metadata(output, 9);
 		bool masked_output = false;
 
-		if (options.dual_source_blending && start_row >= 2)
+		if (options.dual_source_blending && system_value == DXIL::Semantic::Target && start_row >= 2)
 		{
 			// Mask out writes to unused higher RTs when using dual source blending.
 			continue;
