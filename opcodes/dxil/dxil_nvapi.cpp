@@ -5,6 +5,7 @@
 
 #include "dxil_nvapi.hpp"
 #include "dxil_common.hpp"
+#include "dxil_buffer.hpp"
 #include "dxil_ray_tracing.hpp"
 #include "opcodes/converter_impl.hpp"
 #include "logging.hpp"
@@ -204,6 +205,43 @@ static bool emit_nvapi_extn_op_shuffle(Converter::Impl &impl)
 	return true;
 }
 
+static Operation *build_nvapi_raw_atomic_pointer(Converter::Impl &impl,
+                                                  const Converter::Impl::ResourceMeta &meta,
+                                                  spv::Id id, spv::Id element_type)
+{
+	auto &builder = impl.builder();
+	// Both fp32 and packed fp16x2 atomics address four-byte elements.
+	auto *address = impl.nvapi.fake_doorbell_inputs[NVAPI_ARGUMENT_SRC0U];
+	spv::Id index = build_index_divider(impl, address, 2, 1, true);
+	index = build_buffer_index_offset(impl, meta, index, meta.index_offset_id, 2, 1, 1);
+	Operation *ptr;
+	if (meta.storage == spv::StorageClassPhysicalStorageBuffer)
+	{
+		auto physical = meta.physical_pointer_meta;
+		physical.stride = 4;
+		auto *cast = impl.allocate(spv::OpBitcast, impl.get_physical_pointer_block_type(element_type, physical));
+		cast->add_id(id);
+		impl.add(cast);
+		ptr = impl.allocate(spv::OpAccessChain, builder.makePointer(meta.storage, element_type));
+		ptr->add_ids({ cast->id, builder.makeUintConstant(0), index });
+	}
+	else
+	{
+		spv::Id ssbo = get_buffer_alias_handle(impl, meta, id, RawType::Integer, RawWidth::B32, 1);
+		auto array = builder.makeRuntimeArray(element_type);
+		builder.addDecoration(array, spv::DecorationArrayStride, 4);
+		auto base = builder.makeStructType({ array }, "ssbo");
+		builder.addDecoration(base, spv::DecorationBlock);
+		builder.addMemberDecoration(base, 0, spv::DecorationOffset, 0);
+		ptr = impl.allocate(spv::OpUntypedAccessChainKHR, builder.makeUntypedPointer(meta.storage));
+		ptr->add_ids({ base, ssbo, builder.makeUintConstant(0), index });
+		builder.addExtension("SPV_KHR_untyped_pointers");
+		builder.addCapability(spv::CapabilityUntypedPointersKHR);
+	}
+	impl.add(ptr);
+	return ptr;
+}
+
 static bool emit_nvapi_extn_op_fp16x2_atomic(Converter::Impl &impl)
 {
 	if (!impl.nvapi.marked_uav)
@@ -225,34 +263,9 @@ static bool emit_nvapi_extn_op_fp16x2_atomic(Converter::Impl &impl)
 		const auto &meta = impl.handle_to_resource_meta[id];
 
 		Operation *ptr;
-		if (meta.storage == spv::StorageClassStorageBuffer)
+		if (meta.storage == spv::StorageClassStorageBuffer || meta.storage == spv::StorageClassPhysicalStorageBuffer)
 		{
-			spv::Id addr = get_argument(impl, NVAPI_ARGUMENT_SRC0U + 0);
-			spv::Id ssbo_id = get_buffer_alias_handle(impl, meta, id, RawType::Integer, RawWidth::B32, 1);
-
-			auto f16vec2_array = builder.makeRuntimeArray(f16vec2_type);
-			builder.addDecoration(f16vec2_array, spv::DecorationArrayStride, 4);
-
-			auto base = builder.makeStructType({f16vec2_array}, "ssbo");
-			builder.addDecoration(base, spv::DecorationBlock);
-			builder.addMemberDecoration(base, 0, spv::DecorationOffset, 0);
-
-			// From shaders/nvapi/nvHLSLExtns.h: byteAddress must be multiple of 4
-			// ... so translate from byte address to index
-			Operation *ssbo_index = impl.allocate(spv::OpUDiv, uint32_type);
-			ssbo_index->add_id(addr);
-			ssbo_index->add_id(builder.makeUintConstant(4));
-			impl.add(ssbo_index);
-
-			ptr = impl.allocate(spv::OpUntypedAccessChainKHR, builder.makeUntypedPointer(spv::StorageClassStorageBuffer));
-			ptr->add_id(base);
-			ptr->add_id(ssbo_id);
-			ptr->add_id(builder.makeUintConstant(0));
-			ptr->add_id(ssbo_index->id);
-			impl.add(ptr);
-
-			builder.addExtension("SPV_KHR_untyped_pointers");
-			builder.addCapability(spv::CapabilityUntypedPointersKHR);
+			ptr = build_nvapi_raw_atomic_pointer(impl, meta, id, f16vec2_type);
 			builder.addCapability(spv::CapabilityStorageBuffer16BitAccess);
 		}
 		else if (meta.storage == spv::StorageClassUniformConstant)
@@ -292,6 +305,9 @@ static bool emit_nvapi_extn_op_fp16x2_atomic(Converter::Impl &impl)
 			LOGE("Unsupported storage: %u\n", static_cast<uint32_t>(meta.storage));
 			return false;
 		}
+
+		if (meta.non_uniform)
+			builder.addDecoration(ptr->id, spv::DecorationNonUniform);
 
 		spv::Id val = get_argument(impl, NVAPI_ARGUMENT_SRC1U + 0);
 
@@ -354,34 +370,9 @@ static bool emit_nvapi_extn_op_fp32_atomic(Converter::Impl &impl)
 		const auto &meta = impl.handle_to_resource_meta[id];
 
 		Operation *ptr;
-		if (meta.storage == spv::StorageClassStorageBuffer)
+		if (meta.storage == spv::StorageClassStorageBuffer || meta.storage == spv::StorageClassPhysicalStorageBuffer)
 		{
-			spv::Id addr = get_argument(impl, NVAPI_ARGUMENT_SRC0U + 0);
-			spv::Id ssbo_id = get_buffer_alias_handle(impl, meta, id, RawType::Integer, RawWidth::B32, 1);
-
-			auto f32_array = builder.makeRuntimeArray(f32_type);
-			builder.addDecoration(f32_array, spv::DecorationArrayStride, 4);
-
-			auto base = builder.makeStructType({f32_array}, "ssbo");
-			builder.addDecoration(base, spv::DecorationBlock);
-			builder.addMemberDecoration(base, 0, spv::DecorationOffset, 0);
-
-			// From shaders/nvapi/nvHLSLExtns.h: byteAddress must be multiple of 4
-			// ... so translate from byte address to index
-			Operation *ssbo_index = impl.allocate(spv::OpUDiv, uint32_type);
-			ssbo_index->add_id(addr);
-			ssbo_index->add_id(builder.makeUintConstant(4));
-			impl.add(ssbo_index);
-
-			ptr = impl.allocate(spv::OpUntypedAccessChainKHR, builder.makeUntypedPointer(spv::StorageClassStorageBuffer));
-			ptr->add_id(base);
-			ptr->add_id(ssbo_id);
-			ptr->add_id(builder.makeUintConstant(0));
-			ptr->add_id(ssbo_index->id);
-			impl.add(ptr);
-
-			builder.addExtension("SPV_KHR_untyped_pointers");
-			builder.addCapability(spv::CapabilityUntypedPointersKHR);
+			ptr = build_nvapi_raw_atomic_pointer(impl, meta, id, f32_type);
 		}
 		else if (meta.storage == spv::StorageClassUniformConstant)
 		{
@@ -422,6 +413,9 @@ static bool emit_nvapi_extn_op_fp32_atomic(Converter::Impl &impl)
 		}
 
 		spv::Id val = get_argument(impl, NVAPI_ARGUMENT_SRC1U + 0);
+
+		if (meta.non_uniform)
+			builder.addDecoration(ptr->id, spv::DecorationNonUniform);
 
 		auto *cast_f32_op = impl.allocate(spv::OpBitcast, f32_type);
 		cast_f32_op->add_id(val);

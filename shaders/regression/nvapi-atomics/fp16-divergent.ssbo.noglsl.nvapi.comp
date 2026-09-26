@@ -1,0 +1,2 @@
+#define HALF_ATOMIC
+#include "fp32-divergent.ssbo.noglsl.nvapi.comp"

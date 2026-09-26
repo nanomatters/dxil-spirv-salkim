@@ -34,6 +34,10 @@ struct BufferAccessInfo
 	unsigned raw_vec_size;
 };
 
+spv::Id build_buffer_index_offset(Converter::Impl &impl, const Converter::Impl::ResourceMeta &meta,
+                                  spv::Id index_id, spv::Id index_offset_id, unsigned addr_shift_log2,
+                                  unsigned raw_vecsize, unsigned vecsize);
+
 bool emit_buffer_load_instruction(Converter::Impl &impl, const llvm::CallInst *instruction, bool is_vector);
 template <bool is_vector>
 inline bool emit_buffer_load_instruction(Converter::Impl &impl, const llvm::CallInst *instruction)
