@@ -97,10 +97,34 @@ static void test_interpolation()
 	check(inputs == 7);
 }
 
+static void test_lds_atomic(unsigned result_mode)
+{
+	using namespace ir;
+	Builder b;
+	auto ep = test_api::setupTestFunction(b, ir::ShaderStage::eCompute);
+	b.add(Op::SetCsWorkgroupSize(ep, 1u, 1u, 1u));
+	b.add(Op::Label());
+	auto lds = b.add(Op::DclLds(Type(ScalarType::eU32).addArrayDimension(1u), ep));
+	auto args = b.add(Op::CompositeConstruct(BasicType(ScalarType::eU32, 2u),
+	    b.makeConstant(0u), b.makeConstant(1u)));
+	auto result = b.add(Op::LdsAtomic(AtomicOp::eCompareExchange,
+	    result_mode ? ScalarType::eU32 : ScalarType::eVoid, lds, b.makeConstant(0u), args));
+	if (result_mode == 2)
+		b.add(Op::LdsStore(lds, b.makeConstant(0u), result));
+	b.add(Op::Return());
+	auto spirv = convert(b);
+	unsigned atomics = 0;
+	for (size_t i = 5; i < spirv.size(); i += spirv[i] >> 16)
+		atomics += spv::Op(spirv[i] & 0xffff) == spv::OpAtomicCompareExchange;
+	check(atomics == 1);
+}
+
 int main()
 {
 	begin_thread_allocator_context();
 	test_interpolation();
+	for (unsigned mode = 0; mode < 3; mode++)
+		test_lds_atomic(mode);
 	end_thread_allocator_context();
 	std::puts("DXBC codegen cases passed.");
 }
