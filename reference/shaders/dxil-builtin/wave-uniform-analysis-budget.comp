@@ -1,0 +1,131 @@
+#version 460
+#extension GL_KHR_shader_subgroup_ballot : require
+layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+
+layout(set = 0, binding = 0, r32ui) uniform writeonly uimageBuffer _8;
+
+void main()
+{
+    uint _21 = (gl_WorkGroupID.x * gl_WorkGroupID.x) + 3u;
+    uint _24 = (_21 * _21) + 3u;
+    uint _26 = (_24 * _24) + 3u;
+    uint _28 = (_26 * _26) + 3u;
+    uint _30 = (_28 * _28) + 3u;
+    uint _32 = (_30 * _30) + 3u;
+    uint _34 = (_32 * _32) + 3u;
+    uint _36 = (_34 * _34) + 3u;
+    uint _38 = (_36 * _36) + 3u;
+    uint _40 = (_38 * _38) + 3u;
+    uint _42 = (_40 * _40) + 3u;
+    uint _44 = (_42 * _42) + 3u;
+    uint _46 = (_44 * _44) + 3u;
+    uint _48 = (_46 * _46) + 3u;
+    uint _50 = (_48 * _48) + 3u;
+    uint _52 = (_50 * _50) + 3u;
+    uint _54 = (_52 * _52) + 3u;
+    uint _56 = (_54 * _54) + 3u;
+    uint _58 = (_56 * _56) + 3u;
+    uint _60 = (_58 * _58) + 3u;
+    uint _62 = (_60 * _60) + 3u;
+    uint _64 = (_62 * _62) + 3u;
+    uint _66 = (_64 * _64) + 3u;
+    imageStore(_8, int(gl_GlobalInvocationID.x), uvec4(subgroupBroadcastFirst((_66 * _66) + 3u)));
+}
+
+
+#if 0
+// SPIR-V disassembly
+; SPIR-V
+; Version: 1.3
+; Generator: Unknown(30017); 21022
+; Bound: 74
+; Schema: 0
+OpCapability Shader
+OpCapability ImageBuffer
+OpCapability GroupNonUniformBallot
+OpMemoryModel Logical GLSL450
+OpEntryPoint GLCompute %3 "main" %12 %17
+OpExecutionMode %3 LocalSize 64 1 1
+OpName %3 "main"
+OpDecorate %8 DescriptorSet 0
+OpDecorate %8 Binding 0
+OpDecorate %8 NonReadable
+OpDecorate %12 BuiltIn GlobalInvocationId
+OpDecorate %17 BuiltIn WorkgroupId
+%1 = OpTypeVoid
+%2 = OpTypeFunction %1
+%5 = OpTypeInt 32 0
+%6 = OpTypeImage %5 Buffer 0 0 0 2 R32ui
+%7 = OpTypePointer UniformConstant %6
+%8 = OpVariable %7 UniformConstant
+%10 = OpTypeVector %5 3
+%11 = OpTypePointer Input %10
+%12 = OpVariable %11 Input
+%13 = OpTypePointer Input %5
+%15 = OpConstant %5 0
+%17 = OpVariable %11 Input
+%22 = OpConstant %5 3
+%70 = OpTypeVector %5 4
+%3 = OpFunction %1 None %2
+%4 = OpLabel
+OpBranch %72
+%72 = OpLabel
+%9 = OpLoad %6 %8
+%14 = OpAccessChain %13 %12 %15
+%16 = OpLoad %5 %14
+%18 = OpAccessChain %13 %17 %15
+%19 = OpLoad %5 %18
+%20 = OpIMul %5 %19 %19
+%21 = OpIAdd %5 %20 %22
+%23 = OpIMul %5 %21 %21
+%24 = OpIAdd %5 %23 %22
+%25 = OpIMul %5 %24 %24
+%26 = OpIAdd %5 %25 %22
+%27 = OpIMul %5 %26 %26
+%28 = OpIAdd %5 %27 %22
+%29 = OpIMul %5 %28 %28
+%30 = OpIAdd %5 %29 %22
+%31 = OpIMul %5 %30 %30
+%32 = OpIAdd %5 %31 %22
+%33 = OpIMul %5 %32 %32
+%34 = OpIAdd %5 %33 %22
+%35 = OpIMul %5 %34 %34
+%36 = OpIAdd %5 %35 %22
+%37 = OpIMul %5 %36 %36
+%38 = OpIAdd %5 %37 %22
+%39 = OpIMul %5 %38 %38
+%40 = OpIAdd %5 %39 %22
+%41 = OpIMul %5 %40 %40
+%42 = OpIAdd %5 %41 %22
+%43 = OpIMul %5 %42 %42
+%44 = OpIAdd %5 %43 %22
+%45 = OpIMul %5 %44 %44
+%46 = OpIAdd %5 %45 %22
+%47 = OpIMul %5 %46 %46
+%48 = OpIAdd %5 %47 %22
+%49 = OpIMul %5 %48 %48
+%50 = OpIAdd %5 %49 %22
+%51 = OpIMul %5 %50 %50
+%52 = OpIAdd %5 %51 %22
+%53 = OpIMul %5 %52 %52
+%54 = OpIAdd %5 %53 %22
+%55 = OpIMul %5 %54 %54
+%56 = OpIAdd %5 %55 %22
+%57 = OpIMul %5 %56 %56
+%58 = OpIAdd %5 %57 %22
+%59 = OpIMul %5 %58 %58
+%60 = OpIAdd %5 %59 %22
+%61 = OpIMul %5 %60 %60
+%62 = OpIAdd %5 %61 %22
+%63 = OpIMul %5 %62 %62
+%64 = OpIAdd %5 %63 %22
+%65 = OpIMul %5 %64 %64
+%66 = OpIAdd %5 %65 %22
+%67 = OpIMul %5 %66 %66
+%68 = OpIAdd %5 %67 %22
+%69 = OpGroupNonUniformBroadcastFirst %5 %22 %68
+%71 = OpCompositeConstruct %70 %69 %69 %69 %69
+OpImageWrite %9 %16 %71
+OpReturn
+OpFunctionEnd
+#endif
