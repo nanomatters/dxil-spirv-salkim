@@ -1782,7 +1782,7 @@ static bool emit_calculate_lod_instruction_fallback(Converter::Impl &impl, const
 
 		auto *max_level = impl.allocate(spv::OpFSub, f32_type);
 		max_level->add_id(f_levels->id);
-		max_level->add_id(builder.makeFloatConstant(-1.0f));
+		max_level->add_id(builder.makeFloatConstant(1.0f));
 		impl.add(max_level);
 
 		// In case of null descriptor, make sure we end up with 0, so do min, then max.
