@@ -1358,6 +1358,16 @@ static spv::Id build_load_physical_rtas(Converter::Impl &impl, const Converter::
 
 	if (builder.getStorageClass(reference.var_id) == spv::StorageClassStorageBuffer)
 	{
+		// A local table can differ between invocations even with a uniform index.
+		non_uniform |= reference.local_root_signature_entry >= 0;
+		if (!non_uniform && offset && !impl.backend.skip_non_uniform_promotion)
+		{
+			non_uniform = (impl.options.quirks.force_nonuniform &&
+			               !value_is_statically_wave_uniform(impl, offset)) ||
+			              (impl.options.quirks.aggressive_nonuniform &&
+			               value_is_likely_non_uniform(impl, offset));
+		}
+
 		spv::Id offset_id = build_bindless_heap_offset(impl, reference,
 		                                               DESCRIPTOR_QA_TYPE_RT_ACCELERATION_STRUCTURE_BIT |
 		                                               DESCRIPTOR_QA_TYPE_RAW_VA_BIT,
