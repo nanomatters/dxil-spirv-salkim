@@ -1,0 +1,18 @@
+#define NV_SHADER_EXTN_SLOT u127
+#define NV_SHADER_EXTN_REGISTER_SPACE space0
+#include "../../nvapi/nvHLSLExtns.h"
+
+RWByteAddressBuffer Buffers[4] : register(u0);
+RWStructuredBuffer<uint> Output : register(u4);
+
+[numthreads(32, 1, 1)]
+void main(uint thread : SV_DispatchThreadID)
+{
+#ifdef HALF_ATOMIC
+    Output[thread] = NvInterlockedAddFp16x2(Buffers[NonUniformResourceIndex(thread & 3)],
+                                          4 * (thread & 7), float2(1, 2));
+#else
+    Output[thread] = asuint(NvInterlockedAddFp32(Buffers[NonUniformResourceIndex(thread & 3)],
+                                               4 * (thread & 7), 1.0));
+#endif
+}
