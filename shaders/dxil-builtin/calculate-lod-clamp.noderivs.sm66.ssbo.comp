@@ -1,0 +1,11 @@
+Texture2D<float> Tex;
+SamplerState Samp;
+RWStructuredBuffer<float2> Output;
+
+[numthreads(8, 1, 1)]
+void main(uint tid : SV_DispatchThreadID)
+{
+	float2 uv = float2(tid, tid * 0.5);
+	Output[tid] = float2(Tex.CalculateLevelOfDetail(Samp, uv),
+	                     Tex.CalculateLevelOfDetailUnclamped(Samp, uv));
+}
