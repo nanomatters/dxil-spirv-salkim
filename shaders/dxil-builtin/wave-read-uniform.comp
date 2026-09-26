@@ -1,0 +1,10 @@
+RWStructuredBuffer<uint4> Output : register(u0);
+
+[numthreads(64, 1, 1)]
+void main(uint tid : SV_DispatchThreadID, uint group : SV_GroupID)
+{
+	uint wave_value = group * 31 + 7;
+	uint lane = WaveGetLaneIndex() ^ 1;
+	Output[tid] = uint4(WaveReadLaneAt(wave_value, 0), WaveReadLaneAt(wave_value, lane),
+	                   WaveReadLaneAt(tid, 0), WaveReadLaneAt(tid, lane));
+}
