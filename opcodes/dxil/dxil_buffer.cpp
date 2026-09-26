@@ -915,7 +915,7 @@ static bool emit_buffer_load_raw_chain_instruction(Converter::Impl &impl, const 
 	load_op->add_literal(spv::MemoryAccessAlignedMask);
 	load_op->add_literal(raw.alignment);
 	add_vkmm_access_qualifiers(impl, load_op, meta.vkmm);
-	impl.add(load_op);
+	impl.add(load_op, meta.rov);
 
 	if (type_needs_storage_16bit_cast(impl, target_type))
 	{
@@ -1661,7 +1661,7 @@ bool emit_buffer_store_instruction(Converter::Impl &impl, const llvm::CallInst *
 		store_op->add_literal(raw.alignment);
 		add_vkmm_access_qualifiers(impl, store_op, meta.vkmm);
 
-		impl.add(store_op);
+		impl.add(store_op, meta.rov);
 		return true;
 	}
 
