@@ -278,6 +278,7 @@ enum class Option : uint32_t
 	FloatControls2 = 54,
 	ShaderAbort = 55,
 	ConservativeSSBOVectorization = 56,
+	ShaderFma = 57,
 	Count
 };
 
@@ -948,6 +949,18 @@ struct OptionConservativeSSBOVectorization : OptionBase
 	}
 
 	bool enabled = false;
+};
+
+struct OptionShaderFma : OptionBase
+{
+	OptionShaderFma()
+		: OptionBase(Option::ShaderFma)
+	{
+	}
+
+	bool supported_float16 = false;
+	bool supported_float32 = false;
+	bool supported_float64 = false;
 };
 
 struct DescriptorTableEntry

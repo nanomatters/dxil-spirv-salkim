@@ -10,6 +10,7 @@
 #include "GLSL.std.450.h"
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <unordered_map>
 
 using namespace dxil_spv;
@@ -25,7 +26,8 @@ static void check_at(bool result, unsigned line)
 }
 #define check(x) check_at((x), __LINE__)
 
-static Vector<uint32_t> convert(ir::Builder &builder, bool force_precise = false, bool float_controls2 = false)
+static Vector<uint32_t> convert(ir::Builder &builder, bool force_precise = false, bool float_controls2 = false,
+                               bool shader_fma = false)
 {
 	LLVMBCParser parser;
 	check(parser.parseDXBC(builder));
@@ -37,6 +39,9 @@ static Vector<uint32_t> convert(ir::Builder &builder, bool force_precise = false
 	OptionFloatControls2 controls;
 	controls.supported = float_controls2;
 	converter.add_option(controls);
+	OptionShaderFma fma;
+	fma.supported_float32 = shader_fma;
+	converter.add_option(fma);
 	auto entry = converter.convert_entry_point();
 	check(entry.entry.entry);
 	CFGStructurizer structurizer(entry.entry.entry, *entry.node_pool, module);
@@ -126,7 +131,7 @@ static void test_lds_atomic(unsigned result_mode)
 	check(atomics == 1);
 }
 
-static void test_mad(bool precise, bool force, bool float_controls2)
+static void test_mad(bool precise, bool force, bool float_controls2, bool shader_fma)
 {
 	using namespace ir;
 	Builder b;
@@ -138,22 +143,41 @@ static void test_mad(bool precise, bool force, bool float_controls2)
 	{
 		auto input = b.add(Op::DclInput(ScalarType::eF32, ep, i, 0u, InterpolationModes()));
 		b.add(Op::Semantic(input, i, "TEXCOORD"));
-		mad.addOperand(Operand(b.add(Op::InputLoad(ScalarType::eF32, input, SsaDef()))));
+		auto value = b.add(Op::InputLoad(ScalarType::eF32, input, SsaDef()));
+		if (float_controls2 && i == 0)
+		{
+			auto half = b.add(Op::ConvertFtoF(ScalarType::eF16, value).setFlags(OpFlag::ePrecise));
+			value = b.add(Op::ConvertFtoF(ScalarType::eF32, half).setFlags(OpFlag::ePrecise));
+		}
+		mad.addOperand(Operand(value));
 	}
 	auto output = b.add(Op::DclOutput(ScalarType::eF32, ep, 0u, 0u));
 	b.add(Op::Semantic(output, 0u, "SV_TARGET"));
 	b.add(Op::OutputStore(output, SsaDef(), b.add(std::move(mad))));
 	b.add(Op::Return());
-	auto spirv = convert(b, force, float_controls2);
+	auto spirv = convert(b, force, float_controls2, shader_fma);
 	uint32_t fma = 0;
+	bool fma_capability = false, fma_extension = false, fast_math_default = false;
 	std::unordered_map<uint32_t, unsigned> precision;
 	for (size_t i = 5; i < spirv.size(); i += spirv[i] >> 16)
 	{
 		auto op = spv::Op(spirv[i] & 0xffff);
 		check(op != spv::OpFMul && op != spv::OpFAdd);
+		if (op == spv::OpCapability && spirv[i + 1] == spv::CapabilityFMAKHR)
+			fma_capability = true;
+		if (op == spv::OpExtension &&
+		    std::strcmp(reinterpret_cast<const char *>(&spirv[i + 1]), "SPV_KHR_fma") == 0)
+			fma_extension = true;
+		if (op == spv::OpExecutionModeId && spirv[i + 2] == spv::ExecutionModeFPFastMathDefault)
+			fast_math_default = true;
+		if (op == spv::OpFmaKHR)
+		{
+			check(shader_fma && !fma);
+			fma = spirv[i + 2];
+		}
 		if (op == spv::OpExtInst && spirv[i + 4] == GLSLstd450Fma)
 		{
-			check(!fma);
+			check(!shader_fma && !fma);
 			fma = spirv[i + 2];
 		}
 		if (op == spv::OpDecorate && spirv[i + 2] == spv::DecorationNoContraction)
@@ -165,8 +189,11 @@ static void test_mad(bool precise, bool force, bool float_controls2)
 		}
 	}
 	check(fma);
+	check(fma_capability == shader_fma);
+	check(fma_extension == shader_fma);
+	check(fast_math_default == float_controls2);
 	// Force-precise with float-controls2 is enforced by the global mode.
-	if (!(force && float_controls2))
+	if (!(force && fast_math_default))
 		check(bool(precision[fma]) == (precise || force));
 }
 
@@ -179,7 +206,8 @@ int main()
 	for (bool precise : { false, true })
 	for (bool force : { false, true })
 	for (bool float_controls2 : { false, true })
-		test_mad(precise, force, float_controls2);
+	for (bool shader_fma : { false, true })
+		test_mad(precise, force, float_controls2, shader_fma);
 	end_thread_allocator_context();
 	std::puts("DXBC codegen cases passed.");
 }

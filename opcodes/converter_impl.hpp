@@ -858,6 +858,9 @@ struct Converter::Impl
 		bool mixed_dot_product_fp16_fp16_fp32 = false;
 		bool supports_float_controls2 = false;
 		bool conservative_ssbo_vectorization = false;
+		bool supports_fma_float16 = false;
+		bool supports_fma_float32 = false;
+		bool supports_fma_float64 = false;
 
 		struct
 		{
