@@ -281,6 +281,7 @@ enum class Option : uint32_t
 	ShaderAbort = 55,
 	ConservativeSSBOVectorization = 56,
 	LegacyStructurizer = 57,
+	ShaderFma = 58,
 	Count
 };
 
@@ -961,6 +962,18 @@ struct OptionLegacyStructurizer : OptionBase
 	}
 
 	bool enabled = false;
+};
+
+struct OptionShaderFma : OptionBase
+{
+	OptionShaderFma()
+		: OptionBase(Option::ShaderFma)
+	{
+	}
+
+	bool supported_float16 = false;
+	bool supported_float32 = false;
+	bool supported_float64 = false;
 };
 
 struct DescriptorTableEntry
