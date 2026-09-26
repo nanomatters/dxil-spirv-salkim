@@ -2750,7 +2750,7 @@ bool ParseContext::build_lds_atomic(const ir::Op &op)
 	if (!op.getType().isVoidType())
 		type = convert_type(op.getType());
 	else
-		type = convert_type(builder.getOp(ir::SsaDef(op.getOperand(2))).getType());
+		type = convert_type(builder.getOp(ir::SsaDef(op.getOperand(2))).getType())->getScalarType();
 
 	auto *gep = context.construct<GetElementPtrInst>(
 		PointerType::get(type, uint32_t(DXIL::AddressSpace::GroupShared)), std::move(args), true);
