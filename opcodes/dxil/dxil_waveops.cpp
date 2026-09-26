@@ -718,8 +718,12 @@ static spv::Id build_mask_reduction_input_arith(Converter::Impl &impl, const llv
 
 	spv::Id replacement_value;
 	auto *scalar_output_type = instruction->getType()->getScalarType();
-	if (scalar_output_type->getTypeID() == llvm::Type::TypeID::FloatTyID)
+	if (scalar_output_type->getTypeID() == llvm::Type::TypeID::FloatTyID ||
+	    (scalar_output_type->getTypeID() == llvm::Type::TypeID::HalfTyID &&
+	     !impl.support_native_fp16_operations()))
 	{
+		// Minimum-precision half values may be promoted to float. The neutral
+		// value must have the same physical type as the reduction input.
 		DECLARE_TYPE_TEMPLATE(Float,
 		                      1.0f, 0.0f,
 		                      std::numeric_limits<float>::infinity(),
