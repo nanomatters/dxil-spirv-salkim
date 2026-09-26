@@ -1,0 +1,2 @@
+#define DIRECT_QUERY
+#include "heap.sm69.noglsl.rgen"
