@@ -23,7 +23,8 @@ static void check_at(bool condition, unsigned line)
 enum class IndexSource { Push, Inline, Record, Heap, Array };
 
 static void test_handle(DXIL::ResourceType resource_type, IndexSource source,
-                        bool non_uniform, bool representative, bool qa, bool robustness, bool counter = false)
+                        bool non_uniform, bool representative, bool qa, bool robustness, bool counter = false,
+                        bool offset_buffer = false)
 {
 	llvm::LLVMContext context;
 	LLVMBCParser parser;
@@ -110,6 +111,14 @@ static void test_handle(DXIL::ResourceType resource_type, IndexSource source,
 		impl.llvm_values_using_update_counter.insert(&other_call);
 	}
 	impl.options.descriptor_qa_enabled = qa;
+	spv::Id offset_table = 0;
+	if (offset_buffer)
+	{
+		auto element = builder.makeVectorType(uint_type, 2);
+		offset_table = builder.createVariable(spv::StorageClassStorageBuffer,
+		    builder.makeStructType({ builder.makeRuntimeArray(element) }, "offsets"));
+		(resource_type == DXIL::ResourceType::SRV ? impl.srv_index_to_offset : impl.uav_index_to_offset)[0] = offset_table;
+	}
 	impl.options.descriptor_qa.version = Version;
 	impl.options.descriptor_heap_robustness = robustness;
 	if (robustness)
@@ -126,9 +135,14 @@ static void test_handle(DXIL::ResourceType resource_type, IndexSource source,
 		check(emit_create_handle_instruction(impl, pass ? &other_call : &call));
 		unsigned table_loads = 0, descriptor_chains = 0, checks = 0, additions = 0;
 		spv::Id table_pointer = 0, common_index = 0;
+		spv::Id broadcast_index = 0, offset_index = 0;
 		Vector<spv::Id> checked_indices;
 		for (const auto *op : current_block)
 		{
+			if (op->op == spv::OpGroupNonUniformBroadcastFirst)
+				broadcast_index = op->id;
+			if (offset_table && op->op == spv::OpAccessChain && op->argument(0) == offset_table)
+				offset_index = op->argument(2);
 			if (op->op == spv::OpAccessChain &&
 			    (op->argument(0) == impl.root_constant_id || op->argument(0) == impl.shader_record_buffer_id))
 				table_pointer = op->id;
@@ -163,6 +177,12 @@ static void test_handle(DXIL::ResourceType resource_type, IndexSource source,
 		}
 		bool has_table = source == IndexSource::Push || source == IndexSource::Inline || source == IndexSource::Record;
 		check(table_loads == unsigned(has_table));
+		if (offset_buffer)
+		{
+			bool divergent = non_uniform || source == IndexSource::Record;
+			check(bool(broadcast_index) == !divergent);
+			check(offset_index == (divergent ? common_index : broadcast_index));
+		}
 		check(descriptor_chains == 4 + unsigned(counter));
 		check(additions == (has_table ? 2u : source == IndexSource::Array ? 1u : 0u));
 		check(checks == ((qa || robustness) && reference.bindless ? 4u + unsigned(counter) : 0u));
@@ -195,6 +215,10 @@ int main()
 	for (bool non_uniform : { false, true })
 	for (unsigned check_mode = 0; check_mode < 3; check_mode++)
 		test_handle(DXIL::ResourceType::UAV, source, non_uniform, false, check_mode == 1, check_mode == 2, true);
+	for (auto type : { DXIL::ResourceType::SRV, DXIL::ResourceType::UAV })
+	for (auto source : { IndexSource::Push, IndexSource::Record })
+	for (bool non_uniform : { false, true })
+		test_handle(type, source, non_uniform, false, false, false, false, true);
 	end_thread_allocator_context();
-	std::puts("204 descriptor-index cases passed.");
+	std::puts("212 descriptor-index cases passed.");
 }
