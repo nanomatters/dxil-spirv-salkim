@@ -1,0 +1,11 @@
+// Compile with DXC -T cs_6_9, without -enable-16bit-types, then convert both
+// with and without --min-precision-native-16bit. Both modules must validate.
+StructuredBuffer<vector<float, 8> > Input : register(t0);
+RWStructuredBuffer<vector<float, 8> > Output : register(u0);
+
+[numthreads(1, 1, 1)]
+void main(uint tid : SV_DispatchThreadID)
+{
+	vector<min16float, 8> value = Input[tid];
+	Output[tid] = value * min16float(2.0);
+}
