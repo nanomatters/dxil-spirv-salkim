@@ -1,0 +1,140 @@
+#version 460
+#extension GL_KHR_shader_subgroup_quad : require
+#extension GL_EXT_samplerless_texture_functions : require
+layout(local_size_x = 8, local_size_y = 1, local_size_z = 1) in;
+
+layout(set = 0, binding = 0, std430) writeonly buffer SSBO
+{
+    uvec2 _m0[];
+} _14;
+
+layout(set = 0, binding = 0) uniform texture2D _8;
+layout(set = 0, binding = 0) uniform sampler _17;
+
+void main()
+{
+    float _25 = float(gl_GlobalInvocationID.x);
+    float _26 = _25 * 0.5;
+    vec2 _31 = vec2(_25, _26);
+    vec2 _42 = vec2(textureSize(_8, 0));
+    vec2 _43 = (subgroupQuadSwapHorizontal(_31) - _31) * _42;
+    vec2 _44 = (subgroupQuadSwapVertical(_31) - _31) * _42;
+    vec2 _58 = vec2(_25, _26);
+    vec2 _64 = vec2(textureSize(_8, 0));
+    vec2 _65 = (subgroupQuadSwapHorizontal(_58) - _58) * _64;
+    vec2 _66 = (subgroupQuadSwapVertical(_58) - _58) * _64;
+    _14._m0[gl_GlobalInvocationID.x] = uvec2(floatBitsToUint(max(min(log2(max(dot(_43, _43), dot(_44, _44))) * 0.5, float(textureQueryLevels(_8)) - 1.0), 0.0)), floatBitsToUint(clamp(log2(max(dot(_65, _65), dot(_66, _66))) * 0.5, -128.0, 128.0)));
+}
+
+
+#if 0
+// SPIR-V disassembly
+; SPIR-V
+; Version: 1.3
+; Generator: Unknown(30017); 21022
+; Bound: 82
+; Schema: 0
+OpCapability Shader
+OpCapability ImageQuery
+OpCapability GroupNonUniformQuad
+%45 = OpExtInstImport "GLSL.std.450"
+OpMemoryModel Logical GLSL450
+OpEntryPoint GLCompute %3 "main" %20
+OpExecutionMode %3 LocalSize 8 1 1
+OpName %3 "main"
+OpName %12 "SSBO"
+OpDecorate %8 DescriptorSet 0
+OpDecorate %8 Binding 0
+OpDecorate %11 ArrayStride 8
+OpMemberDecorate %12 0 Offset 0
+OpDecorate %12 Block
+OpDecorate %14 DescriptorSet 0
+OpDecorate %14 Binding 0
+OpDecorate %14 NonReadable
+OpDecorate %17 DescriptorSet 0
+OpDecorate %17 Binding 0
+OpDecorate %20 BuiltIn GlobalInvocationId
+%1 = OpTypeVoid
+%2 = OpTypeFunction %1
+%5 = OpTypeFloat 32
+%6 = OpTypeImage %5 2D 0 0 0 1 Unknown
+%7 = OpTypePointer UniformConstant %6
+%8 = OpVariable %7 UniformConstant
+%9 = OpTypeInt 32 0
+%10 = OpTypeVector %9 2
+%11 = OpTypeRuntimeArray %10
+%12 = OpTypeStruct %11
+%13 = OpTypePointer StorageBuffer %12
+%14 = OpVariable %13 StorageBuffer
+%15 = OpTypeSampler
+%16 = OpTypePointer UniformConstant %15
+%17 = OpVariable %16 UniformConstant
+%18 = OpTypeVector %9 3
+%19 = OpTypePointer Input %18
+%20 = OpVariable %19 Input
+%21 = OpTypePointer Input %9
+%23 = OpConstant %9 0
+%27 = OpConstant %5 0.5
+%30 = OpTypeVector %5 2
+%32 = OpTypeInt 32 1
+%34 = OpConstant %9 3
+%36 = OpConstant %9 1
+%39 = OpTypeVector %32 2
+%41 = OpConstant %32 0
+%54 = OpConstant %5 1
+%57 = OpConstant %5 0
+%73 = OpConstant %5 -128
+%74 = OpConstant %5 128
+%78 = OpTypePointer StorageBuffer %10
+%3 = OpFunction %1 None %2
+%4 = OpLabel
+OpBranch %80
+%80 = OpLabel
+%22 = OpAccessChain %21 %20 %23
+%24 = OpLoad %9 %22
+%25 = OpConvertUToF %5 %24
+%26 = OpFMul %5 %25 %27
+%28 = OpLoad %6 %8
+%29 = OpLoad %15 %17
+%31 = OpCompositeConstruct %30 %25 %26
+%33 = OpGroupNonUniformQuadSwap %30 %34 %31 %23
+%35 = OpGroupNonUniformQuadSwap %30 %34 %31 %36
+%37 = OpFSub %30 %33 %31
+%38 = OpFSub %30 %35 %31
+%40 = OpImageQuerySizeLod %39 %28 %41
+%42 = OpConvertSToF %30 %40
+%43 = OpFMul %30 %37 %42
+%44 = OpFMul %30 %38 %42
+%46 = OpDot %5 %43 %43
+%47 = OpDot %5 %44 %44
+%48 = OpExtInst %5 %45 FMax %46 %47
+%49 = OpExtInst %5 %45 Log2 %48
+%50 = OpFMul %5 %49 %27
+%51 = OpImageQueryLevels %32 %28
+%52 = OpConvertSToF %5 %51
+%53 = OpFSub %5 %52 %54
+%55 = OpExtInst %5 %45 FMin %50 %53
+%56 = OpExtInst %5 %45 FMax %55 %57
+%58 = OpCompositeConstruct %30 %25 %26
+%59 = OpGroupNonUniformQuadSwap %30 %34 %58 %23
+%60 = OpGroupNonUniformQuadSwap %30 %34 %58 %36
+%61 = OpFSub %30 %59 %58
+%62 = OpFSub %30 %60 %58
+%63 = OpImageQuerySizeLod %39 %28 %41
+%64 = OpConvertSToF %30 %63
+%65 = OpFMul %30 %61 %64
+%66 = OpFMul %30 %62 %64
+%67 = OpDot %5 %65 %65
+%68 = OpDot %5 %66 %66
+%69 = OpExtInst %5 %45 FMax %67 %68
+%70 = OpExtInst %5 %45 Log2 %69
+%71 = OpFMul %5 %70 %27
+%72 = OpExtInst %5 %45 FClamp %71 %73 %74
+%75 = OpBitcast %9 %56
+%76 = OpBitcast %9 %72
+%77 = OpCompositeConstruct %10 %75 %76
+%79 = OpAccessChain %78 %14 %23 %24
+OpStore %79 %77
+OpReturn
+OpFunctionEnd
+#endif
