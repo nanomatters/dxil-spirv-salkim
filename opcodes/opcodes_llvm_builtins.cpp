@@ -875,14 +875,14 @@ static bool value_cast_is_noop(Converter::Impl &impl, const InstructionType *ins
 {
 	relaxed_precision_cast = false;
 
-	// In case we extend min16int to int without native 16-bit ints, this is just a noop.
-	// I don't believe overflow is well defined for min-precision integers ...
-	// They certainly are not in Vulkan.
+	// Promoted half values already have the physical type of a float, including
+	// vector components. SPIR-V cannot convert between equal-width float types.
+	auto output_type = instruction->getType()->getScalarType()->getTypeID();
+	auto input_type = instruction->getOperand(0)->getType()->getScalarType()->getTypeID();
 	switch (instruction->getOpcode())
 	{
 	case llvm::Instruction::CastOps::FPExt:
-		if (instruction->getType()->getTypeID() == llvm::Type::TypeID::FloatTyID &&
-		    instruction->getOperand(0)->getType()->getTypeID() == llvm::Type::TypeID::HalfTyID &&
+		if (output_type == llvm::Type::TypeID::FloatTyID && input_type == llvm::Type::TypeID::HalfTyID &&
 		    !impl.support_native_fp16_operations())
 		{
 			return true;
@@ -891,8 +891,7 @@ static bool value_cast_is_noop(Converter::Impl &impl, const InstructionType *ins
 
 	case llvm::Instruction::CastOps::FPTrunc:
 	{
-		if (instruction->getOperand(0)->getType()->getTypeID() == llvm::Type::TypeID::FloatTyID &&
-		    instruction->getType()->getTypeID() == llvm::Type::TypeID::HalfTyID &&
+		if (input_type == llvm::Type::TypeID::FloatTyID && output_type == llvm::Type::TypeID::HalfTyID &&
 		    !impl.support_native_fp16_operations())
 		{
 			relaxed_precision_cast = impl.options.arithmetic_relaxed_precision;
