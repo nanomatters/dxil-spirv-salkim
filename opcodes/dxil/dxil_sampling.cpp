@@ -207,7 +207,7 @@ static void build_gradient(Converter::Impl &impl, const spv::Id *coord, unsigned
 {
 	auto &builder = impl.builder();
 	spv::Id f32_type = builder.makeFloatType(32);
-	spv::Id vec_type = builder.makeVectorType(f32_type, num_coords);
+	spv::Id vec_type = impl.build_vector_type(f32_type, num_coords);
 	spv::Id coord_vec = impl.build_vector(builder.makeFloatType(32), coord, num_coords);
 	builder.addCapability(spv::CapabilityGroupNonUniformQuad);
 
@@ -250,8 +250,9 @@ static void build_gradient(Converter::Impl &impl, const spv::Id *coord, unsigned
 		exp2->add_id(bias_id);
 		impl.add(exp2);
 
-		auto *scale_x = impl.allocate(spv::OpVectorTimesScalar, vec_type);
-		auto *scale_y = impl.allocate(spv::OpVectorTimesScalar, vec_type);
+		auto scale_op = num_coords == 1 ? spv::OpFMul : spv::OpVectorTimesScalar;
+		auto *scale_x = impl.allocate(scale_op, vec_type);
+		auto *scale_y = impl.allocate(scale_op, vec_type);
 		scale_x->add_id(grad_x);
 		scale_x->add_id(exp2->id);
 		scale_y->add_id(grad_y);
@@ -1410,7 +1411,7 @@ bool emit_texture_gather_instruction(bool compare, bool raw, Converter::Impl &im
 	return true;
 }
 
-static spv::Id build_lod_from_gradient(Converter::Impl &impl, spv::Id grad_x, spv::Id grad_y)
+static spv::Id build_lod_from_gradient(Converter::Impl &impl, spv::Id grad_x, spv::Id grad_y, unsigned num_coords)
 {
 	auto &builder = impl.builder();
 	spv::Id f32_type = builder.makeFloatType(32);
@@ -1418,12 +1419,13 @@ static spv::Id build_lod_from_gradient(Converter::Impl &impl, spv::Id grad_x, sp
 	if (!impl.glsl_std450_ext)
 		impl.glsl_std450_ext = builder.import("GLSL.std.450");
 
-	auto *dot_x = impl.allocate(spv::OpDot, f32_type);
+	auto length_op = num_coords == 1 ? spv::OpFMul : spv::OpDot;
+	auto *dot_x = impl.allocate(length_op, f32_type);
 	dot_x->add_id(grad_x);
 	dot_x->add_id(grad_x);
 	impl.add(dot_x);
 
-	auto *dot_y = impl.allocate(spv::OpDot, f32_type);
+	auto *dot_y = impl.allocate(length_op, f32_type);
 	dot_y->add_id(grad_y);
 	dot_y->add_id(grad_y);
 	impl.add(dot_y);
@@ -1686,7 +1688,7 @@ static bool emit_calculate_lod_instruction_fallback(Converter::Impl &impl, const
 
 	spv::Id i32_type = builder.makeIntType(32);
 	spv::Id f32_type = builder.makeFloatType(32);
-	spv::Id fvec_type = builder.makeVectorType(f32_type, num_coords);
+	spv::Id fvec_type = impl.build_vector_type(f32_type, num_coords);
 
 	auto *swap_x = impl.allocate(spv::OpGroupNonUniformQuadSwap, fvec_type);
 	swap_x->add_id(builder.makeUintConstant(spv::ScopeSubgroup));
@@ -1727,11 +1729,19 @@ static bool emit_calculate_lod_instruction_fallback(Converter::Impl &impl, const
 		num_coords = 2;
 	}
 
-	auto *query_op = impl.allocate(spv::OpImageQuerySizeLod, builder.makeVectorType(i32_type, num_size_coords));
+	auto *query_op = impl.allocate(spv::OpImageQuerySizeLod, impl.build_vector_type(i32_type, num_size_coords));
 	query_op->add_ids({ image_id, builder.makeIntConstant(0) });
 	impl.add(query_op);
 
-	if (num_coords != num_size_coords)
+	if (num_coords == 1 && num_size_coords != 1)
+	{
+		auto *extract_op = impl.allocate(spv::OpCompositeExtract, i32_type);
+		extract_op->add_id(query_op->id);
+		extract_op->add_literal(0);
+		impl.add(extract_op);
+		query_op = extract_op;
+	}
+	else if (num_coords != num_size_coords)
 	{
 		auto *shuffle_op = impl.allocate(spv::OpVectorShuffle, builder.makeVectorType(i32_type, num_coords));
 		shuffle_op->add_id(query_op->id);
@@ -1755,7 +1765,7 @@ static bool emit_calculate_lod_instruction_fallback(Converter::Impl &impl, const
 	scale_y->add_ids({ grad_y_id, fconv->id });
 	impl.add(scale_y);
 
-	spv::Id lod = build_lod_from_gradient(impl, scale_x->id, scale_y->id);
+	spv::Id lod = build_lod_from_gradient(impl, scale_x->id, scale_y->id, num_coords);
 
 	auto *clamped_value = llvm::cast<llvm::ConstantInt>(instruction->getOperand(6));
 	bool clamped = clamped_value->getUniqueInteger().getZExtValue() != 0;
@@ -2167,7 +2177,7 @@ static spv::Id emit_accessed_lod(DXIL::Op opcode, Converter::Impl &impl, const l
 		grad_y->add_id(ddy_id);
 		impl.add(grad_y);
 
-		access_lod_id = build_lod_from_gradient(impl, grad_x->id, grad_y->id);
+		access_lod_id = build_lod_from_gradient(impl, grad_x->id, grad_y->id, 2);
 	}
 	else
 		return 0;
