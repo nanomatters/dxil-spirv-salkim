@@ -214,10 +214,10 @@ OpStore %115 %114
 %116 = OpHitObjectGetClusterIdNV %5 %90
 %117 = OpAccessChain %94 %25 %45 %6
 OpStore %117 %116
-%118 = OpHitObjectGetInstanceIdNV %5 %90
+%118 = OpHitObjectGetInstanceCustomIndexNV %5 %90
 %119 = OpAccessChain %94 %25 %45 %8
 OpStore %119 %118
-%120 = OpHitObjectGetInstanceCustomIndexNV %5 %90
+%120 = OpHitObjectGetInstanceIdNV %5 %90
 %122 = OpAccessChain %94 %25 %45 %121
 OpStore %122 %120
 %123 = OpHitObjectGetPrimitiveIndexNV %5 %90
