@@ -715,8 +715,14 @@ static bool is_canonically_normalizing_value(const llvm::Value *value)
 	       value_is_length_squared(llvm::cast<llvm::CallInst>(value)->getOperand(1));
 }
 
-static std::pair<const llvm::Value *, double> split_constant_multipliers(const llvm::Value *value)
+static std::pair<const llvm::Value *, double> split_constant_multipliers(const llvm::Value *value, unsigned &budget)
 {
+	// Multiplication operands can share arbitrarily deep expression DAGs. Keep
+	// this heuristic bounded, leaving an unexamined subtree as one multiplier.
+	if (!budget)
+		return { value, 1.0 };
+	budget--;
+
 	if (const auto *fp = llvm::dyn_cast<llvm::ConstantFP>(value))
 	{
 		return { nullptr, fp->getValueAPF().convertToDouble() };
@@ -726,8 +732,8 @@ static std::pair<const llvm::Value *, double> split_constant_multipliers(const l
 		if (bin_op->getOpcode() != llvm::BinaryOperator::BinaryOps::FMul)
 			return { value, 1.0 };
 
-		auto split0 = split_constant_multipliers(bin_op->getOperand(0));
-		auto split1 = split_constant_multipliers(bin_op->getOperand(1));
+		auto split0 = split_constant_multipliers(bin_op->getOperand(0), budget);
+		auto split1 = split_constant_multipliers(bin_op->getOperand(1), budget);
 
 		if (split0.first && split1.first)
 			return { value, 1.0 };
@@ -744,7 +750,8 @@ static std::pair<const llvm::Value *, double> split_constant_multipliers(const l
 
 static bool get_expression_upper_bound(const llvm::Value *value, double &boundary_value)
 {
-	auto overall_split = split_constant_multipliers(value);
+	unsigned budget = 64;
+	auto overall_split = split_constant_multipliers(value, budget);
 	value = overall_split.first;
 	if (!overall_split.first)
 	{
@@ -761,8 +768,8 @@ static bool get_expression_upper_bound(const llvm::Value *value, double &boundar
 		const llvm::Value *op0 = bin_op->getOperand(0);
 		const llvm::Value *op1 = bin_op->getOperand(1);
 
-		auto split0 = split_constant_multipliers(op0);
-		auto split1 = split_constant_multipliers(op1);
+		auto split0 = split_constant_multipliers(op0, budget);
+		auto split1 = split_constant_multipliers(op1, budget);
 
 		// Don't want to deal with any negative numbers here since the definition of max and min flip.
 		if (split0.second < 0.0 || split1.second < 0.0)
