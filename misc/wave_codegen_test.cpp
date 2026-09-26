@@ -64,6 +64,36 @@ static void test_neutral_value(unsigned width, unsigned lanes, bool native, bool
 	check(block.back()->argument(2) == select->id);
 }
 
+static void test_uniform_read(bool uniform, bool constant_lane)
+{
+	llvm::LLVMContext context;
+	LLVMBCParser parser;
+	SPIRVModule module;
+	Converter::Impl impl(parser, nullptr, module);
+	Vector<Operation *> block;
+	impl.current_block = &block;
+	impl.execution_model = spv::ExecutionModelGLCompute;
+	auto *type = llvm::Type::getInt32Ty(context);
+	llvm::ConstantInt opcode(type, unsigned(DXIL::Op::WaveReadLaneAt)), constant(type, 17), zero(type, 0);
+	llvm::Argument dynamic(type, 0), lane(type, 1);
+	llvm::Value *value = uniform ? static_cast<llvm::Value *>(&constant) : &dynamic;
+	llvm::FunctionType function(context, type, { type, type, type });
+	llvm::CallInst call(&function, nullptr, { &opcode, value, constant_lane ? static_cast<llvm::Value *>(&zero) : &lane });
+	check(emit_wave_read_lane_at_instruction(impl, &call));
+	if (uniform)
+	{
+		check(block.empty());
+		check(impl.get_id_for_value(&call) == impl.get_id_for_value(value));
+		check(!impl.shader_analysis.require_subgroup_shuffles);
+	}
+	else
+	{
+		check(block.size() == 1);
+		check(block[0]->op == (constant_lane ? spv::OpGroupNonUniformBroadcast : spv::OpGroupNonUniformShuffle));
+		check(impl.shader_analysis.require_subgroup_shuffles);
+	}
+}
+
 static void test_uniform_analysis_budget()
 {
 	llvm::LLVMContext context;
@@ -83,6 +113,39 @@ static void test_uniform_analysis_budget()
 	check(value_is_statically_wave_uniform(impl, &constant));
 }
 
+static void test_active_wave_read(bool derived, bool first, bool constant_lane)
+{
+	llvm::LLVMContext context;
+	llvm::Module llvm_module(context);
+	LLVMBCParser parser;
+	SPIRVModule module;
+	Converter::Impl impl(parser, nullptr, module);
+	Vector<Operation *> block;
+	impl.current_block = &block;
+	impl.execution_model = spv::ExecutionModelGLCompute;
+	auto *type = llvm::Type::getInt32Ty(context);
+	llvm::ConstantInt opcode(type, unsigned(DXIL::Op::WaveActiveOp));
+	llvm::ConstantInt one(type, 1), zero(type, 0);
+	llvm::FunctionType reduce_type(context, type, { type, type, type, type });
+	llvm::Function reduce_function(&reduce_type, 1, llvm_module);
+	llvm_module.add_value_name(1, "dx.op.waveActiveOp.i32");
+	llvm::CallInst reduction(&reduce_type, &reduce_function, { &opcode, &one, &zero, &zero });
+	llvm::BinaryOperator arithmetic(&reduction, &one, llvm::Instruction::Add);
+	llvm::Value *value = derived ? static_cast<llvm::Value *>(&arithmetic) : &reduction;
+	// No consumer/convergence information is available to this proof. In particular,
+	// this result may come from different iterations of a divergent loop.
+	check(!value_is_statically_wave_uniform(impl, value));
+	llvm::ConstantInt read_opcode(type, unsigned(first ? DXIL::Op::WaveReadLaneFirst : DXIL::Op::WaveReadLaneAt));
+	llvm::Argument lane(type, 0);
+	llvm::FunctionType read_type(context, type, { type, type, type });
+	llvm::CallInst read(&read_type, nullptr,
+	                    { &read_opcode, value, constant_lane ? static_cast<llvm::Value *>(&zero) : &lane });
+	check(first ? emit_wave_read_lane_first_instruction(impl, &read) : emit_wave_read_lane_at_instruction(impl, &read));
+	check(block.size() == 1);
+	check(block[0]->op == (first ? spv::OpGroupNonUniformBroadcastFirst :
+	                      constant_lane ? spv::OpGroupNonUniformBroadcast : spv::OpGroupNonUniformShuffle));
+}
+
 int main()
 {
 	begin_thread_allocator_context();
@@ -95,6 +158,19 @@ int main()
 	for (unsigned kind = 0; kind < (prefix ? 2u : 4u); kind++)
 	{
 		test_neutral_value(width, lanes, native, prefix, kind);
+		cases++;
+	}
+	for (bool uniform : { false, true })
+	for (bool constant_lane : { false, true })
+	{
+		test_uniform_read(uniform, constant_lane);
+		cases++;
+	}
+	for (bool derived : { false, true })
+	for (bool first : { false, true })
+	for (bool constant_lane : { false, true })
+	{
+		test_active_wave_read(derived, first, constant_lane);
 		cases++;
 	}
 	end_thread_allocator_context();

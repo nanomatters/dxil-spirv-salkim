@@ -1,0 +1,114 @@
+#version 460
+#extension GL_KHR_shader_subgroup_basic : require
+#extension GL_KHR_shader_subgroup_arithmetic : require
+#extension GL_KHR_shader_subgroup_ballot : require
+layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+
+layout(set = 0, binding = 0, r32ui) uniform writeonly uimageBuffer _8;
+
+void main()
+{
+    uint _15;
+    _15 = gl_SubgroupInvocationID + 1u;
+    uint _17;
+    for (;;)
+    {
+        _17 = subgroupAdd(1u);
+        uint _16 = _15 + 4294967295u;
+        if (_16 == 0u)
+        {
+            break;
+        }
+        else
+        {
+            _15 = _16;
+        }
+    }
+    uint _30 = _17 + 7u;
+    uint _34 = gl_GlobalInvocationID.x * 4u;
+    imageStore(_8, int(_34), uvec4(subgroupBroadcast(_17, 0u)));
+    imageStore(_8, int(_34 + 1u), uvec4(subgroupBroadcastFirst(_17)));
+    imageStore(_8, int(_34 + 2u), uvec4(subgroupBroadcast(_30, 0u)));
+    imageStore(_8, int(_34 + 3u), uvec4(subgroupBroadcastFirst(_30)));
+}
+
+
+#if 0
+// SPIR-V disassembly
+; SPIR-V
+; Version: 1.3
+; Generator: Unknown(30017); 21022
+; Bound: 49
+; Schema: 0
+OpCapability Shader
+OpCapability ImageBuffer
+OpCapability GroupNonUniform
+OpCapability GroupNonUniformArithmetic
+OpCapability GroupNonUniformBallot
+OpMemoryModel Logical GLSL450
+OpEntryPoint GLCompute %3 "main" %11 %25
+OpExecutionMode %3 LocalSize 64 1 1
+OpName %3 "main"
+OpDecorate %8 DescriptorSet 0
+OpDecorate %8 Binding 0
+OpDecorate %8 NonReadable
+OpDecorate %11 BuiltIn SubgroupLocalInvocationId
+OpDecorate %25 BuiltIn GlobalInvocationId
+%1 = OpTypeVoid
+%2 = OpTypeFunction %1
+%5 = OpTypeInt 32 0
+%6 = OpTypeImage %5 Buffer 0 0 0 2 R32ui
+%7 = OpTypePointer UniformConstant %6
+%8 = OpVariable %7 UniformConstant
+%10 = OpTypePointer Input %5
+%11 = OpVariable %10 Input
+%14 = OpConstant %5 1
+%18 = OpConstant %5 3
+%19 = OpConstant %5 4294967295
+%20 = OpTypeBool
+%22 = OpConstant %5 0
+%23 = OpTypeVector %5 3
+%24 = OpTypePointer Input %23
+%25 = OpVariable %24 Input
+%31 = OpConstant %5 7
+%35 = OpConstant %5 4
+%36 = OpTypeVector %5 4
+%42 = OpConstant %5 2
+%3 = OpFunction %1 None %2
+%4 = OpLabel
+OpBranch %45
+%45 = OpLabel
+%9 = OpLoad %6 %8
+%12 = OpLoad %5 %11
+%13 = OpIAdd %5 %12 %14
+OpBranch %46
+%46 = OpLabel
+%15 = OpPhi %5 %13 %45 %16 %46
+%17 = OpGroupNonUniformIAdd %5 %18 Reduce %14
+%16 = OpIAdd %5 %15 %19
+%21 = OpIEqual %20 %16 %22
+OpLoopMerge %47 %46 None
+OpBranchConditional %21 %47 %46
+%47 = OpLabel
+%26 = OpAccessChain %10 %25 %22
+%27 = OpLoad %5 %26
+%28 = OpGroupNonUniformBroadcast %5 %18 %17 %22
+%29 = OpGroupNonUniformBroadcastFirst %5 %18 %17
+%30 = OpIAdd %5 %17 %31
+%32 = OpGroupNonUniformBroadcast %5 %18 %30 %22
+%33 = OpGroupNonUniformBroadcastFirst %5 %18 %30
+%34 = OpIMul %5 %27 %35
+%37 = OpCompositeConstruct %36 %28 %28 %28 %28
+OpImageWrite %9 %34 %37
+%38 = OpCompositeConstruct %36 %29 %29 %29 %29
+%39 = OpIAdd %5 %34 %14
+OpImageWrite %9 %39 %38
+%40 = OpCompositeConstruct %36 %32 %32 %32 %32
+%41 = OpIAdd %5 %34 %42
+OpImageWrite %9 %41 %40
+%43 = OpCompositeConstruct %36 %33 %33 %33 %33
+%44 = OpIAdd %5 %34 %18
+OpImageWrite %9 %44 %43
+OpReturn
+OpFunctionEnd
+#endif
