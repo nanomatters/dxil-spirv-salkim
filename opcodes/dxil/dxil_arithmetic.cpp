@@ -211,6 +211,78 @@ static bool is_legacy_shader_model(Converter::Impl &impl)
 	return sm_major * 100 + sm_minor < 609;
 }
 
+static spv::Id emit_wide_bitscan64(GLSLstd450 opcode, Converter::Impl &impl,
+                                 const llvm::Instruction *instruction, const llvm::Value *value)
+{
+	auto &builder = impl.builder();
+	unsigned num_elements = value->getType()->getVectorNumElements();
+	Operation *op;
+	spv::Id uint_type = builder.makeUintType(32);
+	spv::Id result_type = builder.makeVectorType(uint_type, num_elements);
+
+	// Keep the number of components unchanged. Bitcasting to twice as many
+	// 32-bit components would exceed maxVectorComponents for long vectors.
+	spv::Id const32 = impl.build_splat_constant_vector(uint_type, builder.makeUintConstant(32), num_elements);
+	auto *lo = impl.allocate(spv::OpUConvert, result_type);
+	lo->add_id(impl.get_id_for_value(value));
+	impl.add(lo);
+
+	auto *shift = impl.allocate(spv::OpShiftRightLogical, impl.get_type_id(value->getType()));
+	shift->add_id(impl.get_id_for_value(value));
+	shift->add_id(const32);
+	impl.add(shift);
+
+	auto *hi = impl.allocate(spv::OpUConvert, result_type);
+	hi->add_id(shift->id);
+	impl.add(hi);
+	spv::Id halves[] = { lo->id, hi->id };
+
+	if (opcode == GLSLstd450FindSMsb)
+	{
+		// Invert both halves of negative values before the unsigned scan.
+		auto *sign = impl.allocate(spv::OpShiftRightArithmetic, result_type);
+		sign->add_id(hi->id);
+		sign->add_id(impl.build_splat_constant_vector(uint_type, builder.makeUintConstant(31), num_elements));
+		impl.add(sign);
+		for (auto &half : halves)
+		{
+			auto *invert = impl.allocate(spv::OpBitwiseXor, result_type);
+			invert->add_ids({ half, sign->id });
+			impl.add(invert);
+			half = invert->id;
+		}
+		opcode = GLSLstd450FindUMsb;
+	}
+
+	for (auto &half : halves)
+	{
+		auto *scan = impl.allocate(spv::OpExtInst, result_type);
+		scan->add_id(impl.glsl_std450_ext);
+		scan->add_literal(opcode);
+		scan->add_id(half);
+		impl.add(scan);
+		half = scan->id;
+	}
+
+	auto *or32 = impl.allocate(spv::OpBitwiseOr, result_type);
+	or32->add_ids({ halves[1], const32 });
+	impl.add(or32);
+
+	auto merge_op = opcode == GLSLstd450FindILsb ? GLSLstd450UMin : GLSLstd450SMax;
+
+	if (instruction)
+		op = impl.allocate(spv::OpExtInst, instruction);
+	else
+		op = impl.allocate(spv::OpExtInst, result_type);
+
+	op->add_id(impl.glsl_std450_ext);
+	op->add_literal(merge_op);
+	op->add_id(halves[0]);
+	op->add_id(or32->id);
+	impl.add(op);
+	return op->id;
+}
+
 spv::Id emit_native_bitscan(GLSLstd450 opcode, Converter::Impl &impl,
                             const llvm::Instruction *instruction, const llvm::Value *value)
 {
@@ -248,6 +320,11 @@ spv::Id emit_native_bitscan(GLSLstd450 opcode, Converter::Impl &impl,
 	}
 	else if (value_type->getScalarType()->getIntegerBitWidth() == 64)
 	{
+		// SM 6.9 requires support for 1024 components, not 2048. Keep the
+		// existing lowering when its doubled temporary fits that limit.
+		if (num_elements > 512)
+			return emit_wide_bitscan64(opcode, impl, instruction, value);
+
 		spv::Id uint_type = builder.makeUintType(32);
 		spv::Id uvec_type = builder.makeVectorType(uint_type, 2 * num_elements);
 

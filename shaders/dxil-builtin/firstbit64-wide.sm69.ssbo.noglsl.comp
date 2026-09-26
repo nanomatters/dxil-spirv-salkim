@@ -1,0 +1,16 @@
+// The 64-bit lowering uses long-vector temporaries, which GLSL cannot express.
+RWByteAddressBuffer Input : register(u0);
+RWByteAddressBuffer Output : register(u1);
+
+[numthreads(1, 1, 1)]
+void main()
+{
+	uint64_t3 a = Input.Load<uint64_t3>(0);
+	uint64_t4 b = Input.Load<uint64_t4>(32);
+	Output.Store<uint3>(0, firstbitlow(a));
+	Output.Store<uint3>(12, firstbithigh(a));
+	Output.Store<uint3>(24, firstbithigh(int64_t3(a)));
+	Output.Store<uint4>(48, firstbitlow(b));
+	Output.Store<uint4>(64, firstbithigh(b));
+	Output.Store<uint4>(80, firstbithigh(int64_t4(b)));
+}
