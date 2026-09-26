@@ -1,0 +1,114 @@
+; SPIR-V
+; Version: 1.6
+; Generator: Unknown(30017); 21022
+; Bound: 63
+; Schema: 0
+OpCapability Shader
+OpCapability UniformBufferArrayDynamicIndexing
+OpCapability SampledImageArrayDynamicIndexing
+OpCapability StorageBufferArrayDynamicIndexing
+OpCapability StorageImageArrayDynamicIndexing
+OpCapability ImageBuffer
+OpCapability RayQueryKHR
+OpCapability RayTraversalPrimitiveCullingKHR
+OpCapability RayTracingKHR
+OpCapability RuntimeDescriptorArray
+OpCapability UniformBufferArrayNonUniformIndexing
+OpCapability SampledImageArrayNonUniformIndexing
+OpCapability StorageBufferArrayNonUniformIndexing
+OpCapability StorageImageArrayNonUniformIndexing
+OpCapability ShaderInvocationReorderEXT
+OpCapability RayTracingOpacityMicromapExecutionModeKHR
+OpExtension "SPV_EXT_descriptor_indexing"
+OpExtension "SPV_EXT_shader_invocation_reorder"
+OpExtension "SPV_KHR_opacity_micromap"
+OpExtension "SPV_KHR_ray_query"
+OpExtension "SPV_KHR_ray_tracing"
+OpMemoryModel Logical GLSL450
+OpEntryPoint RayGenerationKHR %3 "main" %10 %14 %17 %22 %38 %52
+OpExecutionModeId %3 OpacityMicromapIdKHR %6
+OpName %3 "main"
+OpName %10 "AS"
+OpName %14 "Output"
+OpName %17 "RayQueryHeap"
+OpName %20 ""
+OpName %36 "EmptyStruct"
+OpDecorate %10 DescriptorSet 0
+OpDecorate %10 Binding 0
+OpDecorate %14 DescriptorSet 0
+OpDecorate %14 Binding 0
+OpDecorate %14 NonReadable
+OpDecorate %52 BuiltIn LaunchIdKHR
+%1 = OpTypeVoid
+%2 = OpTypeFunction %1
+%5 = OpTypeBool
+%6 = OpConstantTrue %5
+%7 = OpTypeInt 32 1
+%8 = OpTypeAccelerationStructureKHR
+%9 = OpTypePointer UniformConstant %8
+%10 = OpVariable %9 UniformConstant
+%11 = OpTypeInt 32 0
+%12 = OpTypeImage %11 Buffer 0 0 0 2 R32ui
+%13 = OpTypePointer UniformConstant %12
+%14 = OpVariable %13 UniformConstant
+%15 = OpTypeRayQueryKHR
+%16 = OpTypePointer Private %15
+%17 = OpVariable %16 Private
+%18 = OpTypeFloat 32
+%19 = OpTypeVector %18 2
+%20 = OpTypeStruct %19
+%21 = OpTypePointer HitObjectAttributeEXT %20
+%22 = OpVariable %21 HitObjectAttributeEXT
+%23 = OpConstant %11 0
+%25 = OpConstant %11 255
+%26 = OpConstant %18 0
+%27 = OpConstant %18 1
+%28 = OpTypeVector %18 3
+%31 = OpConstant %18 100
+%33 = OpTypeHitObjectEXT
+%34 = OpTypePointer Function %33
+%36 = OpTypeStruct
+%37 = OpTypePointer HitObjectAttributeEXT %36
+%38 = OpVariable %37 HitObjectAttributeEXT
+%39 = OpTypePointer HitObjectAttributeEXT %19
+%41 = OpConstant %18 2
+%42 = OpConstantComposite %19 %27 %41
+%43 = OpConstant %11 1
+%50 = OpTypeVector %11 3
+%51 = OpTypePointer Input %50
+%52 = OpVariable %51 Input
+%53 = OpTypePointer Input %11
+%57 = OpTypeVector %11 4
+%3 = OpFunction %1 None %2
+%4 = OpLabel
+%35 = OpVariable %34 Function
+%44 = OpVariable %34 Function
+OpBranch %59
+%59 = OpLabel
+%24 = OpLoad %8 %10
+%29 = OpCompositeConstruct %28 %26 %26 %26
+%30 = OpCompositeConstruct %28 %26 %26 %27
+OpRayQueryInitializeKHR %17 %24 %23 %25 %29 %26 %30 %31
+OpBranch %60
+%60 = OpLabel
+%32 = OpRayQueryProceedKHR %5 %17
+OpLoopMerge %61 %60 None
+OpBranchConditional %32 %60 %61
+%61 = OpLabel
+OpHitObjectRecordFromQueryEXT %35 %17 %23 %38
+%40 = OpInBoundsAccessChain %39 %22 %23
+OpStore %40 %42
+OpHitObjectRecordFromQueryEXT %44 %17 %23 %22 %43
+%45 = OpHitObjectIsHitEXT %5 %35
+%46 = OpSelect %11 %45 %43 %23
+%47 = OpHitObjectIsHitEXT %5 %44
+%48 = OpSelect %11 %47 %43 %23
+%49 = OpIAdd %11 %48 %46
+%54 = OpAccessChain %53 %52 %23
+%55 = OpLoad %11 %54
+%56 = OpLoad %12 %14
+%58 = OpCompositeConstruct %57 %49 %49 %49 %49
+OpImageWrite %56 %55 %58
+OpReturn
+OpFunctionEnd
+
