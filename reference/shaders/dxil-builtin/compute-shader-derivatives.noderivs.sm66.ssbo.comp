@@ -82,17 +82,17 @@ void main()
     vec2 _401 = vec2(textureSize(_8, 0));
     vec2 _402 = (subgroupQuadSwapHorizontal(_392) - _392) * _401;
     vec2 _403 = (subgroupQuadSwapVertical(_392) - _392) * _401;
-    _25._m0[gl_GlobalInvocationID.x] = floatBitsToUint(uintBitsToFloat(_25._m0[gl_GlobalInvocationID.x]) + max(min(log2(max(dot(_402, _402), dot(_403, _403))) * 0.5, float(textureQueryLevels(_8)) - (-1.0)), 0.0));
+    _25._m0[gl_GlobalInvocationID.x] = floatBitsToUint(uintBitsToFloat(_25._m0[gl_GlobalInvocationID.x]) + max(min(log2(max(dot(_402, _402), dot(_403, _403))) * 0.5, float(textureQueryLevels(_8)) - 1.0), 0.0));
     vec2 _424 = vec2(_38, _40);
     vec2 _432 = vec2(textureSize(_11, 0).xy);
     vec2 _433 = (subgroupQuadSwapHorizontal(_424) - _424) * _432;
     vec2 _434 = (subgroupQuadSwapVertical(_424) - _424) * _432;
-    _25._m0[gl_GlobalInvocationID.x] = floatBitsToUint(uintBitsToFloat(_25._m0[gl_GlobalInvocationID.x]) + max(min(log2(max(dot(_433, _433), dot(_434, _434))) * 0.5, float(textureQueryLevels(_11)) - (-1.0)), 0.0));
+    _25._m0[gl_GlobalInvocationID.x] = floatBitsToUint(uintBitsToFloat(_25._m0[gl_GlobalInvocationID.x]) + max(min(log2(max(dot(_433, _433), dot(_434, _434))) * 0.5, float(textureQueryLevels(_11)) - 1.0), 0.0));
     vec3 _453 = vec3(_38, _40, _42);
     vec3 _459 = vec3(textureSize(_20, 0));
     vec3 _460 = (subgroupQuadSwapHorizontal(_453) - _453) * _459;
     vec3 _461 = (subgroupQuadSwapVertical(_453) - _453) * _459;
-    _25._m0[gl_GlobalInvocationID.x] = floatBitsToUint(uintBitsToFloat(_25._m0[gl_GlobalInvocationID.x]) + max(min(log2(max(dot(_460, _460), dot(_461, _461))) * 0.5, float(textureQueryLevels(_20)) - (-1.0)), 0.0));
+    _25._m0[gl_GlobalInvocationID.x] = floatBitsToUint(uintBitsToFloat(_25._m0[gl_GlobalInvocationID.x]) + max(min(log2(max(dot(_460, _460), dot(_461, _461))) * 0.5, float(textureQueryLevels(_20)) - 1.0), 0.0));
     groupMemoryBarrier();
     barrier();
     vec2 _480 = vec2(_38, _40);
@@ -217,7 +217,7 @@ OpDecorate %365 BuiltIn SubgroupLocalInvocationId
 %398 = OpTypeVector %393 2
 %400 = OpConstant %393 0
 %409 = OpConstant %5 0.5
-%413 = OpConstant %5 -1
+%413 = OpConstant %5 1
 %429 = OpTypeVector %393 3
 %495 = OpConstant %5 -128
 %496 = OpConstant %5 128
