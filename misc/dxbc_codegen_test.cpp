@@ -7,6 +7,7 @@
 #include "thread_local_allocator.hpp"
 #include "api/test_api_common.h"
 #include "spirv-tools/libspirv.hpp"
+#include "GLSL.std.450.h"
 #include <cstdio>
 #include <cstdlib>
 #include <unordered_map>
@@ -24,12 +25,18 @@ static void check_at(bool result, unsigned line)
 }
 #define check(x) check_at((x), __LINE__)
 
-static Vector<uint32_t> convert(ir::Builder &builder)
+static Vector<uint32_t> convert(ir::Builder &builder, bool force_precise = false, bool float_controls2 = false)
 {
 	LLVMBCParser parser;
 	check(parser.parseDXBC(builder));
 	SPIRVModule module;
 	Converter converter(parser, nullptr, module);
+	OptionPreciseControl precise;
+	precise.force_precise = force_precise;
+	converter.add_option(precise);
+	OptionFloatControls2 controls;
+	controls.supported = float_controls2;
+	converter.add_option(controls);
 	auto entry = converter.convert_entry_point();
 	check(entry.entry.entry);
 	CFGStructurizer structurizer(entry.entry.entry, *entry.node_pool, module);
@@ -119,12 +126,60 @@ static void test_lds_atomic(unsigned result_mode)
 	check(atomics == 1);
 }
 
+static void test_mad(bool precise, bool force, bool float_controls2)
+{
+	using namespace ir;
+	Builder b;
+	auto ep = test_api::setupTestFunction(b, ir::ShaderStage::ePixel);
+	b.add(Op::Label());
+	Op mad(OpCode::eFMad, ScalarType::eF32);
+	if (precise) mad.setFlags(OpFlag::ePrecise);
+	for (unsigned i = 0; i < 3; i++)
+	{
+		auto input = b.add(Op::DclInput(ScalarType::eF32, ep, i, 0u, InterpolationModes()));
+		b.add(Op::Semantic(input, i, "TEXCOORD"));
+		mad.addOperand(Operand(b.add(Op::InputLoad(ScalarType::eF32, input, SsaDef()))));
+	}
+	auto output = b.add(Op::DclOutput(ScalarType::eF32, ep, 0u, 0u));
+	b.add(Op::Semantic(output, 0u, "SV_TARGET"));
+	b.add(Op::OutputStore(output, SsaDef(), b.add(std::move(mad))));
+	b.add(Op::Return());
+	auto spirv = convert(b, force, float_controls2);
+	uint32_t fma = 0;
+	std::unordered_map<uint32_t, unsigned> precision;
+	for (size_t i = 5; i < spirv.size(); i += spirv[i] >> 16)
+	{
+		auto op = spv::Op(spirv[i] & 0xffff);
+		check(op != spv::OpFMul && op != spv::OpFAdd);
+		if (op == spv::OpExtInst && spirv[i + 4] == GLSLstd450Fma)
+		{
+			check(!fma);
+			fma = spirv[i + 2];
+		}
+		if (op == spv::OpDecorate && spirv[i + 2] == spv::DecorationNoContraction)
+			precision[spirv[i + 1]] = 1;
+		if (op == spv::OpDecorate && spirv[i + 2] == spv::DecorationFPFastMathMode)
+		{
+			check(!(spirv[i + 3] & (spv::FPFastMathModeAllowContractMask | spv::FPFastMathModeAllowReassocMask)));
+			precision[spirv[i + 1]] = 1;
+		}
+	}
+	check(fma);
+	// Force-precise with float-controls2 is enforced by the global mode.
+	if (!(force && float_controls2))
+		check(bool(precision[fma]) == (precise || force));
+}
+
 int main()
 {
 	begin_thread_allocator_context();
 	test_interpolation();
 	for (unsigned mode = 0; mode < 3; mode++)
 		test_lds_atomic(mode);
+	for (bool precise : { false, true })
+	for (bool force : { false, true })
+	for (bool float_controls2 : { false, true })
+		test_mad(precise, force, float_controls2);
 	end_thread_allocator_context();
 	std::puts("DXBC codegen cases passed.");
 }
