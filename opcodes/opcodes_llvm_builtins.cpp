@@ -2630,7 +2630,7 @@ static bool analyze_alloca_store(Converter::Impl &impl,
 
 		// This comes up when alloca-ing vectors. We end up with multiple scalar arrays.
 		// When accessing the CBV we have to multiply the stride back up again.
-		if ((tracking.stride && stride != tracking.stride) || (scalar_index_offset % stride != 0))
+		if ((tracking.stride && stride != tracking.stride) || (scalar_index_offset % store_index != 0))
 			return false;
 
 		tracking.stride = stride;
