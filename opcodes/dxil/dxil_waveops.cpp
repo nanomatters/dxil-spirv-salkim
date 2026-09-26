@@ -255,7 +255,7 @@ bool emit_wave_ballot_instruction(Converter::Impl &impl, const llvm::CallInst *i
 	return true;
 }
 
-bool value_is_statically_wave_uniform(Converter::Impl &impl, const llvm::Value *value)
+static bool value_is_statically_wave_uniform(Converter::Impl &impl, const llvm::Value *value, unsigned &budget)
 {
 	// A surprising amount of shaders try to broadcast a value that is provably wave-uniform already.
 	// Just forward this directly ...
@@ -263,15 +263,20 @@ bool value_is_statically_wave_uniform(Converter::Impl &impl, const llvm::Value *
 	// the active threads when the wave uniform value was generated, so it is impossible for the input value to
 	// not be wave uniform. We might end up promoting an undef value to not undef, but that is fine, since undef is ...
 	// well, undef.
+	// Shared expression DAGs can otherwise trigger exponential recursion.
+	// Exhausting the analysis budget only disables an optional optimization.
+	if (!budget)
+		return false;
+	budget--;
 
 	if (const auto *unary = llvm::dyn_cast<llvm::UnaryOperator>(value))
 	{
-		return value_is_statically_wave_uniform(impl, unary->getOperand(0));
+		return value_is_statically_wave_uniform(impl, unary->getOperand(0), budget);
 	}
 	else if (const auto *binary = llvm::dyn_cast<llvm::BinaryOperator>(value))
 	{
-		return value_is_statically_wave_uniform(impl, binary->getOperand(0)) &&
-		       value_is_statically_wave_uniform(impl, binary->getOperand(1));
+		return value_is_statically_wave_uniform(impl, binary->getOperand(0), budget) &&
+		       value_is_statically_wave_uniform(impl, binary->getOperand(1), budget);
 	}
 
 	if (value_is_dx_op_instrinsic(value, DXIL::Op::AnnotateNodeHandle))
@@ -310,7 +315,7 @@ bool value_is_statically_wave_uniform(Converter::Impl &impl, const llvm::Value *
 	    value_is_dx_op_instrinsic(value, DXIL::Op::CBufferLoad))
 	{
 		auto *call_op = llvm::cast<llvm::CallInst>(value);
-		return value_is_statically_wave_uniform(impl, call_op->getOperand(2)) &&
+		return value_is_statically_wave_uniform(impl, call_op->getOperand(2), budget) &&
 		       resource_handle_is_uniform_readonly_descriptor(impl, call_op->getOperand(1));
 	}
 	else if (value_is_dx_op_instrinsic(value, DXIL::Op::BufferLoad) ||
@@ -319,12 +324,18 @@ bool value_is_statically_wave_uniform(Converter::Impl &impl, const llvm::Value *
 		auto *call_op = llvm::cast<llvm::CallInst>(value);
 
 		// For byte-address-buffers, arg 3 will be undef and treated as wave uniform (it's a constant).
-		return value_is_statically_wave_uniform(impl, call_op->getOperand(2)) &&
-		       value_is_statically_wave_uniform(impl, call_op->getOperand(3)) &&
+		return value_is_statically_wave_uniform(impl, call_op->getOperand(2), budget) &&
+		       value_is_statically_wave_uniform(impl, call_op->getOperand(3), budget) &&
 		       resource_handle_is_uniform_readonly_descriptor(impl, call_op->getOperand(1));
 	}
 
 	return false;
+}
+
+bool value_is_statically_wave_uniform(Converter::Impl &impl, const llvm::Value *value)
+{
+	unsigned budget = 64;
+	return value_is_statically_wave_uniform(impl, value, budget);
 }
 
 static bool value_depends_on_dxil_op(

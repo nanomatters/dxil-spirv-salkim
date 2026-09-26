@@ -1,0 +1,9 @@
+RWStructuredBuffer<uint> Output : register(u0);
+
+[numthreads(64, 1, 1)]
+void main(uint tid : SV_DispatchThreadID, uint group : SV_GroupID)
+{
+	uint x = group;
+	[unroll] for (uint i = 0; i < 24; i++) x = x * x + 3;
+	Output[tid] = WaveReadLaneFirst(x);
+}
