@@ -238,6 +238,7 @@ int main(int argc, char **argv)
 			f->add_branch(t);
 			Terminator::Case case_label = {};
 			case_label.node = t;
+			case_label.value = i;
 			case_label.global_order = i;
 			case_label.is_default = i == 0;
 			f->ir.terminator.cases.push_back(case_label);
