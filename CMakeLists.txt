@@ -209,6 +209,8 @@ if (DXIL_SPIRV_TESTS)
         add_structurize_test(valid 0 "Validated successfully!")
         # The entry PHI deliberately lacks an incoming value from the synthetic entry block.
         add_structurize_test(invalid-phi 1 "Validation error[.]")
+        # Inspect literals explicitly; validation alone does not reject duplicate cases.
+        add_structurize_test(switch 0 "OpSwitch %[0-9]+ %[0-9]+ 1 %[0-9]+ 2 %[0-9]+")
     endif()
     add_executable(bitcode-decoder-test misc/bitcode_decoder_test.cpp)
     target_link_libraries(bitcode-decoder-test PRIVATE bc-decoder dxil-utils)
