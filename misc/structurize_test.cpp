@@ -153,11 +153,8 @@ static bool validate_spirv(const Vector<uint32_t> &code)
 		LOGE("Validation error.\n");
 		return false;
 	}
-	else
-	{
-		LOGE("Validated successfully!\n");
-		return true;
-	}
+	LOGE("Validated successfully!\n");
+	return true;
 }
 
 static Vector<String> tokenize(char *line_buffer)
