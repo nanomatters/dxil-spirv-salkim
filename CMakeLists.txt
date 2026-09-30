@@ -190,7 +190,7 @@ install(EXPORT dxil_spirv_c_sharedConfig DESTINATION ${CMAKE_INSTALL_DATAROOTDIR
 
 option(DXIL_SPV_MISC_CLI "Enable misc CLI apps." OFF)
 
-if (DXIL_SPV_MISC_CLI)
+if (DXIL_SPV_MISC_CLI OR (DXIL_SPIRV_TESTS AND DXIL_SPIRV_CLI))
     add_executable(structurize-test misc/structurize_test.cpp)
     target_link_libraries(structurize-test PRIVATE dxil-converter SPIRV-Tools-static spirv-cross-c dxil-debug dxil-utils)
     target_compile_options(structurize-test PRIVATE ${DXIL_SPV_CXX_FLAGS})
@@ -200,6 +200,18 @@ endif()
 
 if (DXIL_SPIRV_TESTS)
     enable_testing()
+    if (TARGET structurize-test)
+        function(add_structurize_test name status output)
+            add_test(NAME structurize-${name} COMMAND ${CMAKE_COMMAND}
+                    "-DPROGRAM=$<TARGET_FILE:structurize-test>"
+                    "-DINPUT=${CMAKE_CURRENT_SOURCE_DIR}/misc/structurize/${name}.cfg"
+                    "-DEXPECTED_STATUS=${status}" "-DEXPECTED_OUTPUT=${output}"
+                    -P ${CMAKE_CURRENT_SOURCE_DIR}/misc/structurize/check.cmake)
+        endfunction()
+        add_structurize_test(valid 0 "Validated successfully!")
+        # The entry PHI deliberately lacks an incoming value from the synthetic entry block.
+        add_structurize_test(invalid-phi 1 "Validation error[.]")
+    endif()
     add_executable(bitcode-decoder-test misc/bitcode_decoder_test.cpp)
     target_link_libraries(bitcode-decoder-test PRIVATE bc-decoder dxil-utils)
     add_test(NAME bitcode-decoder COMMAND bitcode-decoder-test)
