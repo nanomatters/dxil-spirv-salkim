@@ -1544,6 +1544,16 @@ dxil_spv_result dxil_spv_converter_add_option(dxil_spv_converter converter, cons
 		break;
 	}
 
+	case DXIL_SPV_OPTION_RAY_TRACING_LINEAR_SWEPT_SPHERES:
+	{
+		OptionRayTracingLinearSweptSpheres helper;
+		auto *lss = reinterpret_cast<const dxil_spv_option_ray_tracing_linear_swept_spheres *>(option);
+		helper.supported = lss->supported == DXIL_SPV_TRUE;
+
+		converter->options.emplace_back(duplicate(helper));
+		break;
+	}
+
 	default:
 		return DXIL_SPV_ERROR_UNSUPPORTED_FEATURE;
 	}

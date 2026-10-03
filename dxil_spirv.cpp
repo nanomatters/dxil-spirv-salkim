@@ -180,6 +180,7 @@ static void print_help()
 	     "\t[--allow-arithmetic-relaxed-precision]\n"
 	     "\t[--physical-address-descriptor-indexing <element stride> <element offset>]\n"
 	     "\t[--nvapi <register index> <register space>]\n"
+	     "\t[--ray-tracing-lss]\n"
 	     "\t[--subgroup-partitioned-nv]\n"
 	     "\t[--dead-code-eliminate]\n"
 	     "\t[--propagate-precise]\n"
@@ -279,6 +280,7 @@ struct Arguments
 	uint32_t descriptor_qa_binding = 0;
 
 	bool nvapi = false;
+	bool ray_tracing_lss = false;
 	unsigned nvapi_register_index = 0;
 	unsigned nvapi_register_space = 0;
 
@@ -855,6 +857,7 @@ int main(int argc, char **argv)
 		args.nvapi_register_index = parser.next_uint();
 		args.nvapi_register_space = parser.next_uint();
 	});
+	cbs.add("--ray-tracing-lss", [&](CLIParser &) { args.ray_tracing_lss = true; });
 	cbs.add("--subgroup-partitioned-nv", [&](CLIParser &) {
 		args.subgroup_partitioned_nv = true;
 	});
@@ -1319,6 +1322,12 @@ int main(int argc, char **argv)
 		extn.register_index = args.nvapi_register_index;
 		extn.register_space = args.nvapi_register_space;
 		dxil_spv_converter_add_option(converter, &extn.base);
+	}
+	if (args.ray_tracing_lss)
+	{
+		dxil_spv_option_ray_tracing_linear_swept_spheres lss =
+			{{ DXIL_SPV_OPTION_RAY_TRACING_LINEAR_SWEPT_SPHERES }, DXIL_SPV_TRUE};
+		dxil_spv_converter_add_option(converter, &lss.base);
 	}
 
 	if (args.non_semantic)

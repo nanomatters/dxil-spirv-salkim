@@ -9901,6 +9901,11 @@ void Converter::Impl::set_option(const OptionBase &cap)
 		break;
 	}
 
+	case Option::RayTracingLinearSweptSpheres:
+		options.supports_ray_tracing_linear_swept_spheres =
+			static_cast<const OptionRayTracingLinearSweptSpheres &>(cap).supported;
+		break;
+
 	default:
 		break;
 	}

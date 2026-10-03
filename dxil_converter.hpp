@@ -280,6 +280,7 @@ enum class Option : uint32_t
 	ShaderAbort = 55,
 	ConservativeSSBOVectorization = 56,
 	ShaderFma = 57,
+	RayTracingLinearSweptSpheres = 58,
 	Count
 };
 
@@ -962,6 +963,16 @@ struct OptionShaderFma : OptionBase
 	bool supported_float16 = false;
 	bool supported_float32 = false;
 	bool supported_float64 = false;
+};
+
+struct OptionRayTracingLinearSweptSpheres : OptionBase
+{
+	OptionRayTracingLinearSweptSpheres()
+		: OptionBase(Option::RayTracingLinearSweptSpheres)
+	{
+	}
+
+	bool supported = false;
 };
 
 struct DescriptorTableEntry
