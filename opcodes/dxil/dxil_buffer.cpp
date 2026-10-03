@@ -1635,6 +1635,8 @@ bool emit_buffer_store_instruction(Converter::Impl &impl, const llvm::CallInst *
 
 	if (emit_ags_buffer_store(impl, instruction, image_id))
 		return true;
+	if (image_id == impl.nvapi.magic_ptr_id)
+		return emit_nvapi_buffer_store(impl, instruction, image_id);
 	if (emit_nvapi_buffer_store(impl, instruction, image_id))
 		return true;
 
@@ -1824,6 +1826,8 @@ bool emit_raw_buffer_store_instruction(Converter::Impl &impl, const llvm::CallIn
 
 	if (emit_ags_buffer_store(impl, instruction, ptr_id))
 		return true;
+	if (ptr_id == impl.nvapi.magic_ptr_id)
+		return emit_nvapi_buffer_store(impl, instruction, ptr_id);
 	if (emit_nvapi_buffer_store(impl, instruction, ptr_id))
 		return true;
 
