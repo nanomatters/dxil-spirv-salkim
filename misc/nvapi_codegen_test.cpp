@@ -4,6 +4,7 @@
 
 #include "opcodes/converter_impl.hpp"
 #include "opcodes/dxil/dxil_nvapi.hpp"
+#include "opcodes/dxil/dxil_buffer.hpp"
 #include "context.hpp"
 #include <cstdio>
 #include <cstdlib>
@@ -126,9 +127,88 @@ static void test_raw_atomic(bool half, bool physical, bool non_uniform, unsigned
 	check(index == expected);
 }
 
+static bool emit_test_buffer_store(Converter::Impl &impl, llvm::LLVMContext &context, bool raw,
+                                   llvm::Value *handle, llvm::Value *index, llvm::Value *value)
+{
+	auto *type = llvm::Type::getInt32Ty(context);
+	llvm::ConstantInt opcode(type, unsigned(raw ? DXIL::Op::RawBufferStore : DXIL::Op::BufferStore));
+	llvm::ConstantInt zero(type, 0), mask(type, 1), alignment(type, 4);
+	Vector<llvm::Type *> types(raw ? 10 : 9, type);
+	llvm::FunctionType function_type(context, llvm::Type::getVoidTy(context), std::move(types));
+	Vector<llvm::Value *> args = { &opcode, handle, index, &zero, value, &zero, &zero, &zero, &mask };
+	if (raw)
+		args.push_back(&alignment);
+	llvm::CallInst store(&function_type, nullptr, std::move(args));
+	return raw ? emit_raw_buffer_store_instruction(impl, &store, false) :
+	             emit_buffer_store_instruction(impl, &store, false);
+}
+
+static void test_nvapi_store_failure(bool raw, bool wrong_doorbell)
+{
+	llvm::LLVMContext context;
+	LLVMBCParser parser;
+	SPIRVModule module;
+	Converter::Impl impl(parser, nullptr, module);
+	Vector<Operation *> block;
+	impl.current_block = &block;
+	auto *type = llvm::Type::getInt32Ty(context);
+	// GET_SPECIAL is opcode 19; selector 9 reads the timer, while 0 is unsupported.
+	llvm::ConstantInt opcode(type, 19), selector(type, wrong_doorbell ? 9 : 0);
+	llvm::Argument handle(type, 0), counter(type, 1), other_counter(type, 2);
+	impl.nvapi.magic_ptr_id = module.allocate_id();
+	impl.rewrite_value(&handle, impl.nvapi.magic_ptr_id);
+	impl.nvapi.doorbell = &counter;
+	impl.nvapi.fake_doorbell_inputs[NVAPI_ARGUMENT_SRC0U] = &selector;
+	check(!emit_test_buffer_store(impl, context, raw, &handle,
+	                             wrong_doorbell ? &other_counter : &counter, &opcode));
+	check(block.empty());
+	for (auto id : impl.nvapi.fake_doorbell_outputs)
+		check(id == 0);
+	check(impl.nvapi.fake_doorbell_inputs[NVAPI_ARGUMENT_OPCODE] == (wrong_doorbell ? nullptr : &opcode));
+}
+
+static void test_nonmagic_buffer_store(bool raw)
+{
+	llvm::LLVMContext context;
+	LLVMBCParser parser;
+	SPIRVModule module;
+	Converter::Impl impl(parser, nullptr, module);
+	Vector<Operation *> block;
+	impl.current_block = &block;
+	auto &builder = impl.builder();
+	auto *type = llvm::Type::getInt32Ty(context);
+	llvm::ConstantInt index(type, 0), value(type, 42);
+	llvm::Argument handle(type, 0);
+	auto id = builder.createVariable(spv::StorageClassStorageBuffer,
+	    builder.makeStructType({ builder.makeRuntimeArray(builder.makeUintType(32)) }, "raw"));
+	impl.rewrite_value(&handle, id);
+	auto &meta = impl.handle_to_resource_meta[id];
+	meta = {};
+	meta.storage = spv::StorageClassStorageBuffer;
+	meta.kind = DXIL::ResourceKind::RawBuffer;
+	meta.var_id = id;
+	impl.nvapi.magic_ptr_id = module.allocate_id();
+	// Matching the doorbell does not make an ordinary resource a magic UAV.
+	impl.nvapi.doorbell = &index;
+	check(emit_test_buffer_store(impl, context, raw, &handle, &index, &value));
+	check(block.size() >= 2);
+	auto *chain = block[block.size() - 2];
+	auto *store = block.back();
+	check(chain->op == spv::OpAccessChain && chain->argument(0) == id);
+	check(store->op == spv::OpStore && store->argument(0) == chain->id);
+	check(builder.getConstantScalar(store->argument(1)) == 42);
+	check(!impl.nvapi.fake_doorbell_inputs[NVAPI_ARGUMENT_OPCODE]);
+}
+
 int main()
 {
 	begin_thread_allocator_context();
+	for (bool raw : { false, true })
+	{
+		test_nvapi_store_failure(raw, false);
+		test_nvapi_store_failure(raw, true);
+		test_nonmagic_buffer_store(raw);
+	}
 	test_instance(false);
 	test_instance(true);
 	for (bool half : { false, true })
