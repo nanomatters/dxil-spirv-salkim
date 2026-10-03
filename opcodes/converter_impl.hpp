@@ -865,6 +865,7 @@ struct Converter::Impl
 		bool supports_fma_float16 = false;
 		bool supports_fma_float32 = false;
 		bool supports_fma_float64 = false;
+		bool supports_ray_tracing_linear_swept_spheres = false;
 
 		struct
 		{

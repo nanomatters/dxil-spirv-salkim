@@ -1142,6 +1142,96 @@ static bool emit_nvapi_extn_op_rt_get_intersection_cluster_id(Converter::Impl &i
 	return false;
 }
 
+static bool build_nvapi_ray_query_object(Converter::Impl &impl, spv::Id &ray_query)
+{
+	auto *flags = llvm::dyn_cast<llvm::CallInst>(impl.nvapi.fake_doorbell_inputs[NVAPI_ARGUMENT_SRC0U]);
+	if (!flags || flags->getNumArgOperands() != 2 || !flags->getCalledFunction() ||
+	    !value_is_dx_op_instrinsic(flags, DXIL::Op::RayQuery_RayFlags))
+	{
+		LOGE("NVAPI ray query argument is not a RayFlags intrinsic.\n");
+		return false;
+	}
+
+	return build_ray_query_object(impl, flags->getOperand(1), ray_query);
+}
+
+static bool emit_nvapi_extn_op_lss_positions_and_radii(Converter::Impl &impl, bool committed)
+{
+	if (!committed && impl.execution_model != spv::ExecutionModelAnyHitKHR &&
+	    impl.execution_model != spv::ExecutionModelClosestHitKHR)
+	{
+		LOGE("NVAPI LSS hit positions require an any-hit or closest-hit shader.\n");
+		return false;
+	}
+
+	spv::Id query = 0;
+	if (committed && !build_nvapi_ray_query_object(impl, query))
+		return false;
+
+	auto &builder = impl.builder();
+	auto float_type = builder.makeFloatType(32);
+	auto positions_type = builder.makeArrayType(builder.makeVectorType(float_type, 3),
+	                                            builder.makeUintConstant(2), 0);
+	auto radii_type = builder.makeArrayType(float_type, builder.makeUintConstant(2), 0);
+	auto *positions = impl.allocate(committed ? spv::OpRayQueryGetIntersectionLSSPositionsNV : spv::OpLoad,
+	                                positions_type);
+	auto *radii = impl.allocate(committed ? spv::OpRayQueryGetIntersectionLSSRadiiNV : spv::OpLoad, radii_type);
+	if (committed)
+	{
+		for (auto *op : { positions, radii })
+		{
+			op->add_id(query);
+			op->add_id(builder.makeUintConstant(spv::RayQueryIntersectionRayQueryCommittedIntersectionKHR));
+		}
+	}
+	else
+	{
+		positions->add_id(impl.spirv_module.get_builtin_shader_input(spv::BuiltInHitLSSPositionsNV));
+		radii->add_id(impl.spirv_module.get_builtin_shader_input(spv::BuiltInHitLSSRadiiNV));
+	}
+	impl.add(positions);
+	impl.add(radii);
+
+	// NVAPI clocks out two float4s, each containing an endpoint's position and radius.
+	for (unsigned endpoint = 0; endpoint < 2; endpoint++)
+	for (unsigned component = 0; component < 4; component++)
+	{
+		auto *extract = impl.allocate(spv::OpCompositeExtract, float_type);
+		extract->add_id(component < 3 ? positions->id : radii->id);
+		extract->add_literal(endpoint);
+		if (component < 3)
+			extract->add_literal(component);
+		impl.add(extract);
+
+		auto *cast = impl.allocate(spv::OpBitcast, builder.makeUintType(32));
+		cast->add_id(extract->id);
+		impl.add(cast);
+		impl.nvapi.fake_doorbell_outputs[4 * endpoint + component] = cast->id;
+	}
+	return true;
+}
+
+static bool emit_nvapi_extn_op_committed_is_lss(Converter::Impl &impl)
+{
+	spv::Id query;
+	if (!build_nvapi_ray_query_object(impl, query))
+		return false;
+
+	auto &builder = impl.builder();
+	auto *op = impl.allocate(spv::OpRayQueryIsLSSHitNV, builder.makeBoolType());
+	op->add_id(query);
+	op->add_id(builder.makeUintConstant(spv::RayQueryIntersectionRayQueryCommittedIntersectionKHR));
+	impl.add(op);
+
+	auto *result = impl.allocate(spv::OpSelect, builder.makeUintType(32));
+	result->add_id(op->id);
+	result->add_id(builder.makeUintConstant(1));
+	result->add_id(builder.makeUintConstant(0));
+	impl.add(result);
+	impl.nvapi.fake_doorbell_outputs[0] = result->id;
+	return true;
+}
+
 bool NVAPIState::can_commit_opcode()
 {
 	if (!fake_doorbell_inputs[NVAPI_ARGUMENT_OPCODE])
@@ -1228,10 +1318,13 @@ bool NVAPIState::can_commit_opcode()
 
 		case NV_EXTN_OP_HIT_OBJECT_MAKE_NOP:
 		case NV_EXTN_OP_RT_GET_CLUSTER_ID:
+		case NV_EXTN_OP_RT_LSS_OBJECT_POSITIONS_AND_RADII:
 			return true;
 
 		case NV_EXTN_OP_RT_GET_CANDIDATE_CLUSTER_ID:
 		case NV_EXTN_OP_RT_GET_COMMITTED_CLUSTER_ID:
+		case NV_EXTN_OP_RT_COMMITTED_LSS_OBJECT_POSITIONS_AND_RADII:
+		case NV_EXTN_OP_RT_COMMITTED_IS_LSS:
 			return fake_doorbell_inputs[NVAPI_ARGUMENT_SRC0U + 0] != nullptr;
 
 		default:
@@ -1370,6 +1463,31 @@ bool NVAPIState::commit_opcode(Converter::Impl &impl, bool analysis)
 			impl.nvapi.num_expected_clock_outputs = 1;
 			if (!analysis && !emit_nvapi_extn_op_rt_get_intersection_cluster_id(impl, spv::RayQueryIntersectionRayQueryCommittedIntersectionKHR))
 				return false;
+			break;
+
+		case NV_EXTN_OP_RT_LSS_OBJECT_POSITIONS_AND_RADII:
+		case NV_EXTN_OP_RT_COMMITTED_LSS_OBJECT_POSITIONS_AND_RADII:
+		case NV_EXTN_OP_RT_COMMITTED_IS_LSS:
+			if (!impl.options.supports_ray_tracing_linear_swept_spheres)
+			{
+				LOGE("NVAPI opcode %u requires ray tracing linear swept spheres support.\n", opcode);
+				return false;
+			}
+			impl.spirv_module.set_override_spirv_version(0x10400);
+			impl.nvapi.num_expected_clock_outputs = opcode == NV_EXTN_OP_RT_COMMITTED_IS_LSS ? 1 : 8;
+			if (!analysis)
+			{
+				if (opcode == NV_EXTN_OP_RT_COMMITTED_IS_LSS)
+				{
+					if (!emit_nvapi_extn_op_committed_is_lss(impl))
+						return false;
+				}
+				else if (!emit_nvapi_extn_op_lss_positions_and_radii(impl,
+				         opcode == NV_EXTN_OP_RT_COMMITTED_LSS_OBJECT_POSITIONS_AND_RADII))
+					return false;
+				impl.builder().addExtension("SPV_NV_linear_swept_spheres");
+				impl.builder().addCapability(spv::CapabilityRayTracingLinearSweptSpheresGeometryNV);
+			}
 			break;
 
 		default:

@@ -1,0 +1,21 @@
+#define NV_SHADER_EXTN_SLOT u127
+#define NV_SHADER_EXTN_REGISTER_SPACE space0
+#include "nvHLSLExtns.h"
+
+RWStructuredBuffer<uint4> Result : register(u1);
+
+struct Payload { uint unused; };
+
+[shader("closesthit")]
+void RayHit(inout Payload payload, BuiltInTriangleIntersectionAttributes attr)
+{
+	// This test traces only triangles or LSS; triangle builtins remain valid without LSS geometry.
+	bool is_lss = HitKind() != HIT_KIND_TRIANGLE_FRONT_FACE && HitKind() != HIT_KIND_TRIANGLE_BACK_FACE;
+	Result[0] = uint4(is_lss, 1, 0, 0);
+	if (is_lss)
+	{
+		float2x4 positions = NvRtLssObjectPositionsAndRadii();
+		Result[1] = asuint(positions[0]);
+		Result[2] = asuint(positions[1]);
+	}
+}
