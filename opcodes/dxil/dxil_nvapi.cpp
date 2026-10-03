@@ -2261,7 +2261,7 @@ bool NVAPIState::write_arguments_from_store(Converter::Impl &impl, const llvm::C
 	}
 
 	if (can_commit_opcode())
-		commit_opcode(impl, analysis);
+		return commit_opcode(impl, analysis);
 
 	return true;
 }
