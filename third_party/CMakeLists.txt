@@ -43,6 +43,8 @@ add_library(dxbc-spirv STATIC
         ${DXBC_SPV_SOURCE_DIR}/ir/ir_dominance.h
         ${DXBC_SPV_SOURCE_DIR}/ir/ir_legalize.cpp
         ${DXBC_SPV_SOURCE_DIR}/ir/ir_legalize.h
+        ${DXBC_SPV_SOURCE_DIR}/ir/ir_serialize.cpp
+        ${DXBC_SPV_SOURCE_DIR}/ir/ir_serialize.h
         ${DXBC_SPV_SOURCE_DIR}/ir/ir_utils.cpp
         ${DXBC_SPV_SOURCE_DIR}/ir/ir_utils.h
         ${DXBC_SPV_SOURCE_DIR}/ir/passes/ir_pass_arithmetic.cpp
@@ -122,11 +124,25 @@ add_library(dxbc-spirv-test STATIC
         ${DXBC_SPV_SOURCE_DIR}/tests/api/test_api_misc.h
         ${DXBC_SPV_SOURCE_DIR}/tests/api/test_api_spirv.cpp
         ${DXBC_SPV_SOURCE_DIR}/tests/api/test_api_spirv.h
+        ${DXBC_SPV_SOURCE_DIR}/tests/dxbc/test_dxbc.h
+        ${DXBC_SPV_SOURCE_DIR}/tests/dxbc/test_dxbc_common.cpp
+        ${DXBC_SPV_SOURCE_DIR}/tests/dxbc/test_dxbc_converter.cpp
+        ${DXBC_SPV_SOURCE_DIR}/tests/dxbc/test_dxbc_signature.cpp
+        ${DXBC_SPV_SOURCE_DIR}/tests/dxbc/test_dxbc_writer.cpp
         ${DXBC_SPV_SOURCE_DIR}/tests/ir/test_ir.h
+        ${DXBC_SPV_SOURCE_DIR}/tests/ir/test_ir_arithmetic.cpp
         ${DXBC_SPV_SOURCE_DIR}/tests/ir/test_ir_builder.cpp
+        ${DXBC_SPV_SOURCE_DIR}/tests/ir/test_ir_cse.cpp
+        ${DXBC_SPV_SOURCE_DIR}/tests/ir/test_ir_dominance.cpp
+        ${DXBC_SPV_SOURCE_DIR}/tests/ir/test_ir_input_map.cpp
         ${DXBC_SPV_SOURCE_DIR}/tests/ir/test_ir_op.cpp
+        ${DXBC_SPV_SOURCE_DIR}/tests/ir/test_ir_scalarize.cpp
+        ${DXBC_SPV_SOURCE_DIR}/tests/ir/test_ir_scratch.cpp
         ${DXBC_SPV_SOURCE_DIR}/tests/ir/test_ir_serialize.cpp
+        ${DXBC_SPV_SOURCE_DIR}/tests/ir/test_ir_ssa.cpp
         ${DXBC_SPV_SOURCE_DIR}/tests/ir/test_ir_type.cpp
+        ${DXBC_SPV_SOURCE_DIR}/tests/ir/test_ir_type_propagation.cpp
+        ${DXBC_SPV_SOURCE_DIR}/tests/ir/test_ir_utils.cpp
         ${DXBC_SPV_SOURCE_DIR}/tests/util/test_util.h
         ${DXBC_SPV_SOURCE_DIR}/tests/util/test_util_small_vector.cpp
         ${DXBC_SPV_SOURCE_DIR}/tests/util/test_util_vle.cpp)

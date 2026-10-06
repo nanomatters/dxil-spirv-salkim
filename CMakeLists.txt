@@ -200,6 +200,9 @@ endif()
 
 if (DXIL_SPIRV_TESTS)
     enable_testing()
+    add_executable(dxbc-spirv-unit-test subprojects/dxbc-spirv/tests/test_main.cpp)
+    target_link_libraries(dxbc-spirv-unit-test PRIVATE dxbc-spirv-test)
+    add_test(NAME dxbc-spirv-unit COMMAND dxbc-spirv-unit-test)
     if (TARGET structurize-test)
         function(add_structurize_test name status output)
             add_test(NAME structurize-${name} COMMAND ${CMAKE_COMMAND}
