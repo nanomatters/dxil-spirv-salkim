@@ -1,0 +1,23 @@
+cbuffer Constants : register(b0) { uint Uniform; };
+RWStructuredBuffer<uint4> Output : register(u0);
+
+[numthreads(64, 1, 1)]
+void main(uint tid : SV_DispatchThreadID)
+{
+	uint lane = WaveGetLaneIndex() ^ 1u;
+	// Each combination of nested reads can forward a context-free uniform input.
+	Output[3 * tid] = uint4(WaveReadLaneFirst(WaveReadLaneFirst(Uniform)),
+	                       WaveReadLaneFirst(WaveReadLaneAt(Uniform, lane)),
+	                       WaveReadLaneAt(WaveReadLaneFirst(Uniform), lane),
+	                       WaveReadLaneAt(WaveReadLaneAt(Uniform, lane), lane));
+	// The context-free proof must still reject varying inputs and reductions.
+	Output[3 * tid + 1] = uint4(WaveReadLaneFirst(WaveReadLaneFirst(tid)),
+	                           WaveReadLaneFirst(WaveReadLaneAt(tid, lane)),
+	                           WaveReadLaneAt(WaveReadLaneFirst(tid), lane),
+	                           WaveReadLaneAt(WaveReadLaneAt(tid, lane), lane));
+	uint reduction = WaveActiveSum(tid);
+	Output[3 * tid + 2] = uint4(WaveReadLaneFirst(WaveReadLaneFirst(reduction)),
+	                           WaveReadLaneFirst(WaveReadLaneAt(reduction, lane)),
+	                           WaveReadLaneAt(WaveReadLaneFirst(reduction), lane),
+	                           WaveReadLaneAt(WaveReadLaneAt(reduction, lane), lane));
+}
