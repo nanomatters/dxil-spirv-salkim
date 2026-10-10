@@ -1,6 +1,4 @@
 #version 460
-#extension GL_EXT_shader_explicit_arithmetic_types_int16 : require
-#extension GL_EXT_shader_16bit_storage : require
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
 layout(set = 0, binding = 0, std140) uniform _13_15
@@ -13,16 +11,18 @@ layout(set = 0, binding = 0) uniform writeonly image2DArray _8;
 void main()
 {
     uint _24 = floatBitsToUint(_15._m0[0u]).x + 4294967295u;
-    bool _37;
+    bool _38;
     if (_24 < 11u)
     {
-        _37 = ((440us >> uint16_t(_24)) & 1us) != 0us;
+        uint _32 = bitfieldExtract(440u, int(0u), int(11u));
+        uint _37 = bitfieldExtract(0u, int(0u), int(11u));
+        _38 = bitfieldExtract((_32 >> bitfieldExtract(bitfieldExtract(_24, int(0u), int(11u)), int(0u), int(11u))) & 1u, int(0u), int(11u)) != _37;
     }
     else
     {
-        _37 = true;
+        _38 = true;
     }
-    if (_37)
+    if (_38)
     {
         imageStore(_8, ivec3(uvec3(1u)), vec4(0.0));
     }
@@ -38,10 +38,9 @@ void main()
 ; SPIR-V
 ; Version: 1.3
 ; Generator: Unknown(30017); 21022
-; Bound: 53
+; Bound: 54
 ; Schema: 0
 OpCapability Shader
-OpCapability Int16
 OpCapability StorageImageWriteWithoutFormat
 OpMemoryModel Logical GLSL450
 OpEntryPoint GLCompute %3 "main"
@@ -75,18 +74,15 @@ OpDecorate %15 Binding 0
 %25 = OpConstant %9 4294967295
 %26 = OpTypeBool
 %28 = OpConstant %9 11
-%29 = OpTypeInt 16 0
-%32 = OpConstant %29 440
-%34 = OpConstant %29 1
-%36 = OpConstant %29 0
-%38 = OpConstantTrue %26
-%39 = OpConstant %5 0
-%40 = OpTypeVector %9 3
-%43 = OpConstant %5 1
+%31 = OpConstant %9 440
+%39 = OpConstantTrue %26
+%40 = OpConstant %5 0
+%41 = OpTypeVector %9 3
+%44 = OpConstant %5 1
 %3 = OpFunction %1 None %2
 %4 = OpLabel
-OpBranch %46
-%46 = OpLabel
+OpBranch %47
+%47 = OpLabel
 %16 = OpLoad %6 %8
 %19 = OpAccessChain %18 %15 %17 %17
 %20 = OpLoad %11 %19
@@ -94,29 +90,33 @@ OpBranch %46
 %23 = OpCompositeExtract %9 %22 0
 %24 = OpIAdd %9 %23 %25
 %27 = OpULessThan %26 %24 %28
-OpSelectionMerge %48 None
-OpBranchConditional %27 %47 %48
-%47 = OpLabel
-%30 = OpUConvert %29 %24
-%31 = OpShiftRightLogical %29 %32 %30
-%33 = OpBitwiseAnd %29 %31 %34
-%35 = OpINotEqual %26 %33 %36
-OpBranch %48
+OpSelectionMerge %49 None
+OpBranchConditional %27 %48 %49
 %48 = OpLabel
-%37 = OpPhi %26 %38 %46 %35 %47
-OpSelectionMerge %51 None
-OpBranchConditional %37 %50 %49
-%50 = OpLabel
-%41 = OpCompositeConstruct %40 %10 %10 %10
-%42 = OpCompositeConstruct %11 %39 %39 %39 %39
-OpImageWrite %16 %41 %42
-OpBranch %51
+%29 = OpBitFieldUExtract %9 %24 %17 %28
+%32 = OpBitFieldUExtract %9 %31 %17 %28
+%33 = OpBitFieldUExtract %9 %29 %17 %28
+%30 = OpShiftRightLogical %9 %32 %33
+%34 = OpBitwiseAnd %9 %30 %10
+%36 = OpBitFieldUExtract %9 %34 %17 %28
+%37 = OpBitFieldUExtract %9 %17 %17 %28
+%35 = OpINotEqual %26 %36 %37
+OpBranch %49
 %49 = OpLabel
-%44 = OpCompositeConstruct %40 %10 %10 %10
-%45 = OpCompositeConstruct %11 %43 %43 %43 %43
-OpImageWrite %16 %44 %45
-OpBranch %51
+%38 = OpPhi %26 %39 %47 %35 %48
+OpSelectionMerge %52 None
+OpBranchConditional %38 %51 %50
 %51 = OpLabel
+%42 = OpCompositeConstruct %41 %10 %10 %10
+%43 = OpCompositeConstruct %11 %40 %40 %40 %40
+OpImageWrite %16 %42 %43
+OpBranch %52
+%50 = OpLabel
+%45 = OpCompositeConstruct %41 %10 %10 %10
+%46 = OpCompositeConstruct %11 %44 %44 %44 %44
+OpImageWrite %16 %45 %46
+OpBranch %52
+%52 = OpLabel
 OpReturn
 OpFunctionEnd
 #endif

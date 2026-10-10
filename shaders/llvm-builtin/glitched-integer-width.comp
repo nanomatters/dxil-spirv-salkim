@@ -1,3 +1,10 @@
+// DXC 1.7.2308 emits i11 operations for this switch, while DXC 1.9 emits i16.
+// glitched-integer-width.comp.dxil preserves the original odd-width coverage.
+// Regenerate that input with DXC 1.7.2308 from the repository root:
+// dxc -Qstrip_reflect -Qstrip_debug -Vd -Tcs_6_5 -enable-16bit-types \
+//     -Fo shaders/llvm-builtin/glitched-integer-width.comp.dxil \
+//     shaders/llvm-builtin/glitched-integer-width.comp
+
 cbuffer buffer1 : register (b0) 
 { 
     uint cbSwitch;
