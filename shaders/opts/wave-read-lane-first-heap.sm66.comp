@@ -36,8 +36,9 @@ void main(uint thr : SV_DispatchThreadID, uint gid : SV_GroupID)
 	InterlockedAdd(U[0], WaveReadLaneFirst(gid), o); // Should opt
 	InterlockedAdd(U[1], WaveReadLaneFirst(thr), o); // Should not opt
 
-	// Wave ops which are considered wave uniform.
+	// Nested reads of a context-free uniform input should optimize.
 	InterlockedAdd(U[0], WaveReadLaneFirst(WaveReadLaneFirst(C.value[1])), o);
+	// Active-wave results need a consumer-aware proof; keep these broadcasts.
 	InterlockedAdd(U[0], WaveReadLaneFirst(WaveActiveSum(C.value[thr])), o);
 	InterlockedAdd(U[0], WaveReadLaneFirst(WaveActiveBitOr(C.value[thr])), o);
 	InterlockedAdd(U[0], WaveReadLaneFirst(WaveActiveAllEqual(C.value[thr])), o);

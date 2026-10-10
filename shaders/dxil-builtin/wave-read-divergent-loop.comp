@@ -5,11 +5,18 @@ void main(uint tid : SV_DispatchThreadID)
 {
 	uint remaining = WaveGetLaneIndex() + 1;
 	uint value;
+	uint first;
+	uint at;
 	do
 	{
 		value = WaveActiveSum(1u);
+		first = WaveReadLaneFirst(WaveGetLaneIndex());
+		at = WaveReadLaneAt(value, WaveGetLaneIndex());
 	} while (--remaining);
 	// Each lane may retain a different iteration's result, even without an exit phi.
-	Output[tid] = uint4(WaveReadLaneAt(value, 0), WaveReadLaneFirst(value),
+	Output[2 * tid] = uint4(WaveReadLaneAt(value, 0), WaveReadLaneFirst(value),
 	                   WaveReadLaneAt(value + 7, 0), WaveReadLaneFirst(value + 7));
+	// Reads inside the loop also retain different iterations' values per lane.
+	Output[2 * tid + 1] = uint4(WaveReadLaneFirst(first), WaveReadLaneAt(first, 0),
+	                           WaveReadLaneFirst(at), WaveReadLaneAt(at, 0));
 }

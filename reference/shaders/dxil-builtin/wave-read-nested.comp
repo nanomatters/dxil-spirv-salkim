@@ -1,0 +1,176 @@
+#version 460
+#extension GL_KHR_shader_subgroup_basic : require
+#extension GL_KHR_shader_subgroup_ballot : require
+#extension GL_KHR_shader_subgroup_quad : require
+#extension GL_KHR_shader_subgroup_arithmetic : require
+layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+
+layout(set = 0, binding = 0, std140) uniform _13_15
+{
+    vec4 _m0[1];
+} _15;
+
+layout(set = 0, binding = 0, r32ui) uniform writeonly uimageBuffer _8;
+
+void main()
+{
+    uint _45 = gl_GlobalInvocationID.x * 3u;
+    uint _47 = gl_GlobalInvocationID.x * 12u;
+    imageStore(_8, int(_47), uvec4(floatBitsToUint(_15._m0[0u]).x));
+    imageStore(_8, int(_47 + 1u), uvec4(floatBitsToUint(_15._m0[0u]).x));
+    imageStore(_8, int(_47 + 2u), uvec4(floatBitsToUint(_15._m0[0u]).x));
+    imageStore(_8, int(_47 + 3u), uvec4(floatBitsToUint(_15._m0[0u]).x));
+    uint _68 = (gl_GlobalInvocationID.x * 12u) + 4u;
+    imageStore(_8, int(_68), uvec4(subgroupBroadcastFirst(subgroupBroadcastFirst(gl_GlobalInvocationID.x))));
+    imageStore(_8, int(_68 + 1u), uvec4(subgroupBroadcastFirst(subgroupQuadSwapHorizontal(gl_GlobalInvocationID.x))));
+    imageStore(_8, int(_68 + 2u), uvec4(subgroupQuadSwapHorizontal(subgroupBroadcastFirst(gl_GlobalInvocationID.x))));
+    imageStore(_8, int(_68 + 3u), uvec4(subgroupQuadSwapHorizontal(subgroupQuadSwapHorizontal(gl_GlobalInvocationID.x))));
+    uint _76 = subgroupAdd(gl_GlobalInvocationID.x);
+    uint _88 = (gl_GlobalInvocationID.x * 12u) + 8u;
+    imageStore(_8, int(_88), uvec4(subgroupBroadcastFirst(subgroupBroadcastFirst(_76))));
+    imageStore(_8, int(_88 + 1u), uvec4(subgroupBroadcastFirst(subgroupQuadSwapHorizontal(_76))));
+    imageStore(_8, int(_88 + 2u), uvec4(subgroupQuadSwapHorizontal(subgroupBroadcastFirst(_76))));
+    imageStore(_8, int(_88 + 3u), uvec4(subgroupQuadSwapHorizontal(subgroupQuadSwapHorizontal(_76))));
+}
+
+
+#if 0
+// SPIR-V disassembly
+; SPIR-V
+; Version: 1.3
+; Generator: Unknown(30017); 21022
+; Bound: 98
+; Schema: 0
+OpCapability Shader
+OpCapability ImageBuffer
+OpCapability GroupNonUniform
+OpCapability GroupNonUniformArithmetic
+OpCapability GroupNonUniformBallot
+OpCapability GroupNonUniformQuad
+OpMemoryModel Logical GLSL450
+OpEntryPoint GLCompute %3 "main" %19 %24
+OpExecutionMode %3 LocalSize 64 1 1
+OpName %3 "main"
+OpName %13 ""
+OpDecorate %8 DescriptorSet 0
+OpDecorate %8 Binding 0
+OpDecorate %8 NonReadable
+OpDecorate %12 ArrayStride 16
+OpMemberDecorate %13 0 Offset 0
+OpDecorate %13 Block
+OpDecorate %15 DescriptorSet 0
+OpDecorate %15 Binding 0
+OpDecorate %19 BuiltIn GlobalInvocationId
+OpDecorate %24 BuiltIn SubgroupLocalInvocationId
+%1 = OpTypeVoid
+%2 = OpTypeFunction %1
+%5 = OpTypeInt 32 0
+%6 = OpTypeImage %5 Buffer 0 0 0 2 R32ui
+%7 = OpTypePointer UniformConstant %6
+%8 = OpVariable %7 UniformConstant
+%9 = OpConstant %5 1
+%10 = OpTypeFloat 32
+%11 = OpTypeVector %10 4
+%12 = OpTypeArray %11 %9
+%13 = OpTypeStruct %12
+%14 = OpTypePointer Uniform %13
+%15 = OpVariable %14 Uniform
+%17 = OpTypeVector %5 3
+%18 = OpTypePointer Input %17
+%19 = OpVariable %18 Input
+%20 = OpTypePointer Input %5
+%22 = OpConstant %5 0
+%24 = OpVariable %20 Input
+%27 = OpTypePointer Uniform %11
+%30 = OpTypeVector %5 4
+%46 = OpConstant %5 3
+%48 = OpConstant %5 12
+%54 = OpConstant %5 2
+%67 = OpConstant %5 4
+%87 = OpConstant %5 8
+%3 = OpFunction %1 None %2
+%4 = OpLabel
+OpBranch %96
+%96 = OpLabel
+%16 = OpLoad %6 %8
+%21 = OpAccessChain %20 %19 %22
+%23 = OpLoad %5 %21
+%25 = OpLoad %5 %24
+%26 = OpBitwiseXor %5 %25 %9
+%28 = OpAccessChain %27 %15 %22 %22
+%29 = OpLoad %11 %28
+%31 = OpBitcast %30 %29
+%32 = OpCompositeExtract %5 %31 0
+%33 = OpAccessChain %27 %15 %22 %22
+%34 = OpLoad %11 %33
+%35 = OpBitcast %30 %34
+%36 = OpCompositeExtract %5 %35 0
+%37 = OpAccessChain %27 %15 %22 %22
+%38 = OpLoad %11 %37
+%39 = OpBitcast %30 %38
+%40 = OpCompositeExtract %5 %39 0
+%41 = OpAccessChain %27 %15 %22 %22
+%42 = OpLoad %11 %41
+%43 = OpBitcast %30 %42
+%44 = OpCompositeExtract %5 %43 0
+%45 = OpIMul %5 %23 %46
+%47 = OpIMul %5 %23 %48
+%49 = OpCompositeConstruct %30 %32 %32 %32 %32
+OpImageWrite %16 %47 %49
+%50 = OpCompositeConstruct %30 %36 %36 %36 %36
+%51 = OpIAdd %5 %47 %9
+OpImageWrite %16 %51 %50
+%52 = OpCompositeConstruct %30 %40 %40 %40 %40
+%53 = OpIAdd %5 %47 %54
+OpImageWrite %16 %53 %52
+%55 = OpCompositeConstruct %30 %44 %44 %44 %44
+%56 = OpIAdd %5 %47 %46
+OpImageWrite %16 %56 %55
+%57 = OpGroupNonUniformBroadcastFirst %5 %46 %23
+%58 = OpGroupNonUniformBroadcastFirst %5 %46 %57
+%59 = OpGroupNonUniformQuadSwap %5 %46 %23 %22
+%60 = OpGroupNonUniformBroadcastFirst %5 %46 %59
+%61 = OpGroupNonUniformBroadcastFirst %5 %46 %23
+%62 = OpGroupNonUniformQuadSwap %5 %46 %61 %22
+%63 = OpGroupNonUniformQuadSwap %5 %46 %23 %22
+%64 = OpGroupNonUniformQuadSwap %5 %46 %63 %22
+%65 = OpIAdd %5 %45 %9
+%66 = OpIMul %5 %23 %48
+%68 = OpIAdd %5 %66 %67
+%69 = OpCompositeConstruct %30 %58 %58 %58 %58
+OpImageWrite %16 %68 %69
+%70 = OpCompositeConstruct %30 %60 %60 %60 %60
+%71 = OpIAdd %5 %68 %9
+OpImageWrite %16 %71 %70
+%72 = OpCompositeConstruct %30 %62 %62 %62 %62
+%73 = OpIAdd %5 %68 %54
+OpImageWrite %16 %73 %72
+%74 = OpCompositeConstruct %30 %64 %64 %64 %64
+%75 = OpIAdd %5 %68 %46
+OpImageWrite %16 %75 %74
+%76 = OpGroupNonUniformIAdd %5 %46 Reduce %23
+%77 = OpGroupNonUniformBroadcastFirst %5 %46 %76
+%78 = OpGroupNonUniformBroadcastFirst %5 %46 %77
+%79 = OpGroupNonUniformQuadSwap %5 %46 %76 %22
+%80 = OpGroupNonUniformBroadcastFirst %5 %46 %79
+%81 = OpGroupNonUniformBroadcastFirst %5 %46 %76
+%82 = OpGroupNonUniformQuadSwap %5 %46 %81 %22
+%83 = OpGroupNonUniformQuadSwap %5 %46 %76 %22
+%84 = OpGroupNonUniformQuadSwap %5 %46 %83 %22
+%85 = OpIAdd %5 %45 %54
+%86 = OpIMul %5 %23 %48
+%88 = OpIAdd %5 %86 %87
+%89 = OpCompositeConstruct %30 %78 %78 %78 %78
+OpImageWrite %16 %88 %89
+%90 = OpCompositeConstruct %30 %80 %80 %80 %80
+%91 = OpIAdd %5 %88 %9
+OpImageWrite %16 %91 %90
+%92 = OpCompositeConstruct %30 %82 %82 %82 %82
+%93 = OpIAdd %5 %88 %54
+OpImageWrite %16 %93 %92
+%94 = OpCompositeConstruct %30 %84 %84 %84 %84
+%95 = OpIAdd %5 %88 %46
+OpImageWrite %16 %95 %94
+OpReturn
+OpFunctionEnd
+#endif

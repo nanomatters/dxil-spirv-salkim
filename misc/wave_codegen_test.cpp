@@ -97,6 +97,7 @@ static void test_uniform_read(bool uniform, bool constant_lane)
 static void test_uniform_analysis_budget()
 {
 	llvm::LLVMContext context;
+	llvm::Module llvm_module(context);
 	LLVMBCParser parser;
 	SPIRVModule module;
 	Converter::Impl impl(parser, nullptr, module);
@@ -109,8 +110,74 @@ static void test_uniform_analysis_budget()
 	for (unsigned i = 0; i < 128; i++)
 		value = context.construct<llvm::BinaryOperator>(value, value, llvm::Instruction::Mul);
 	check(!value_is_statically_wave_uniform(impl, value));
+	llvm::ConstantInt opcode(type, unsigned(DXIL::Op::WaveReadLaneFirst));
+	llvm::FunctionType read_type(context, type, { type, type });
+	llvm::Function read_function(&read_type, 1, llvm_module);
+	llvm_module.add_value_name(1, "dx.op.waveReadLaneFirst.i32");
+	value = &constant;
+	for (unsigned i = 0; i < 128; i++)
+		value = context.construct<llvm::CallInst>(&read_type, &read_function,
+		                                        Vector<llvm::Value *>{ &opcode, value });
+	check(!value_is_statically_wave_uniform(impl, value));
 	// The budget is per query; previous exhaustion must not affect later calls.
 	check(value_is_statically_wave_uniform(impl, &constant));
+}
+
+static void test_nested_read(unsigned value_kind, bool inner_first, bool outer_first, bool constant_lane)
+{
+	llvm::LLVMContext context;
+	llvm::Module llvm_module(context);
+	LLVMBCParser parser;
+	SPIRVModule module;
+	Converter::Impl impl(parser, nullptr, module);
+	Vector<Operation *> block;
+	impl.current_block = &block;
+	impl.execution_model = spv::ExecutionModelGLCompute;
+	auto *type = llvm::Type::getInt32Ty(context);
+	llvm::ConstantInt constant(type, 17), zero(type, 0);
+	llvm::Argument varying(type, 0), lane(type, 1);
+	llvm::ConstantInt reduce_opcode(type, unsigned(DXIL::Op::WaveActiveOp));
+	llvm::FunctionType reduce_type(context, type, { type, type, type, type });
+	llvm::Function reduce_function(&reduce_type, 1, llvm_module);
+	llvm_module.add_value_name(1, "dx.op.waveActiveOp.i32");
+	llvm::CallInst reduction(&reduce_type, &reduce_function, { &reduce_opcode, &constant, &zero, &zero });
+	llvm::Value *value = value_kind == 0 ? static_cast<llvm::Value *>(&constant) :
+	                     value_kind == 1 ? static_cast<llvm::Value *>(&varying) : &reduction;
+	llvm::Value *lane_value = constant_lane ? static_cast<llvm::Value *>(&zero) : &lane;
+	llvm::ConstantInt first_opcode(type, unsigned(DXIL::Op::WaveReadLaneFirst));
+	llvm::ConstantInt at_opcode(type, unsigned(DXIL::Op::WaveReadLaneAt));
+	llvm::FunctionType first_type(context, type, { type, type });
+	llvm::FunctionType at_type(context, type, { type, type, type });
+	llvm::Function first_function(&first_type, 2, llvm_module), at_function(&at_type, 3, llvm_module);
+	llvm_module.add_value_name(2, "dx.op.waveReadLaneFirst.i32");
+	llvm_module.add_value_name(3, "dx.op.waveReadLaneAt.i32");
+	llvm::CallInst inner(inner_first ? &first_type : &at_type, inner_first ? &first_function : &at_function,
+	                    inner_first ? Vector<llvm::Value *>{ &first_opcode, value } :
+	                                  Vector<llvm::Value *>{ &at_opcode, value, lane_value });
+	llvm::CallInst outer(outer_first ? &first_type : &at_type, outer_first ? &first_function : &at_function,
+	                    outer_first ? Vector<llvm::Value *>{ &first_opcode, &inner } :
+	                                  Vector<llvm::Value *>{ &at_opcode, &inner, lane_value });
+	// A nested read is context-free uniform only when its original input is.
+	// Varying inputs and reductions must remain conservative across loop exits.
+	check(value_is_statically_wave_uniform(impl, &inner) == (value_kind == 0));
+	check(inner_first ? emit_wave_read_lane_first_instruction(impl, &inner) :
+	                    emit_wave_read_lane_at_instruction(impl, &inner));
+	check(outer_first ? emit_wave_read_lane_first_instruction(impl, &outer) :
+	                    emit_wave_read_lane_at_instruction(impl, &outer));
+	if (value_kind == 0)
+	{
+		check(block.empty());
+		check(impl.get_id_for_value(&outer) == impl.get_id_for_value(value));
+		check(!impl.shader_analysis.require_subgroup_shuffles);
+	}
+	else
+	{
+		check(block.size() == 2);
+		check(block[0]->op == (inner_first ? spv::OpGroupNonUniformBroadcastFirst :
+		                      constant_lane ? spv::OpGroupNonUniformBroadcast : spv::OpGroupNonUniformShuffle));
+		check(block[1]->op == (outer_first ? spv::OpGroupNonUniformBroadcastFirst :
+		                      constant_lane ? spv::OpGroupNonUniformBroadcast : spv::OpGroupNonUniformShuffle));
+	}
 }
 
 static void test_active_wave_read(bool derived, bool first, bool constant_lane)
@@ -171,6 +238,14 @@ int main()
 	for (bool constant_lane : { false, true })
 	{
 		test_active_wave_read(derived, first, constant_lane);
+		cases++;
+	}
+	for (unsigned value_kind = 0; value_kind < 3; value_kind++)
+	for (bool inner_first : { false, true })
+	for (bool outer_first : { false, true })
+	for (bool constant_lane : { false, true })
+	{
+		test_nested_read(value_kind, inner_first, outer_first, constant_lane);
 		cases++;
 	}
 	end_thread_allocator_context();
