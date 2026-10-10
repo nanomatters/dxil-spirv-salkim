@@ -302,6 +302,15 @@ static bool value_is_statically_wave_uniform(Converter::Impl &impl, const llvm::
 		return true;
 	}
 
+	if (value_is_dx_op_instrinsic(value, DXIL::Op::WaveReadLaneFirst) ||
+	    value_is_dx_op_instrinsic(value, DXIL::Op::WaveReadLaneAt))
+	{
+		// A lane read preserves context-free uniformity of its input. Do not
+		// assume the read itself remains uniform across divergent loop exits.
+		auto *call_op = llvm::cast<llvm::CallInst>(value);
+		return value_is_statically_wave_uniform(impl, call_op->getOperand(1), budget);
+	}
+
 	// Also detect loading a provably uniform value. This happens as well for some reason ...
 	if (value_is_dx_op_instrinsic(value, DXIL::Op::CBufferLoadLegacy) ||
 	    value_is_dx_op_instrinsic(value, DXIL::Op::CBufferLoad))
