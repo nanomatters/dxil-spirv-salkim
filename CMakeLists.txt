@@ -1,4 +1,6 @@
 #
+# Salkim modifications by Erhan Bilgili on 2026-10-14.
+#
 # Copyright (c) 2019-2022 Hans-Kristian Arntzen for Valve Corporation
 #
 # SPDX-License-Identifier: MIT
@@ -25,7 +27,7 @@
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_C_STANDARD 99)
-project(dxil-spirv LANGUAGES CXX C)
+project(dxil-spirv-salkim LANGUAGES CXX C)
 
 add_library(dxil-debug STATIC debug/logging.hpp debug/logging.cpp)
 target_include_directories(dxil-debug PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/debug)

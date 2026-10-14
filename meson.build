@@ -1,4 +1,5 @@
-project('dxil-spirv', ['cpp'], version : '0.0', meson_version : '>= 0.49', default_options : ['b_ndebug=if-release'])
+# Salkim modifications by Erhan Bilgili on 2026-10-14.
+project('dxil-spirv-salkim', ['cpp'], version : '0.0', meson_version : '>= 0.49', default_options : ['b_ndebug=if-release'])
 
 dxil_spirv_compiler      = meson.get_compiler('cpp')
 dxil_spirv_cpp_std       = 'c++14'

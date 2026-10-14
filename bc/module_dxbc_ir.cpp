@@ -1,4 +1,6 @@
-/* Copyright (c) 2025 Hans-Kristian Arntzen for Valve Corporation
+/* Salkim modifications by Erhan Bilgili on 2026-10-14.
+ *
+ * Copyright (c) 2025 Hans-Kristian Arntzen for Valve Corporation
 *
 * SPDX-License-Identifier: MIT
 *
@@ -50,9 +52,9 @@ public:
 		switch (severity)
 		{
 			case util::LogLevel::eDebug:
-			case util::LogLevel::eInfo: LOGI("%s\n", text); break;
-			case util::LogLevel::eWarn: LOGW("%s\n", text); break;
-			case util::LogLevel::eError: LOGE("%s\n", text); break;
+			case util::LogLevel::eInfo: LOGI("dxbc-spirv-salkim: %s\n", text); break;
+			case util::LogLevel::eWarn: LOGW("dxbc-spirv-salkim: %s\n", text); break;
+			case util::LogLevel::eError: LOGE("dxbc-spirv-salkim: %s\n", text); break;
 		}
 	}
 
