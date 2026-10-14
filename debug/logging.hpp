@@ -1,4 +1,6 @@
-/* Copyright (c) 2019-2022 Hans-Kristian Arntzen for Valve Corporation
+/* Salkim modifications by Erhan Bilgili on 2026-10-14.
+ *
+ * Copyright (c) 2019-2022 Hans-Kristian Arntzen for Valve Corporation
  *
  * SPDX-License-Identifier: MIT
  *
@@ -27,62 +29,64 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#define DXIL_SPV_LOG_TAG "dxil-spirv-salkim"
+
 #if defined(_MSC_VER)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #define LOGE_INNER(...)                                            \
 	do                                                             \
 	{                                                              \
-		fprintf(stderr, "[ERROR]: " __VA_ARGS__);                  \
+		fprintf(stderr, "[ERROR]: " DXIL_SPV_LOG_TAG ": " __VA_ARGS__); \
 		fflush(stderr);                                            \
 		char buffer[4096];                                         \
-		snprintf(buffer, sizeof(buffer), "[ERROR]: " __VA_ARGS__); \
+		snprintf(buffer, sizeof(buffer), "[ERROR]: " DXIL_SPV_LOG_TAG ": " __VA_ARGS__); \
 		OutputDebugStringA(buffer);                                \
 	} while (false)
 
 #define LOGW_INNER(...)                                           \
 	do                                                            \
 	{                                                             \
-		fprintf(stderr, "[WARN]: " __VA_ARGS__);                  \
+		fprintf(stderr, "[WARN]: " DXIL_SPV_LOG_TAG ": " __VA_ARGS__); \
 		fflush(stderr);                                           \
 		char buffer[4096];                                        \
-		snprintf(buffer, sizeof(buffer), "[WARN]: " __VA_ARGS__); \
+		snprintf(buffer, sizeof(buffer), "[WARN]: " DXIL_SPV_LOG_TAG ": " __VA_ARGS__); \
 		OutputDebugStringA(buffer);                               \
 	} while (false)
 
 #define LOGI_INNER(...)                                           \
 	do                                                            \
 	{                                                             \
-		fprintf(stderr, "[INFO]: " __VA_ARGS__);                  \
+		fprintf(stderr, "[INFO]: " DXIL_SPV_LOG_TAG ": " __VA_ARGS__); \
 		fflush(stderr);                                           \
 		char buffer[4096];                                        \
-		snprintf(buffer, sizeof(buffer), "[INFO]: " __VA_ARGS__); \
+		snprintf(buffer, sizeof(buffer), "[INFO]: " DXIL_SPV_LOG_TAG ": " __VA_ARGS__); \
 		OutputDebugStringA(buffer);                               \
 	} while (false)
 #elif defined(ANDROID)
 #include <android/log.h>
-#define LOGE_INNER(...) __android_log_print(ANDROID_LOG_ERROR, "dxil-spirv", __VA_ARGS__)
-#define LOGW_INNER(...) __android_log_print(ANDROID_LOG_WARN, "dxil-spirv", __VA_ARGS__)
-#define LOGI_INNER(...) __android_log_print(ANDROID_LOG_INFO, "dxil-spirv", __VA_ARGS__)
+#define LOGE_INNER(...) __android_log_print(ANDROID_LOG_ERROR, DXIL_SPV_LOG_TAG, __VA_ARGS__)
+#define LOGW_INNER(...) __android_log_print(ANDROID_LOG_WARN, DXIL_SPV_LOG_TAG, __VA_ARGS__)
+#define LOGI_INNER(...) __android_log_print(ANDROID_LOG_INFO, DXIL_SPV_LOG_TAG, __VA_ARGS__)
 #else
 #define LOGE_INNER(...)                           \
 	do                                            \
 	{                                             \
-		fprintf(stderr, "[ERROR]: " __VA_ARGS__); \
+		fprintf(stderr, "[ERROR]: " DXIL_SPV_LOG_TAG ": " __VA_ARGS__); \
 		fflush(stderr);                           \
 	} while (false)
 
 #define LOGW_INNER(...)                          \
 	do                                           \
 	{                                            \
-		fprintf(stderr, "[WARN]: " __VA_ARGS__); \
+		fprintf(stderr, "[WARN]: " DXIL_SPV_LOG_TAG ": " __VA_ARGS__); \
 		fflush(stderr);                          \
 	} while (false)
 
 #define LOGI_INNER(...)                          \
 	do                                           \
 	{                                            \
-		fprintf(stderr, "[INFO]: " __VA_ARGS__); \
+		fprintf(stderr, "[INFO]: " DXIL_SPV_LOG_TAG ": " __VA_ARGS__); \
 		fflush(stderr);                          \
 	} while (false)
 #endif
