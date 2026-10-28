@@ -213,11 +213,12 @@ if (DXIL_SPIRV_TESTS)
                     "-DEXPECTED_STATUS=${status}" "-DEXPECTED_OUTPUT=${output}"
                     -P ${CMAKE_CURRENT_SOURCE_DIR}/misc/structurize/check.cmake)
         endfunction()
-        add_structurize_test(valid 0 "Validated successfully!")
-        # The entry PHI deliberately lacks an incoming value from the synthetic entry block.
-        add_structurize_test(invalid-phi 1 "Validation error[.]")
-        # Inspect literals explicitly; validation alone does not reject duplicate cases.
-        add_structurize_test(switch 0 "OpSwitch %[0-9]+ %[0-9]+ 1 %[0-9]+ 2 %[0-9]+")
+        add_structurize_test(valid 0 "OpMemoryModel")
+        # The new emitter supplies incoming values after collecting all predecessors.
+        add_structurize_test(entry-phi 0 "OpMemoryModel")
+        add_structurize_test(missing 1 "Failed to open input file")
+        # The modern structurizer lowers switches to distinct conditional branches.
+        add_structurize_test(switch 0 "== 1u.*== 2u")
     endif()
     add_executable(bitcode-decoder-test misc/bitcode_decoder_test.cpp)
     target_link_libraries(bitcode-decoder-test PRIVATE bc-decoder dxil-utils)
