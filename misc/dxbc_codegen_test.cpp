@@ -46,9 +46,9 @@ static Vector<uint32_t> convert(ir::Builder &builder, bool force_precise = false
 	check(entry.entry.entry);
 	CFGStructurizer structurizer(entry.entry.entry, *entry.node_pool, module);
 	if (entry.entry.is_structured)
-		structurizer.run_trivial();
+		check(structurizer.run_trivial());
 	else
-		structurizer.run();
+		check(structurizer.run_structurizer());
 	module.emit_entry_point_function_body(structurizer);
 	check(entry.leaf_functions.empty());
 	Vector<uint32_t> spirv;
