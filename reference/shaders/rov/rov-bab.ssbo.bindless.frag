@@ -108,9 +108,9 @@ OpDecorate %18 BuiltIn FragCoord
 %16 = OpTypeVector %15 4
 %17 = OpTypePointer Input %16
 %18 = OpVariable %17 Input
-%19 = OpTypePointer StorageBuffer %11
-%21 = OpTypePointer PushConstant %5
-%23 = OpConstant %5 4
+%19 = OpTypePointer PushConstant %5
+%21 = OpConstant %5 4
+%23 = OpTypePointer StorageBuffer %11
 %25 = OpTypePointer Input %15
 %27 = OpConstant %5 0
 %30 = OpConstant %5 1
@@ -126,9 +126,9 @@ OpDecorate %18 BuiltIn FragCoord
 %4 = OpLabel
 OpBranch %65
 %65 = OpLabel
-%22 = OpAccessChain %21 %8 %23
-%24 = OpLoad %5 %22
-%20 = OpAccessChain %19 %14 %24
+%20 = OpAccessChain %19 %8 %21
+%22 = OpLoad %5 %20
+%24 = OpAccessChain %23 %14 %22
 %26 = OpAccessChain %25 %18 %27
 %28 = OpLoad %15 %26
 %29 = OpAccessChain %25 %18 %30
@@ -137,9 +137,9 @@ OpBranch %65
 %33 = OpConvertFToU %5 %31
 %34 = OpIMul %5 %33 %35
 %36 = OpIAdd %5 %34 %32
-%37 = OpShiftLeftLogical %5 %36 %23
+%37 = OpShiftLeftLogical %5 %36 %21
 %46 = OpFunctionCall %5 %41 %36 %47
-%49 = OpAccessChain %48 %20 %27 %46
+%49 = OpAccessChain %48 %24 %27 %46
 OpBeginInvocationInterlockEXT
 %50 = OpLoad %9 %49 MakePointerVisible|NonPrivatePointer %51
 %52 = OpCompositeExtract %5 %50 0
@@ -149,10 +149,10 @@ OpBeginInvocationInterlockEXT
 %56 = OpIAdd %5 %52 %30
 %57 = OpIAdd %5 %53 %58
 %59 = OpIAdd %5 %54 %60
-%61 = OpIAdd %5 %55 %23
+%61 = OpIAdd %5 %55 %21
 %62 = OpFunctionCall %5 %41 %36 %47
 %63 = OpCompositeConstruct %9 %56 %57 %59 %61
-%64 = OpAccessChain %48 %20 %27 %62
+%64 = OpAccessChain %48 %24 %27 %62
 OpStore %64 %63 MakePointerAvailable|NonPrivatePointer %51
 OpEndInvocationInterlockEXT
 OpReturn

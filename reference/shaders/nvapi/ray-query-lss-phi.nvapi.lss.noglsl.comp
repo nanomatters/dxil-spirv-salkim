@@ -1,16 +1,17 @@
 ; SPIR-V
-; Version: 1.4
+; Version: 1.6
 ; Generator: Unknown(30017); 21022
-; Bound: 125
+; Bound: 132
 ; Schema: 0
 OpCapability Shader
 OpCapability ImageBuffer
 OpCapability RayQueryKHR
 OpCapability RayTraversalPrimitiveCullingKHR
+OpCapability VulkanMemoryModel
 OpCapability RayTracingLinearSweptSpheresGeometryNV
 OpExtension "SPV_KHR_ray_query"
 OpExtension "SPV_NV_linear_swept_spheres"
-OpMemoryModel Logical GLSL450
+OpMemoryModel Logical Vulkan
 OpEntryPoint GLCompute %3 "main" %8 %12 %17
 OpExecutionMode %3 LocalSize 1 1 1
 OpName %3 "main"
@@ -47,18 +48,22 @@ OpDecorate %12 Binding 1
 %37 = OpTypeVector %9 4
 %43 = OpConstant %9 3
 %47 = OpTypeBool
-%59 = OpConstantFalse %47
+%65 = OpConstantFalse %47
 %79 = OpTypeArray %29 %14
 %80 = OpTypeArray %26 %14
 %99 = OpConstant %9 4
 %107 = OpConstant %9 8
+%115 = OpTypePointer Function %47
+%117 = OpTypePointer Function %9
 %3 = OpFunction %1 None %2
 %4 = OpLabel
+%116 = OpVariable %115 Function
+%118 = OpVariable %117 Function
 %38 = OpUndef %9
 %39 = OpUndef %9
 %40 = OpUndef %9
-OpBranch %115
-%115 = OpLabel
+OpBranch %119
+%119 = OpLabel
 %18 = OpLoad %10 %12
 %20 = OpLoad %6 %8
 %24 = OpInBoundsAccessChain %23 %17 %21
@@ -70,60 +75,70 @@ OpRayQueryInitializeKHR %24 %20 %22 %25 %30 %31 %32 %33
 %36 = OpCompositeConstruct %29 %27 %27 %28
 OpRayQueryInitializeKHR %34 %20 %22 %25 %35 %31 %36 %33
 %42 = OpIAdd %9 %21 %43
-%41 = OpImageRead %37 %18 %42
+%41 = OpImageRead %37 %18 %42 NonPrivateTexel
 %44 = OpCompositeExtract %9 %41 0
 %45 = OpCompositeConstruct %37 %38 %39 %40 %44
 %46 = OpCompositeExtract %9 %45 3
 %48 = OpIEqual %47 %46 %21
-OpSelectionMerge %117 None
-OpBranchConditional %48 %117 %116
-%116 = OpLabel
-OpBranch %117
-%117 = OpLabel
-%49 = OpPhi %9 %21 %115 %22 %116
+OpSelectionMerge %122 None
+OpBranchConditional %48 %121 %120
+%120 = OpLabel
+OpStore %118 %22
+OpBranch %122
+%121 = OpLabel
+OpStore %118 %21
+OpBranch %122
+%122 = OpLabel
+%49 = OpLoad %9 %118
 %50 = OpInBoundsAccessChain %23 %17 %49
 %51 = OpCompositeConstruct %29 %27 %27 %27
 %52 = OpCompositeConstruct %29 %27 %27 %28
 OpRayQueryInitializeKHR %50 %20 %22 %25 %51 %31 %52 %33
-OpBranch %118
-%118 = OpLabel
+OpBranch %123
+%123 = OpLabel
 %53 = OpInBoundsAccessChain %23 %17 %49
 %54 = OpRayQueryProceedKHR %47 %53
-OpLoopMerge %119 %118 None
-OpBranchConditional %54 %118 %119
-%119 = OpLabel
+OpLoopMerge %125 %124 None
+OpBranch %124
+%124 = OpLabel
+OpBranchConditional %54 %123 %125
+%125 = OpLabel
 %55 = OpInBoundsAccessChain %23 %17 %49
 %56 = OpRayQueryGetIntersectionTypeKHR %9 %55 %22
 %57 = OpIEqual %47 %56 %21
-OpSelectionMerge %121 None
-OpBranchConditional %57 %121 %120
-%120 = OpLabel
-%71 = OpInBoundsAccessChain %23 %17 %49
-%72 = OpRayQueryGetRayFlagsKHR %9 %71
-%73 = OpInBoundsAccessChain %23 %17 %49
-%74 = OpRayQueryIsLSSHitNV %47 %73 %22
-%75 = OpSelect %9 %74 %22 %21
-%60 = OpINotEqual %47 %75 %21
-OpBranch %121
-%121 = OpLabel
-%58 = OpPhi %47 %59 %119 %60 %120
-%61 = OpSelect %9 %58 %22 %21
-%62 = OpInBoundsAccessChain %23 %17 %49
-%63 = OpRayQueryGetIntersectionTypeKHR %9 %62 %22
-%64 = OpCompositeConstruct %37 %61 %61 %61 %61
-OpImageWrite %18 %21 %64
-%65 = OpCompositeConstruct %37 %63 %63 %63 %63
-%66 = OpIAdd %9 %21 %22
-OpImageWrite %18 %66 %65
-%67 = OpCompositeConstruct %37 %21 %21 %21 %21
-%68 = OpIAdd %9 %21 %14
-OpImageWrite %18 %68 %67
-%69 = OpCompositeConstruct %37 %21 %21 %21 %21
-%70 = OpIAdd %9 %21 %43
-OpImageWrite %18 %70 %69
-OpSelectionMerge %123 None
-OpBranchConditional %58 %122 %123
-%122 = OpLabel
+OpSelectionMerge %128 None
+OpBranchConditional %57 %127 %126
+%126 = OpLabel
+%58 = OpInBoundsAccessChain %23 %17 %49
+%59 = OpRayQueryGetRayFlagsKHR %9 %58
+%60 = OpInBoundsAccessChain %23 %17 %49
+%61 = OpRayQueryIsLSSHitNV %47 %60 %22
+%62 = OpSelect %9 %61 %22 %21
+%63 = OpINotEqual %47 %62 %21
+OpStore %116 %63
+OpBranch %128
+%127 = OpLabel
+OpStore %116 %65
+OpBranch %128
+%128 = OpLabel
+%64 = OpLoad %47 %116
+%66 = OpSelect %9 %64 %22 %21
+%67 = OpInBoundsAccessChain %23 %17 %49
+%68 = OpRayQueryGetIntersectionTypeKHR %9 %67 %22
+%69 = OpCompositeConstruct %37 %66 %66 %66 %66
+OpImageWrite %18 %21 %69 NonPrivateTexel
+%70 = OpCompositeConstruct %37 %68 %68 %68 %68
+%71 = OpIAdd %9 %21 %22
+OpImageWrite %18 %71 %70 NonPrivateTexel
+%72 = OpCompositeConstruct %37 %21 %21 %21 %21
+%73 = OpIAdd %9 %21 %14
+OpImageWrite %18 %73 %72 NonPrivateTexel
+%74 = OpCompositeConstruct %37 %21 %21 %21 %21
+%75 = OpIAdd %9 %21 %43
+OpImageWrite %18 %75 %74 NonPrivateTexel
+OpSelectionMerge %130 None
+OpBranchConditional %64 %129 %130
+%129 = OpLabel
 %76 = OpInBoundsAccessChain %23 %17 %49
 %77 = OpRayQueryGetRayFlagsKHR %9 %76
 %78 = OpInBoundsAccessChain %23 %17 %49
@@ -146,29 +161,31 @@ OpBranchConditional %58 %122 %123
 %97 = OpCompositeExtract %26 %82 1
 %98 = OpBitcast %9 %97
 %100 = OpCompositeConstruct %37 %84 %84 %84 %84
-OpImageWrite %18 %99 %100
+OpImageWrite %18 %99 %100 NonPrivateTexel
 %101 = OpCompositeConstruct %37 %86 %86 %86 %86
 %102 = OpIAdd %9 %99 %22
-OpImageWrite %18 %102 %101
+OpImageWrite %18 %102 %101 NonPrivateTexel
 %103 = OpCompositeConstruct %37 %88 %88 %88 %88
 %104 = OpIAdd %9 %99 %14
-OpImageWrite %18 %104 %103
+OpImageWrite %18 %104 %103 NonPrivateTexel
 %105 = OpCompositeConstruct %37 %90 %90 %90 %90
 %106 = OpIAdd %9 %99 %43
-OpImageWrite %18 %106 %105
+OpImageWrite %18 %106 %105 NonPrivateTexel
 %108 = OpCompositeConstruct %37 %92 %92 %92 %92
-OpImageWrite %18 %107 %108
+OpImageWrite %18 %107 %108 NonPrivateTexel
 %109 = OpCompositeConstruct %37 %94 %94 %94 %94
 %110 = OpIAdd %9 %107 %22
-OpImageWrite %18 %110 %109
+OpImageWrite %18 %110 %109 NonPrivateTexel
 %111 = OpCompositeConstruct %37 %96 %96 %96 %96
 %112 = OpIAdd %9 %107 %14
-OpImageWrite %18 %112 %111
+OpImageWrite %18 %112 %111 NonPrivateTexel
 %113 = OpCompositeConstruct %37 %98 %98 %98 %98
 %114 = OpIAdd %9 %107 %43
-OpImageWrite %18 %114 %113
-OpBranch %123
-%123 = OpLabel
+OpImageWrite %18 %114 %113 NonPrivateTexel
+OpBranch %130
+%130 = OpLabel
+OpBranch %131
+%131 = OpLabel
 OpReturn
 OpFunctionEnd
 

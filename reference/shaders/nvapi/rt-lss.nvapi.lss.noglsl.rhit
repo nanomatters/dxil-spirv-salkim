@@ -1,5 +1,5 @@
 ; SPIR-V
-; Version: 1.4
+; Version: 1.6
 ; Generator: Unknown(30017); 21022
 ; Bound: 90
 ; Schema: 0
@@ -15,11 +15,12 @@ OpCapability UniformBufferArrayNonUniformIndexing
 OpCapability SampledImageArrayNonUniformIndexing
 OpCapability StorageBufferArrayNonUniformIndexing
 OpCapability StorageImageArrayNonUniformIndexing
+OpCapability VulkanMemoryModel
 OpCapability RayTracingLinearSweptSpheresGeometryNV
 OpExtension "SPV_EXT_descriptor_indexing"
 OpExtension "SPV_KHR_ray_tracing"
 OpExtension "SPV_NV_linear_swept_spheres"
-OpMemoryModel Logical GLSL450
+OpMemoryModel Logical Vulkan
 OpEntryPoint ClosestHitKHR %3 "main" %8 %11 %16 %22 %49 %51
 OpName %3 "main"
 OpName %8 "Result"
@@ -79,16 +80,16 @@ OpBranch %86
 %30 = OpSelect %5 %27 %29 %19
 %31 = OpLoad %6 %8
 %33 = OpCompositeConstruct %32 %30 %30 %30 %30
-OpImageWrite %31 %19 %33
+OpImageWrite %31 %19 %33 NonPrivateTexel
 %34 = OpCompositeConstruct %32 %29 %29 %29 %29
 %35 = OpIAdd %5 %19 %29
-OpImageWrite %31 %35 %34
+OpImageWrite %31 %35 %34 NonPrivateTexel
 %36 = OpCompositeConstruct %32 %19 %19 %19 %19
 %37 = OpIAdd %5 %19 %38
-OpImageWrite %31 %37 %36
+OpImageWrite %31 %37 %36 NonPrivateTexel
 %39 = OpCompositeConstruct %32 %19 %19 %19 %19
 %40 = OpIAdd %5 %19 %41
-OpImageWrite %31 %40 %39
+OpImageWrite %31 %40 %39 NonPrivateTexel
 OpSelectionMerge %88 None
 OpBranchConditional %27 %87 %88
 %87 = OpLabel
@@ -112,30 +113,32 @@ OpBranchConditional %27 %87 %88
 %67 = OpBitcast %5 %66
 %68 = OpLoad %6 %8
 %70 = OpCompositeConstruct %32 %53 %53 %53 %53
-OpImageWrite %68 %69 %70
+OpImageWrite %68 %69 %70 NonPrivateTexel
 %71 = OpCompositeConstruct %32 %55 %55 %55 %55
 %72 = OpIAdd %5 %69 %29
-OpImageWrite %68 %72 %71
+OpImageWrite %68 %72 %71 NonPrivateTexel
 %73 = OpCompositeConstruct %32 %57 %57 %57 %57
 %74 = OpIAdd %5 %69 %38
-OpImageWrite %68 %74 %73
+OpImageWrite %68 %74 %73 NonPrivateTexel
 %75 = OpCompositeConstruct %32 %59 %59 %59 %59
 %76 = OpIAdd %5 %69 %41
-OpImageWrite %68 %76 %75
+OpImageWrite %68 %76 %75 NonPrivateTexel
 %77 = OpLoad %6 %8
 %79 = OpCompositeConstruct %32 %61 %61 %61 %61
-OpImageWrite %77 %78 %79
+OpImageWrite %77 %78 %79 NonPrivateTexel
 %80 = OpCompositeConstruct %32 %63 %63 %63 %63
 %81 = OpIAdd %5 %78 %29
-OpImageWrite %77 %81 %80
+OpImageWrite %77 %81 %80 NonPrivateTexel
 %82 = OpCompositeConstruct %32 %65 %65 %65 %65
 %83 = OpIAdd %5 %78 %38
-OpImageWrite %77 %83 %82
+OpImageWrite %77 %83 %82 NonPrivateTexel
 %84 = OpCompositeConstruct %32 %67 %67 %67 %67
 %85 = OpIAdd %5 %78 %41
-OpImageWrite %77 %85 %84
+OpImageWrite %77 %85 %84 NonPrivateTexel
 OpBranch %88
 %88 = OpLabel
+OpBranch %89
+%89 = OpLabel
 OpStore %18 %20
 OpReturn
 OpFunctionEnd

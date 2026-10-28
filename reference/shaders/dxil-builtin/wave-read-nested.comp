@@ -37,9 +37,9 @@ void main()
 #if 0
 // SPIR-V disassembly
 ; SPIR-V
-; Version: 1.3
+; Version: 1.6
 ; Generator: Unknown(30017); 21022
-; Bound: 98
+; Bound: 97
 ; Schema: 0
 OpCapability Shader
 OpCapability ImageBuffer
@@ -47,8 +47,9 @@ OpCapability GroupNonUniform
 OpCapability GroupNonUniformArithmetic
 OpCapability GroupNonUniformBallot
 OpCapability GroupNonUniformQuad
-OpMemoryModel Logical GLSL450
-OpEntryPoint GLCompute %3 "main" %19 %24
+OpCapability VulkanMemoryModel
+OpMemoryModel Logical Vulkan
+OpEntryPoint GLCompute %3 "main" %8 %15 %19 %24
 OpExecutionMode %3 LocalSize 64 1 1
 OpName %3 "main"
 OpName %13 ""
@@ -116,16 +117,16 @@ OpBranch %96
 %45 = OpIMul %5 %23 %46
 %47 = OpIMul %5 %23 %48
 %49 = OpCompositeConstruct %30 %32 %32 %32 %32
-OpImageWrite %16 %47 %49
+OpImageWrite %16 %47 %49 NonPrivateTexel
 %50 = OpCompositeConstruct %30 %36 %36 %36 %36
 %51 = OpIAdd %5 %47 %9
-OpImageWrite %16 %51 %50
+OpImageWrite %16 %51 %50 NonPrivateTexel
 %52 = OpCompositeConstruct %30 %40 %40 %40 %40
 %53 = OpIAdd %5 %47 %54
-OpImageWrite %16 %53 %52
+OpImageWrite %16 %53 %52 NonPrivateTexel
 %55 = OpCompositeConstruct %30 %44 %44 %44 %44
 %56 = OpIAdd %5 %47 %46
-OpImageWrite %16 %56 %55
+OpImageWrite %16 %56 %55 NonPrivateTexel
 %57 = OpGroupNonUniformBroadcastFirst %5 %46 %23
 %58 = OpGroupNonUniformBroadcastFirst %5 %46 %57
 %59 = OpGroupNonUniformQuadSwap %5 %46 %23 %22
@@ -138,16 +139,16 @@ OpImageWrite %16 %56 %55
 %66 = OpIMul %5 %23 %48
 %68 = OpIAdd %5 %66 %67
 %69 = OpCompositeConstruct %30 %58 %58 %58 %58
-OpImageWrite %16 %68 %69
+OpImageWrite %16 %68 %69 NonPrivateTexel
 %70 = OpCompositeConstruct %30 %60 %60 %60 %60
 %71 = OpIAdd %5 %68 %9
-OpImageWrite %16 %71 %70
+OpImageWrite %16 %71 %70 NonPrivateTexel
 %72 = OpCompositeConstruct %30 %62 %62 %62 %62
 %73 = OpIAdd %5 %68 %54
-OpImageWrite %16 %73 %72
+OpImageWrite %16 %73 %72 NonPrivateTexel
 %74 = OpCompositeConstruct %30 %64 %64 %64 %64
 %75 = OpIAdd %5 %68 %46
-OpImageWrite %16 %75 %74
+OpImageWrite %16 %75 %74 NonPrivateTexel
 %76 = OpGroupNonUniformIAdd %5 %46 Reduce %23
 %77 = OpGroupNonUniformBroadcastFirst %5 %46 %76
 %78 = OpGroupNonUniformBroadcastFirst %5 %46 %77
@@ -161,16 +162,16 @@ OpImageWrite %16 %75 %74
 %86 = OpIMul %5 %23 %48
 %88 = OpIAdd %5 %86 %87
 %89 = OpCompositeConstruct %30 %78 %78 %78 %78
-OpImageWrite %16 %88 %89
+OpImageWrite %16 %88 %89 NonPrivateTexel
 %90 = OpCompositeConstruct %30 %80 %80 %80 %80
 %91 = OpIAdd %5 %88 %9
-OpImageWrite %16 %91 %90
+OpImageWrite %16 %91 %90 NonPrivateTexel
 %92 = OpCompositeConstruct %30 %82 %82 %82 %82
 %93 = OpIAdd %5 %88 %54
-OpImageWrite %16 %93 %92
+OpImageWrite %16 %93 %92 NonPrivateTexel
 %94 = OpCompositeConstruct %30 %84 %84 %84 %84
 %95 = OpIAdd %5 %88 %46
-OpImageWrite %16 %95 %94
+OpImageWrite %16 %95 %94 NonPrivateTexel
 OpReturn
 OpFunctionEnd
 #endif

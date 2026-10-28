@@ -1,7 +1,7 @@
 ; SPIR-V
 ; Version: 1.6
 ; Generator: Unknown(30017); 21022
-; Bound: 63
+; Bound: 64
 ; Schema: 0
 OpCapability Shader
 OpCapability UniformBufferArrayDynamicIndexing
@@ -17,6 +17,7 @@ OpCapability UniformBufferArrayNonUniformIndexing
 OpCapability SampledImageArrayNonUniformIndexing
 OpCapability StorageBufferArrayNonUniformIndexing
 OpCapability StorageImageArrayNonUniformIndexing
+OpCapability VulkanMemoryModel
 OpCapability ShaderInvocationReorderEXT
 OpCapability RayTracingOpacityMicromapExecutionModeKHR
 OpExtension "SPV_EXT_descriptor_indexing"
@@ -24,7 +25,7 @@ OpExtension "SPV_EXT_shader_invocation_reorder"
 OpExtension "SPV_KHR_opacity_micromap"
 OpExtension "SPV_KHR_ray_query"
 OpExtension "SPV_KHR_ray_tracing"
-OpMemoryModel Logical GLSL450
+OpMemoryModel Logical Vulkan
 OpEntryPoint RayGenerationKHR %3 "main" %10 %14 %17 %22 %38 %52
 OpExecutionModeId %3 OpacityMicromapIdKHR %6
 OpName %3 "main"
@@ -92,9 +93,13 @@ OpRayQueryInitializeKHR %17 %24 %23 %25 %29 %26 %30 %31
 OpBranch %60
 %60 = OpLabel
 %32 = OpRayQueryProceedKHR %5 %17
-OpLoopMerge %61 %60 None
-OpBranchConditional %32 %60 %61
+OpLoopMerge %62 %61 None
+OpBranch %61
 %61 = OpLabel
+OpBranchConditional %32 %60 %62
+%62 = OpLabel
+OpBranch %63
+%63 = OpLabel
 OpHitObjectRecordFromQueryEXT %35 %17 %23 %38
 %40 = OpInBoundsAccessChain %39 %22 %23
 OpStore %40 %42
@@ -108,7 +113,7 @@ OpHitObjectRecordFromQueryEXT %44 %17 %23 %22 %43
 %55 = OpLoad %11 %54
 %56 = OpLoad %12 %14
 %58 = OpCompositeConstruct %57 %49 %49 %49 %49
-OpImageWrite %56 %55 %58
+OpImageWrite %56 %55 %58 NonPrivateTexel
 OpReturn
 OpFunctionEnd
 

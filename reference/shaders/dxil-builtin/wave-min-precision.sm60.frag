@@ -1,4 +1,5 @@
 #version 460
+#extension GL_EXT_demote_to_helper_invocation : require
 #extension GL_KHR_shader_subgroup_arithmetic : require
 
 layout(location = 0) in vec4 TEXCOORD;
@@ -7,24 +8,33 @@ layout(location = 0) out vec4 SV_Target;
 void main()
 {
     mediump float _16 = TEXCOORD.x;
-    SV_Target.x = subgroupExclusiveAdd(gl_HelperInvocation ? 0.0 : _16) + subgroupAdd(gl_HelperInvocation ? 0.0 : _16);
-    SV_Target.y = subgroupExclusiveMul(gl_HelperInvocation ? 1.0 : _16) + subgroupMul(gl_HelperInvocation ? 1.0 : _16);
-    SV_Target.z = subgroupMin(gl_HelperInvocation ? uintBitsToFloat(0x7f800000u /* inf */) : _16);
-    SV_Target.w = subgroupMax(gl_HelperInvocation ? uintBitsToFloat(0xff800000u /* -inf */) : _16);
+    bool _20 = helperInvocationEXT();
+    bool _24 = helperInvocationEXT();
+    bool _28 = helperInvocationEXT();
+    bool _32 = helperInvocationEXT();
+    bool _36 = helperInvocationEXT();
+    bool _39 = helperInvocationEXT();
+    SV_Target.x = subgroupExclusiveAdd(_36 ? 0.0 : _16) + subgroupAdd(_20 ? 0.0 : _16);
+    SV_Target.y = subgroupExclusiveMul(_39 ? 1.0 : _16) + subgroupMul(_24 ? 1.0 : _16);
+    SV_Target.z = subgroupMin(_28 ? uintBitsToFloat(0x7f800000u /* inf */) : _16);
+    SV_Target.w = subgroupMax(_32 ? uintBitsToFloat(0xff800000u /* -inf */) : _16);
 }
 
 
 #if 0
 // SPIR-V disassembly
 ; SPIR-V
-; Version: 1.3
+; Version: 1.6
 ; Generator: Unknown(30017); 21022
-; Bound: 54
+; Bound: 51
 ; Schema: 0
 OpCapability Shader
 OpCapability GroupNonUniformArithmetic
-OpMemoryModel Logical GLSL450
-OpEntryPoint Fragment %3 "main" %8 %10 %52
+OpCapability VulkanMemoryModel
+OpCapability DemoteToHelperInvocation
+OpExtension "SPV_EXT_demote_to_helper_invocation"
+OpMemoryModel Logical Vulkan
+OpEntryPoint Fragment %3 "main" %8 %10
 OpExecutionMode %3 OriginUpperLeft
 OpName %3 "main"
 OpName %8 "TEXCOORD"
@@ -32,7 +42,6 @@ OpName %10 "SV_Target"
 OpDecorate %8 Location 0
 OpDecorate %10 Location 0
 OpDecorate %16 RelaxedPrecision
-OpDecorate %52 BuiltIn HelperInvocation
 %1 = OpTypeVoid
 %2 = OpTypeFunction %1
 %5 = OpTypeFloat 32
@@ -53,8 +62,6 @@ OpDecorate %52 BuiltIn HelperInvocation
 %43 = OpTypePointer Output %5
 %46 = OpConstant %13 1
 %48 = OpConstant %13 2
-%51 = OpTypePointer Input %19
-%52 = OpVariable %51 Input
 %3 = OpFunction %1 None %2
 %4 = OpLabel
 OpBranch %50
@@ -62,22 +69,22 @@ OpBranch %50
 %12 = OpAccessChain %11 %8 %14
 %15 = OpLoad %5 %12
 %16 = OpCopyObject %5 %15
-%20 = OpLoad %19 %52
+%20 = OpIsHelperInvocationEXT %19
 %22 = OpSelect %5 %20 %21 %16
 %17 = OpGroupNonUniformFAdd %5 %18 Reduce %22
-%24 = OpLoad %19 %52
+%24 = OpIsHelperInvocationEXT %19
 %26 = OpSelect %5 %24 %25 %16
 %23 = OpGroupNonUniformFMul %5 %18 Reduce %26
-%28 = OpLoad %19 %52
+%28 = OpIsHelperInvocationEXT %19
 %30 = OpSelect %5 %28 %29 %16
 %27 = OpGroupNonUniformFMin %5 %18 Reduce %30
-%32 = OpLoad %19 %52
+%32 = OpIsHelperInvocationEXT %19
 %34 = OpSelect %5 %32 %33 %16
 %31 = OpGroupNonUniformFMax %5 %18 Reduce %34
-%36 = OpLoad %19 %52
+%36 = OpIsHelperInvocationEXT %19
 %37 = OpSelect %5 %36 %21 %16
 %35 = OpGroupNonUniformFAdd %5 %18 ExclusiveScan %37
-%39 = OpLoad %19 %52
+%39 = OpIsHelperInvocationEXT %19
 %40 = OpSelect %5 %39 %25 %16
 %38 = OpGroupNonUniformFMul %5 %18 ExclusiveScan %40
 %41 = OpFAdd %5 %35 %17
