@@ -209,8 +209,8 @@ OpDecorate %84 NonWritable
 %29 = OpConstant %5 1
 %31 = OpTypeBool
 %33 = OpConstant %9 0
-%34 = OpTypePointer UniformConstant %10
-%36 = OpTypePointer PushConstant %5
+%34 = OpTypePointer PushConstant %5
+%37 = OpTypePointer UniformConstant %10
 %40 = OpTypeVector %5 2
 %41 = OpTypeRuntimeArray %5
 %42 = OpTypeStruct %40 %5 %5 %5 %5 %5 %5 %5 %5 %5 %41
@@ -239,7 +239,7 @@ OpDecorate %84 NonWritable
 %98 = OpTypePointer StorageBuffer %80
 %106 = OpConstant %5 31
 %108 = OpConstant %5 10
-%129 = OpTypePointer UniformConstant %14
+%131 = OpTypePointer UniformConstant %14
 %134 = OpTypeSampledImage %10
 %142 = OpTypePointer Output %9
 %3 = OpFunction %1 None %2
@@ -259,15 +259,15 @@ OpBranch %149
 %149 = OpLabel
 OpBranch %150
 %150 = OpLabel
-%37 = OpAccessChain %36 %8 %26
-%38 = OpLoad %5 %37
-%39 = OpFunctionCall %5 %89 %38 %29 %29
-%35 = OpAccessChain %34 %13 %39
-%128 = OpLoad %10 %35
-%131 = OpAccessChain %36 %8 %67
-%132 = OpLoad %5 %131
-%130 = OpAccessChain %129 %17 %132
-%133 = OpLoad %14 %130
+%35 = OpAccessChain %34 %8 %26
+%36 = OpLoad %5 %35
+%39 = OpFunctionCall %5 %89 %36 %29 %29
+%38 = OpAccessChain %37 %13 %39
+%128 = OpLoad %10 %38
+%129 = OpAccessChain %34 %8 %67
+%130 = OpLoad %5 %129
+%132 = OpAccessChain %131 %17 %130
+%133 = OpLoad %14 %132
 %135 = OpSampledImage %134 %128 %133
 %137 = OpCompositeConstruct %18 %27 %30
 %136 = OpImageSampleImplicitLod %21 %135 %137 None

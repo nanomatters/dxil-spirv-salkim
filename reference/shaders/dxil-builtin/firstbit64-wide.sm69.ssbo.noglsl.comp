@@ -1,14 +1,15 @@
 ; SPIR-V
 ; Version: 1.6
 ; Generator: Unknown(30017); 21022
-; Bound: 169
+; Bound: 168
 ; Schema: 0
 OpCapability Shader
 OpCapability Int64
+OpCapability VulkanMemoryModel
 OpCapability LongVectorEXT
 OpExtension "SPV_EXT_long_vector"
 %42 = OpExtInstImport "GLSL.std.450"
-OpMemoryModel Logical GLSL450
+OpMemoryModel Logical Vulkan
 OpEntryPoint GLCompute %3 "main" %9 %14 %19 %24
 OpExecutionMode %3 LocalSize 1 1 1
 OpName %3 "main"
@@ -106,16 +107,16 @@ OpDecorate %24 Aliased
 OpBranch %167
 %167 = OpLabel
 %27 = OpAccessChain %26 %9 %25 %25
-%28 = OpLoad %5 %27
+%28 = OpLoad %5 %27 NonPrivatePointer
 %30 = OpIAdd %15 %25 %31
 %29 = OpAccessChain %26 %9 %25 %30
-%32 = OpLoad %5 %29
+%32 = OpLoad %5 %29 NonPrivatePointer
 %34 = OpIAdd %15 %25 %35
 %33 = OpAccessChain %26 %9 %25 %34
-%36 = OpLoad %5 %33
+%36 = OpLoad %5 %33 NonPrivatePointer
 %38 = OpCompositeConstruct %37 %28 %32 %36
 %40 = OpAccessChain %39 %14 %25 %31
-%41 = OpLoad %10 %40
+%41 = OpLoad %10 %40 NonPrivatePointer
 %44 = OpBitcast %43 %38
 %46 = OpExtInst %43 %42 FindILsb %44
 %47 = OpVectorShuffle %45 %46 %46 0 2 4
@@ -126,13 +127,13 @@ OpBranch %167
 %54 = OpCompositeExtract %15 %52 1
 %55 = OpCompositeExtract %15 %52 2
 %57 = OpAccessChain %56 %19 %25 %25
-OpStore %57 %53
+OpStore %57 %53 NonPrivatePointer
 %59 = OpIAdd %15 %25 %31
 %58 = OpAccessChain %56 %19 %25 %59
-OpStore %58 %54
+OpStore %58 %54 NonPrivatePointer
 %61 = OpIAdd %15 %25 %35
 %60 = OpAccessChain %56 %19 %25 %61
-OpStore %60 %55
+OpStore %60 %55 NonPrivatePointer
 %62 = OpBitcast %43 %38
 %63 = OpExtInst %43 %42 FindUMsb %62
 %64 = OpVectorShuffle %45 %63 %63 0 2 4
@@ -149,13 +150,13 @@ OpStore %60 %55
 %82 = OpCompositeExtract %15 %79 1
 %83 = OpCompositeExtract %15 %79 2
 %84 = OpAccessChain %56 %19 %25 %80
-OpStore %84 %81
+OpStore %84 %81 NonPrivatePointer
 %86 = OpIAdd %15 %80 %31
 %85 = OpAccessChain %56 %19 %25 %86
-OpStore %85 %82
+OpStore %85 %82 NonPrivatePointer
 %88 = OpIAdd %15 %80 %35
 %87 = OpAccessChain %56 %19 %25 %88
-OpStore %87 %83
+OpStore %87 %83 NonPrivatePointer
 %89 = OpBitcast %43 %38
 %90 = OpVectorShuffle %45 %89 %89 1 3 5
 %93 = OpShiftRightArithmetic %92 %90 %95
@@ -176,13 +177,13 @@ OpStore %87 %83
 %112 = OpCompositeExtract %15 %109 1
 %113 = OpCompositeExtract %15 %109 2
 %114 = OpAccessChain %56 %19 %25 %110
-OpStore %114 %111
+OpStore %114 %111 NonPrivatePointer
 %116 = OpIAdd %15 %110 %31
 %115 = OpAccessChain %56 %19 %25 %116
-OpStore %115 %112
+OpStore %115 %112 NonPrivatePointer
 %118 = OpIAdd %15 %110 %35
 %117 = OpAccessChain %56 %19 %25 %118
-OpStore %117 %113
+OpStore %117 %113 NonPrivatePointer
 %120 = OpBitcast %119 %41
 %121 = OpExtInst %119 %42 FindILsb %120
 %122 = OpVectorShuffle %20 %121 %121 0 2 4 6
@@ -190,7 +191,7 @@ OpStore %117 %113
 %124 = OpBitwiseOr %20 %123 %125
 %126 = OpExtInst %20 %42 UMin %122 %124
 %128 = OpAccessChain %127 %24 %25 %80
-OpStore %128 %126
+OpStore %128 %126 NonPrivatePointer
 %129 = OpBitcast %119 %41
 %130 = OpExtInst %119 %42 FindUMsb %129
 %131 = OpVectorShuffle %20 %130 %130 0 2 4 6
@@ -204,7 +205,7 @@ OpStore %128 %126
 %142 = OpIEqual %135 %140 %137
 %143 = OpSelect %20 %142 %137 %141
 %145 = OpAccessChain %127 %24 %25 %144
-OpStore %145 %143
+OpStore %145 %143 NonPrivatePointer
 %146 = OpBitcast %119 %41
 %147 = OpVectorShuffle %20 %146 %146 1 3 5 7
 %149 = OpShiftRightArithmetic %148 %147 %150
@@ -222,7 +223,7 @@ OpStore %145 %143
 %163 = OpIEqual %135 %161 %137
 %164 = OpSelect %20 %163 %137 %162
 %166 = OpAccessChain %127 %24 %25 %165
-OpStore %166 %164
+OpStore %166 %164 NonPrivatePointer
 OpReturn
 OpFunctionEnd
 

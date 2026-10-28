@@ -7,6 +7,7 @@
 #error No extension available for FP16.
 #endif
 #extension GL_EXT_shader_16bit_storage : require
+#extension GL_EXT_demote_to_helper_invocation : require
 #extension GL_EXT_shader_subgroup_extended_types_float16 : require
 #extension GL_KHR_shader_subgroup_arithmetic : require
 
@@ -22,7 +23,13 @@ void main()
     _31.y = float16_t(TEXCOORD.y);
     _31.z = float16_t(TEXCOORD.z);
     _31.w = float16_t(TEXCOORD.w);
-    vec4 _68 = vec4(((((subgroupMul(gl_HelperInvocation ? f16vec4(float16_t(1.0)) : _31) + subgroupAdd(gl_HelperInvocation ? f16vec4(float16_t(0.0)) : _31)) + subgroupMin(gl_HelperInvocation ? f16vec4(float16_t(1.0 / 0.0)) : _31)) + subgroupMax(gl_HelperInvocation ? f16vec4(float16_t(-1.0 / 0.0)) : _31)) + subgroupExclusiveAdd(gl_HelperInvocation ? f16vec4(float16_t(0.0)) : _31)) + subgroupExclusiveMul(gl_HelperInvocation ? f16vec4(float16_t(1.0)) : _31));
+    bool _38 = helperInvocationEXT();
+    bool _43 = helperInvocationEXT();
+    bool _49 = helperInvocationEXT();
+    bool _55 = helperInvocationEXT();
+    bool _61 = helperInvocationEXT();
+    bool _65 = helperInvocationEXT();
+    vec4 _68 = vec4(((((subgroupMul(_43 ? f16vec4(float16_t(1.0)) : _31) + subgroupAdd(_38 ? f16vec4(float16_t(0.0)) : _31)) + subgroupMin(_49 ? f16vec4(float16_t(1.0 / 0.0)) : _31)) + subgroupMax(_55 ? f16vec4(float16_t(-1.0 / 0.0)) : _31)) + subgroupExclusiveAdd(_61 ? f16vec4(float16_t(0.0)) : _31)) + subgroupExclusiveMul(_65 ? f16vec4(float16_t(1.0)) : _31));
     SV_Target.x = _68.x;
     SV_Target.y = _68.y;
     SV_Target.z = _68.z;
@@ -35,15 +42,18 @@ void main()
 ; SPIR-V
 ; Version: 1.6
 ; Generator: Unknown(30017); 21022
-; Bound: 82
+; Bound: 79
 ; Schema: 0
 OpCapability Shader
 OpCapability Float16
 OpCapability GroupNonUniformArithmetic
 OpCapability DenormPreserve
+OpCapability VulkanMemoryModel
+OpCapability DemoteToHelperInvocation
+OpExtension "SPV_EXT_demote_to_helper_invocation"
 OpExtension "SPV_KHR_float_controls"
-OpMemoryModel Logical GLSL450
-OpEntryPoint Fragment %3 "main" %8 %10 %80
+OpMemoryModel Logical Vulkan
+OpEntryPoint Fragment %3 "main" %8 %10
 OpExecutionMode %3 OriginUpperLeft
 OpExecutionMode %3 DenormPreserve 16
 OpName %3 "main"
@@ -51,7 +61,6 @@ OpName %8 "TEXCOORD"
 OpName %10 "SV_Target"
 OpDecorate %8 Location 0
 OpDecorate %10 Location 0
-OpDecorate %80 BuiltIn HelperInvocation
 %1 = OpTypeVoid
 %2 = OpTypeFunction %1
 %5 = OpTypeFloat 32
@@ -78,8 +87,6 @@ OpDecorate %80 BuiltIn HelperInvocation
 %56 = OpConstant %25 -0x1p+16
 %57 = OpConstantComposite %30 %56 %56 %56 %56
 %70 = OpTypePointer Output %5
-%79 = OpTypePointer Input %37
-%80 = OpVariable %79 Input
 %3 = OpFunction %1 None %2
 %4 = OpLabel
 %32 = OpUndef %30
@@ -101,26 +108,26 @@ OpBranch %78
 %33 = OpCompositeInsert %30 %27 %31 1
 %34 = OpCompositeInsert %30 %28 %33 2
 %35 = OpCompositeInsert %30 %29 %34 3
-%38 = OpLoad %37 %80
+%38 = OpIsHelperInvocationEXT %37
 %41 = OpSelect %30 %38 %40 %35
 %36 = OpGroupNonUniformFAdd %30 %23 Reduce %41
-%43 = OpLoad %37 %80
+%43 = OpIsHelperInvocationEXT %37
 %46 = OpSelect %30 %43 %45 %35
 %42 = OpGroupNonUniformFMul %30 %23 Reduce %46
 %47 = OpFAdd %30 %42 %36
-%49 = OpLoad %37 %80
+%49 = OpIsHelperInvocationEXT %37
 %52 = OpSelect %30 %49 %51 %35
 %48 = OpGroupNonUniformFMin %30 %23 Reduce %52
 %53 = OpFAdd %30 %47 %48
-%55 = OpLoad %37 %80
+%55 = OpIsHelperInvocationEXT %37
 %58 = OpSelect %30 %55 %57 %35
 %54 = OpGroupNonUniformFMax %30 %23 Reduce %58
 %59 = OpFAdd %30 %53 %54
-%61 = OpLoad %37 %80
+%61 = OpIsHelperInvocationEXT %37
 %62 = OpSelect %30 %61 %40 %35
 %60 = OpGroupNonUniformFAdd %30 %23 ExclusiveScan %62
 %63 = OpFAdd %30 %59 %60
-%65 = OpLoad %37 %80
+%65 = OpIsHelperInvocationEXT %37
 %66 = OpSelect %30 %65 %45 %35
 %64 = OpGroupNonUniformFMul %30 %23 ExclusiveScan %66
 %67 = OpFAdd %30 %63 %64

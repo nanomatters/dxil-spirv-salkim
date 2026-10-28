@@ -1,15 +1,16 @@
 ; SPIR-V
-; Version: 1.3
+; Version: 1.6
 ; Generator: Unknown(30017); 21022
-; Bound: 54
+; Bound: 55
 ; Schema: 0
 OpCapability Shader
+OpCapability VulkanMemoryModel
 OpCapability FragmentShaderPixelInterlockEXT
 OpCapability RawAccessChainsNV
 OpExtension "SPV_EXT_fragment_shader_interlock"
 OpExtension "SPV_NV_raw_access_chains"
-OpMemoryModel Logical GLSL450
-OpEntryPoint Fragment %3 "main" %21
+OpMemoryModel Logical Vulkan
+OpEntryPoint Fragment %3 "main" %9 %13 %17 %21
 OpExecutionMode %3 OriginUpperLeft
 OpExecutionMode %3 EarlyFragmentTests
 OpExecutionMode %3 PixelInterlockOrderedEXT
@@ -23,13 +24,11 @@ OpMemberDecorate %7 0 Offset 0
 OpDecorate %7 Block
 OpDecorate %9 DescriptorSet 0
 OpDecorate %9 Binding 0
-OpDecorate %9 Coherent
 OpDecorate %10 ArrayStride 4
 OpMemberDecorate %11 0 Offset 0
 OpDecorate %11 Block
 OpDecorate %13 DescriptorSet 0
 OpDecorate %13 Binding 1
-OpDecorate %13 Coherent
 OpDecorate %14 ArrayStride 4
 OpMemberDecorate %15 0 Offset 0
 OpDecorate %15 Block
@@ -37,10 +36,6 @@ OpDecorate %17 DescriptorSet 0
 OpDecorate %17 Binding 2
 OpDecorate %17 NonReadable
 OpDecorate %21 BuiltIn FragCoord
-OpDecorate %35 Coherent
-OpDecorate %42 Coherent
-OpDecorate %46 Coherent
-OpDecorate %49 Coherent
 %1 = OpTypeVoid
 %2 = OpTypeFunction %1
 %5 = OpTypeInt 32 0
@@ -65,14 +60,15 @@ OpDecorate %49 Coherent
 %28 = OpConstant %5 1
 %29 = OpTypeBool
 %32 = OpConstant %5 2
-%33 = OpTypeVector %5 2
-%34 = OpTypePointer StorageBuffer %33
-%36 = OpConstant %5 8
-%44 = OpTypePointer StorageBuffer %5
+%33 = OpTypePointer StorageBuffer %5
+%36 = OpConstant %5 5
+%39 = OpTypeVector %5 2
+%40 = OpTypePointer StorageBuffer %39
+%42 = OpConstant %5 8
 %3 = OpFunction %1 None %2
 %4 = OpLabel
-OpBranch %50
-%50 = OpLabel
+OpBranch %51
+%51 = OpLabel
 %23 = OpAccessChain %22 %21 %24
 %25 = OpLoad %18 %23
 %26 = OpConvertFToU %5 %25
@@ -80,28 +76,30 @@ OpBranch %50
 %30 = OpIEqual %29 %27 %24
 %31 = OpShiftLeftLogical %5 %26 %32
 OpBeginInvocationInterlockEXT
-OpSelectionMerge %52 None
-OpBranchConditional %30 %52 %51
-%51 = OpLabel
-%46 = OpRawAccessChainNV %44 %9 %24 %24 %31 RobustnessPerComponentNV
-%47 = OpLoad %5 %46 Aligned 4
-%48 = OpIAdd %5 %47 %28
-%49 = OpRawAccessChainNV %44 %9 %24 %24 %31 RobustnessPerComponentNV
-OpStore %49 %48 Aligned 4
-OpBranch %52
+OpSelectionMerge %53 None
+OpBranchConditional %30 %53 %52
 %52 = OpLabel
-%35 = OpRawAccessChainNV %34 %13 %36 %26 %24 RobustnessPerElementNV
-%37 = OpLoad %33 %35 Aligned 8
-%38 = OpCompositeExtract %5 %37 0
-%39 = OpCompositeExtract %5 %37 1
-%40 = OpIAdd %5 %38 %28
-%41 = OpIAdd %5 %39 %32
-%42 = OpRawAccessChainNV %34 %13 %36 %26 %24 RobustnessPerElementNV
-%43 = OpCompositeConstruct %33 %40 %41
-OpStore %42 %43 Aligned 8
+%34 = OpRawAccessChainNV %33 %9 %24 %24 %31 RobustnessPerComponentNV
+%35 = OpLoad %5 %34 Aligned|MakePointerVisible|NonPrivatePointer 4 %36
+%37 = OpIAdd %5 %35 %28
+%38 = OpRawAccessChainNV %33 %9 %24 %24 %31 RobustnessPerComponentNV
+OpStore %38 %37 Aligned|MakePointerAvailable|NonPrivatePointer 4 %36
+OpBranch %53
+%53 = OpLabel
+OpBranch %54
+%54 = OpLabel
+%41 = OpRawAccessChainNV %40 %13 %42 %26 %24 RobustnessPerElementNV
+%43 = OpLoad %39 %41 Aligned|MakePointerVisible|NonPrivatePointer 8 %36
+%44 = OpCompositeExtract %5 %43 0
+%45 = OpCompositeExtract %5 %43 1
+%46 = OpIAdd %5 %44 %28
+%47 = OpIAdd %5 %45 %32
+%48 = OpRawAccessChainNV %40 %13 %42 %26 %24 RobustnessPerElementNV
+%49 = OpCompositeConstruct %39 %46 %47
+OpStore %48 %49 Aligned|MakePointerAvailable|NonPrivatePointer 8 %36
 OpEndInvocationInterlockEXT
-%45 = OpRawAccessChainNV %44 %17 %24 %24 %31 RobustnessPerComponentNV
-OpStore %45 %26 Aligned 4
+%50 = OpRawAccessChainNV %33 %17 %24 %24 %31 RobustnessPerComponentNV
+OpStore %50 %26 Aligned|NonPrivatePointer 4
 OpReturn
 OpFunctionEnd
 

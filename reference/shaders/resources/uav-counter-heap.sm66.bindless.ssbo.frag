@@ -134,8 +134,8 @@ OpDecorate %25 Location 0
 %23 = OpTypeVector %22 4
 %24 = OpTypePointer Output %23
 %25 = OpVariable %24 Output
-%26 = OpTypePointer StorageBuffer %16
-%28 = OpConstant %5 14
+%26 = OpConstant %5 14
+%27 = OpTypePointer StorageBuffer %16
 %29 = OpTypePointer StorageBuffer %9
 %31 = OpConstant %5 0
 %33 = OpTypeFunction %5 %9 %5 %5
@@ -153,11 +153,11 @@ OpDecorate %25 Location 0
 %4 = OpLabel
 OpBranch %69
 %69 = OpLabel
-%27 = OpAccessChain %26 %19 %28
-%30 = OpAccessChain %29 %13 %31 %28
+%28 = OpAccessChain %27 %19 %26
+%30 = OpAccessChain %29 %13 %31 %26
 %32 = OpLoad %9 %30
 %52 = OpFunctionCall %5 %37 %32 %53 %31
-%55 = OpAccessChain %54 %27 %31 %52
+%55 = OpAccessChain %54 %28 %31 %52
 %56 = OpLoad %14 %55 NonPrivatePointer
 %57 = OpBitcast %23 %56
 %58 = OpCompositeExtract %22 %57 0

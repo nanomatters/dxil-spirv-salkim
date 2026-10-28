@@ -137,17 +137,17 @@ OpDecorate %25 BuiltIn GlobalInvocationId
 %28 = OpConstant %5 0
 %30 = OpTypeBool
 %32 = OpConstant %5 80
-%33 = OpTypePointer UniformConstant %19
-%35 = OpTypePointer PushConstant %5
-%37 = OpConstant %5 3
-%40 = OpConstant %5 6
+%33 = OpTypePointer PushConstant %5
+%35 = OpConstant %5 3
+%38 = OpConstant %5 6
+%39 = OpTypePointer UniformConstant %19
 %42 = OpConstant %18 0
 %44 = OpTypeVector %18 4
 %47 = OpConstant %5 90
 %49 = OpConstant %5 1
 %51 = OpConstant %5 7
-%59 = OpTypePointer UniformConstant %9
-%62 = OpConstant %5 4
+%60 = OpConstant %5 4
+%62 = OpTypePointer UniformConstant %9
 %65 = OpTypePointer StorageBuffer %13
 %70 = OpTypeFunction %5 %13 %5 %5
 %78 = OpTypeVector %30 2
@@ -164,11 +164,11 @@ OpBranch %89
 OpSelectionMerge %93 None
 OpBranchConditional %31 %90 %93
 %90 = OpLabel
-%36 = OpAccessChain %35 %8 %37
-%38 = OpLoad %5 %36
-%39 = OpIAdd %5 %38 %40
-%34 = OpAccessChain %33 %22 %39
-%41 = OpLoad %19 %34
+%34 = OpAccessChain %33 %8 %35
+%36 = OpLoad %5 %34
+%37 = OpIAdd %5 %36 %38
+%40 = OpAccessChain %39 %22 %37
+%41 = OpLoad %19 %40
 %43 = OpCompositeConstruct %13 %29 %28
 %45 = OpCompositeConstruct %44 %42 %42 %42 %42
 OpImageWrite %41 %43 %45 NonPrivateTexel
@@ -178,11 +178,11 @@ OpBranchConditional %46 %91 %92
 %91 = OpLabel
 %48 = OpBitwiseAnd %5 %29 %49
 %50 = OpIAdd %5 %48 %51
-%53 = OpAccessChain %35 %8 %37
-%54 = OpLoad %5 %53
-%55 = OpIAdd %5 %54 %50
-%52 = OpAccessChain %33 %22 %55
-%56 = OpLoad %19 %52
+%52 = OpAccessChain %33 %8 %35
+%53 = OpLoad %5 %52
+%54 = OpIAdd %5 %53 %50
+%55 = OpAccessChain %39 %22 %54
+%56 = OpLoad %19 %55
 %57 = OpCompositeConstruct %13 %28 %29
 %58 = OpCompositeConstruct %44 %42 %42 %42 %42
 OpImageWrite %56 %57 %58 NonPrivateTexel
@@ -192,11 +192,11 @@ OpBranch %93
 %93 = OpLabel
 OpBranch %94
 %94 = OpLabel
-%61 = OpAccessChain %35 %8 %62
-%63 = OpLoad %5 %61
-%60 = OpAccessChain %59 %12 %63
-%64 = OpLoad %9 %60
-%67 = OpAccessChain %35 %8 %62
+%59 = OpAccessChain %33 %8 %60
+%61 = OpLoad %5 %59
+%63 = OpAccessChain %62 %12 %61
+%64 = OpLoad %9 %63
+%67 = OpAccessChain %33 %8 %60
 %68 = OpLoad %5 %67
 %66 = OpAccessChain %65 %17 %28 %68
 %69 = OpLoad %13 %66

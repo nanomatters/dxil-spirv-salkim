@@ -1,5 +1,4 @@
 #version 460
-#extension GL_EXT_maximal_reconvergence : require
 #extension GL_EXT_demote_to_helper_invocation : require
 #extension GL_KHR_shader_subgroup_arithmetic : require
 
@@ -14,7 +13,6 @@ uint ByteAddressMask(uint index, uint stride)
     return index & (4294967295u / stride);
 }
 
-[[maximally_reconverges]]
 void main()
 {
     if (INDEX == 40u)

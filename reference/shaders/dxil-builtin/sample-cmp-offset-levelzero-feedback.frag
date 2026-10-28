@@ -1,6 +1,5 @@
 #version 460
 #extension GL_ARB_sparse_texture2 : require
-#extension GL_EXT_texture_shadow_lod : require
 
 struct SparseTexel
 {
@@ -48,7 +47,7 @@ void main()
     _56 _91 = _56(_90, _90, _90, _90, _85._m0);
     uint _126;
     float _127;
-    _126 = sparseTextureLodOffsetARB(sampler2DArrayShadow(_17, _20), vec4(vec3(TEXCOORD.x, TEXCOORD.y, TEXCOORD.z), TEXCOORD.w), 0.0, ivec2(4, 5), _127);
+    _126 = sparseTextureGradOffsetARB(sampler2DArrayShadow(_17, _20), vec4(vec3(TEXCOORD.x, TEXCOORD.y, TEXCOORD.z), TEXCOORD.w), vec2(0.0), vec2(0.0), ivec2(4, 5), _127);
     SparseTexel _103 = SparseTexel(_126, _127);
     float _108 = _103._m1;
     _56 _109 = _56(_108, _108, _108, _108, _103._m0);

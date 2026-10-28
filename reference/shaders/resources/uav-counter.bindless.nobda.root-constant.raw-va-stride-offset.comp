@@ -27,10 +27,8 @@ layout(set = 7, binding = 0, r32ui) uniform uimageBuffer _15[];
 
 void main()
 {
-    uint _23 = gl_GlobalInvocationID.x + 2u;
-    uint _39 = imageAtomicAdd(_15[nonuniformEXT(registers._m4 + _23)], int(0u), 1u);
-    uint _43 = (gl_GlobalInvocationID.x ^ 1u) + 2u;
-    uint _54 = imageAtomicAdd(_15[nonuniformEXT(registers._m4 + _43)], int(0u), 1u);
+    uint _36 = imageAtomicAdd(_15[nonuniformEXT(registers._m4 + (gl_GlobalInvocationID.x + 2u))], int(0u), 1u);
+    uint _48 = imageAtomicAdd(_15[nonuniformEXT(registers._m4 + ((gl_GlobalInvocationID.x ^ 1u) + 2u))], int(0u), 1u);
 }
 
 
@@ -39,7 +37,7 @@ void main()
 ; SPIR-V
 ; Version: 1.6
 ; Generator: Unknown(30017); 21022
-; Bound: 56
+; Bound: 50
 ; Schema: 0
 OpCapability Shader
 OpCapability ImageBuffer
@@ -78,14 +76,12 @@ OpDecorate %12 NonWritable
 OpDecorate %15 DescriptorSet 7
 OpDecorate %15 Binding 0
 OpDecorate %18 BuiltIn GlobalInvocationId
-OpDecorate %31 NonUniform
+OpDecorate %29 NonUniform
 OpDecorate %32 NonUniform
-OpDecorate %36 NonUniform
-OpDecorate %38 NonUniform
+OpDecorate %35 NonUniform
+OpDecorate %43 NonUniform
+OpDecorate %45 NonUniform
 OpDecorate %47 NonUniform
-OpDecorate %48 NonUniform
-OpDecorate %52 NonUniform
-OpDecorate %53 NonUniform
 %1 = OpTypeVoid
 %2 = OpTypeFunction %1
 %5 = OpTypeInt 32 0
@@ -105,43 +101,37 @@ OpDecorate %53 NonUniform
 %19 = OpTypePointer Input %5
 %21 = OpConstant %5 0
 %24 = OpConstant %5 2
-%25 = OpTypePointer UniformConstant %9
-%27 = OpTypePointer PushConstant %5
-%29 = OpConstant %5 4
-%37 = OpTypePointer Image %5
-%40 = OpConstant %5 5
-%41 = OpConstant %5 1
+%25 = OpTypePointer PushConstant %5
+%27 = OpConstant %5 4
+%30 = OpTypePointer UniformConstant %9
+%34 = OpTypePointer Image %5
+%37 = OpConstant %5 5
+%38 = OpConstant %5 1
 %3 = OpFunction %1 None %2
 %4 = OpLabel
-OpBranch %55
-%55 = OpLabel
+OpBranch %49
+%49 = OpLabel
 %20 = OpAccessChain %19 %18 %21
 %22 = OpLoad %5 %20
 %23 = OpIAdd %5 %22 %24
-%28 = OpAccessChain %27 %8 %29
-%30 = OpLoad %5 %28
-%31 = OpIAdd %5 %30 %23
-%26 = OpAccessChain %25 %12 %31
-%32 = OpLoad %9 %26
-%34 = OpAccessChain %27 %8 %29
-%35 = OpLoad %5 %34
-%36 = OpIAdd %5 %35 %23
-%33 = OpAccessChain %25 %15 %36
-%38 = OpImageTexelPointer %37 %33 %21 %21
-%39 = OpAtomicIAdd %5 %38 %40 %21 %41
-%42 = OpBitwiseXor %5 %22 %41
-%43 = OpIAdd %5 %42 %24
-%45 = OpAccessChain %27 %8 %29
-%46 = OpLoad %5 %45
-%47 = OpIAdd %5 %46 %43
-%44 = OpAccessChain %25 %12 %47
-%48 = OpLoad %9 %44
-%50 = OpAccessChain %27 %8 %29
-%51 = OpLoad %5 %50
-%52 = OpIAdd %5 %51 %43
-%49 = OpAccessChain %25 %15 %52
-%53 = OpImageTexelPointer %37 %49 %21 %21
-%54 = OpAtomicIAdd %5 %53 %40 %21 %41
+%26 = OpAccessChain %25 %8 %27
+%28 = OpLoad %5 %26
+%29 = OpIAdd %5 %28 %23
+%31 = OpAccessChain %30 %12 %29
+%32 = OpLoad %9 %31
+%33 = OpAccessChain %30 %15 %29
+%35 = OpImageTexelPointer %34 %33 %21 %21
+%36 = OpAtomicIAdd %5 %35 %37 %21 %38
+%39 = OpBitwiseXor %5 %22 %38
+%40 = OpIAdd %5 %39 %24
+%41 = OpAccessChain %25 %8 %27
+%42 = OpLoad %5 %41
+%43 = OpIAdd %5 %42 %40
+%44 = OpAccessChain %30 %12 %43
+%45 = OpLoad %9 %44
+%46 = OpAccessChain %30 %15 %43
+%47 = OpImageTexelPointer %34 %46 %21 %21
+%48 = OpAtomicIAdd %5 %47 %37 %21 %38
 OpReturn
 OpFunctionEnd
 #endif

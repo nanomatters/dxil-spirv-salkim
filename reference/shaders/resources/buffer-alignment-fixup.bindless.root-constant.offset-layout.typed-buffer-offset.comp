@@ -46,11 +46,11 @@ void main()
 {
     uint _46 = (subgroupBroadcastFirst(registers._m4) * 2u) + 1u;
     uint _59 = (subgroupBroadcastFirst(registers._m4) * 2u) + 1u;
-    uint _65 = registers._m4 + 1u;
-    uint _69 = (subgroupBroadcastFirst(_65) * 2u) + 1u;
+    uint _64 = registers._m4 + 1u;
+    uint _69 = (subgroupBroadcastFirst(_64) * 2u) + 1u;
     uint _78 = (subgroupBroadcastFirst(registers._m4) * 2u) + 1u;
-    uint _85 = registers._m1 + 1u;
-    uint _89 = (subgroupBroadcastFirst(_85) * 2u) + 1u;
+    uint _83 = registers._m1 + 1u;
+    uint _89 = (subgroupBroadcastFirst(_83) * 2u) + 1u;
     uint _98 = (subgroupBroadcastFirst(registers._m1) * 2u) + 1u;
     uint _110 = gl_GlobalInvocationID.x * 2u;
     uint _116 = (_110 < _13._m0[_98].y) ? (_110 + _13._m0[_98].x) : 1073741820u;
@@ -61,13 +61,13 @@ void main()
     imageStore(_24[registers._m4], int(_135 + 1u), uvec4(floatBitsToUint(_127.y)));
     uint _151 = ByteAddressMask(gl_GlobalInvocationID.x * 4u, 4u);
     uint _156 = (_151 < _13._m0[_89].y) ? (_151 + _13._m0[_89].x) : 1073741820u;
-    uvec4 _168 = uvec4(texelFetch(_20[_85], int(_156)).x, texelFetch(_20[_85], int(_156 + 1u)).x, texelFetch(_20[_85], int(_156 + 2u)).x, texelFetch(_20[_85], int(_156 + 3u)).x);
+    uvec4 _168 = uvec4(texelFetch(_20[_83], int(_156)).x, texelFetch(_20[_83], int(_156 + 1u)).x, texelFetch(_20[_83], int(_156 + 2u)).x, texelFetch(_20[_83], int(_156 + 3u)).x);
     uint _174 = ByteAddressMask(gl_GlobalInvocationID.x * 4u, 4u);
     uint _179 = (_174 < _13._m0[_69].y) ? (_174 + _13._m0[_69].x) : 1073741820u;
-    imageStore(_27[_65], int(_179), uvec4(_168.x));
-    imageStore(_27[_65], int(_179 + 1u), uvec4(_168.y));
-    imageStore(_27[_65], int(_179 + 2u), uvec4(_168.z));
-    imageStore(_27[_65], int(_179 + 3u), uvec4(_168.w));
+    imageStore(_27[_64], int(_179), uvec4(_168.x));
+    imageStore(_27[_64], int(_179 + 1u), uvec4(_168.y));
+    imageStore(_27[_64], int(_179 + 2u), uvec4(_168.z));
+    imageStore(_27[_64], int(_179 + 3u), uvec4(_168.w));
     uint _187 = gl_GlobalInvocationID.x * 2u;
     uint _192 = (_187 < _13._m0[_98].y) ? (_187 + _13._m0[_98].x) : 1073741820u;
     vec2 _199 = uintBitsToFloat(uvec2(texelFetch(_17[registers._m1], int(_192)).x, texelFetch(_17[registers._m1], int(_192 + 1u)).x));
@@ -77,61 +77,61 @@ void main()
     imageStore(_24[registers._m4], int(_207 + 1u), uvec4(floatBitsToUint(_199.y)));
     uint _214 = ByteAddressMask(gl_GlobalInvocationID.x * 4u, 4u);
     uint _219 = (_214 < _13._m0[_89].y) ? (_214 + _13._m0[_89].x) : 1073741820u;
-    uvec4 _231 = uvec4(texelFetch(_20[_85], int(_219)).x, texelFetch(_20[_85], int(_219 + 1u)).x, texelFetch(_20[_85], int(_219 + 2u)).x, texelFetch(_20[_85], int(_219 + 3u)).x);
+    uvec4 _231 = uvec4(texelFetch(_20[_83], int(_219)).x, texelFetch(_20[_83], int(_219 + 1u)).x, texelFetch(_20[_83], int(_219 + 2u)).x, texelFetch(_20[_83], int(_219 + 3u)).x);
     uint _237 = ByteAddressMask(gl_GlobalInvocationID.x * 4u, 4u);
     uint _242 = (_237 < _13._m0[_69].y) ? (_237 + _13._m0[_69].x) : 1073741820u;
-    imageStore(_27[_65], int(_242), uvec4(_231.x));
-    imageStore(_27[_65], int(_242 + 1u), uvec4(_231.y));
-    imageStore(_27[_65], int(_242 + 2u), uvec4(_231.z));
-    imageStore(_27[_65], int(_242 + 3u), uvec4(_231.w));
-    uint _254 = registers._m1 + (gl_WorkGroupID.x + 2u);
-    uint _258 = (subgroupBroadcastFirst(_254) * 2u) + 1u;
+    imageStore(_27[_64], int(_242), uvec4(_231.x));
+    imageStore(_27[_64], int(_242 + 1u), uvec4(_231.y));
+    imageStore(_27[_64], int(_242 + 2u), uvec4(_231.z));
+    imageStore(_27[_64], int(_242 + 3u), uvec4(_231.w));
+    uint _253 = registers._m1 + (gl_WorkGroupID.x + 2u);
+    uint _258 = (subgroupBroadcastFirst(_253) * 2u) + 1u;
     uint _261 = gl_GlobalInvocationID.x * 2u;
     uint _266 = (_261 < _13._m0[_258].y) ? (_261 + _13._m0[_258].x) : 1073741820u;
-    vec2 _273 = uintBitsToFloat(uvec2(texelFetch(_17[_254], int(_266)).x, texelFetch(_17[_254], int(_266 + 1u)).x));
-    uint _280 = registers._m4 + (gl_WorkGroupID.x + 0u);
-    uint _284 = (subgroupBroadcastFirst(_280) * 2u) + 1u;
+    vec2 _273 = uintBitsToFloat(uvec2(texelFetch(_17[_253], int(_266)).x, texelFetch(_17[_253], int(_266 + 1u)).x));
+    uint _279 = registers._m4 + (gl_WorkGroupID.x + 0u);
+    uint _284 = (subgroupBroadcastFirst(_279) * 2u) + 1u;
     uint _287 = gl_GlobalInvocationID.x * 2u;
     uint _292 = (_287 < _13._m0[_284].y) ? (_287 + _13._m0[_284].x) : 1073741820u;
-    imageStore(_24[_280], int(_292), uvec4(floatBitsToUint(_273.x)));
-    imageStore(_24[_280], int(_292 + 1u), uvec4(floatBitsToUint(_273.y)));
-    uint _302 = registers._m1 + (gl_GlobalInvocationID.x + 2u);
-    uint _305 = (_302 * 2u) + 1u;
+    imageStore(_24[_279], int(_292), uvec4(floatBitsToUint(_273.x)));
+    imageStore(_24[_279], int(_292 + 1u), uvec4(floatBitsToUint(_273.y)));
+    uint _301 = registers._m1 + (gl_GlobalInvocationID.x + 2u);
+    uint _305 = (_301 * 2u) + 1u;
     uint _308 = gl_GlobalInvocationID.x * 2u;
     uint _313 = (_308 < _13._m0[_305].y) ? (_308 + _13._m0[_305].x) : 1073741820u;
-    vec2 _320 = uintBitsToFloat(uvec2(texelFetch(_17[nonuniformEXT(_302)], int(_313)).x, texelFetch(_17[nonuniformEXT(_302)], int(_313 + 1u)).x));
-    uint _327 = registers._m4 + (gl_GlobalInvocationID.x + 0u);
-    uint _330 = (_327 * 2u) + 1u;
+    vec2 _320 = uintBitsToFloat(uvec2(texelFetch(_17[nonuniformEXT(_301)], int(_313)).x, texelFetch(_17[nonuniformEXT(_301)], int(_313 + 1u)).x));
+    uint _326 = registers._m4 + (gl_GlobalInvocationID.x + 0u);
+    uint _330 = (_326 * 2u) + 1u;
     uint _333 = gl_GlobalInvocationID.x * 2u;
     uint _338 = (_333 < _13._m0[_330].y) ? (_333 + _13._m0[_330].x) : 1073741820u;
-    imageStore(_24[nonuniformEXT(_327)], int(_338), uvec4(floatBitsToUint(_320.x)));
-    imageStore(_24[nonuniformEXT(_327)], int(_338 + 1u), uvec4(floatBitsToUint(_320.y)));
-    uint _348 = registers._m1 + (gl_WorkGroupID.x + 3u);
-    uint _352 = (subgroupBroadcastFirst(_348) * 2u) + 1u;
+    imageStore(_24[nonuniformEXT(_326)], int(_338), uvec4(floatBitsToUint(_320.x)));
+    imageStore(_24[nonuniformEXT(_326)], int(_338 + 1u), uvec4(floatBitsToUint(_320.y)));
+    uint _347 = registers._m1 + (gl_WorkGroupID.x + 3u);
+    uint _352 = (subgroupBroadcastFirst(_347) * 2u) + 1u;
     uint _356 = ByteAddressMask(gl_GlobalInvocationID.x * 4u, 4u);
     uint _361 = (_356 < _13._m0[_352].y) ? (_356 + _13._m0[_352].x) : 1073741820u;
-    uvec4 _373 = uvec4(texelFetch(_20[_348], int(_361)).x, texelFetch(_20[_348], int(_361 + 1u)).x, texelFetch(_20[_348], int(_361 + 2u)).x, texelFetch(_20[_348], int(_361 + 3u)).x);
-    uint _382 = registers._m4 + (gl_WorkGroupID.x + 1u);
-    uint _386 = (subgroupBroadcastFirst(_382) * 2u) + 1u;
+    uvec4 _373 = uvec4(texelFetch(_20[_347], int(_361)).x, texelFetch(_20[_347], int(_361 + 1u)).x, texelFetch(_20[_347], int(_361 + 2u)).x, texelFetch(_20[_347], int(_361 + 3u)).x);
+    uint _381 = registers._m4 + (gl_WorkGroupID.x + 1u);
+    uint _386 = (subgroupBroadcastFirst(_381) * 2u) + 1u;
     uint _390 = ByteAddressMask(gl_GlobalInvocationID.x * 4u, 4u);
     uint _395 = (_390 < _13._m0[_386].y) ? (_390 + _13._m0[_386].x) : 1073741820u;
-    imageStore(_27[_382], int(_395), uvec4(_373.x));
-    imageStore(_27[_382], int(_395 + 1u), uvec4(_373.y));
-    imageStore(_27[_382], int(_395 + 2u), uvec4(_373.z));
-    imageStore(_27[_382], int(_395 + 3u), uvec4(_373.w));
-    uint _407 = registers._m1 + (gl_GlobalInvocationID.x + 3u);
-    uint _410 = (_407 * 2u) + 1u;
+    imageStore(_27[_381], int(_395), uvec4(_373.x));
+    imageStore(_27[_381], int(_395 + 1u), uvec4(_373.y));
+    imageStore(_27[_381], int(_395 + 2u), uvec4(_373.z));
+    imageStore(_27[_381], int(_395 + 3u), uvec4(_373.w));
+    uint _406 = registers._m1 + (gl_GlobalInvocationID.x + 3u);
+    uint _410 = (_406 * 2u) + 1u;
     uint _414 = ByteAddressMask(gl_GlobalInvocationID.x * 4u, 4u);
     uint _419 = (_414 < _13._m0[_410].y) ? (_414 + _13._m0[_410].x) : 1073741820u;
-    uvec4 _431 = uvec4(texelFetch(_20[nonuniformEXT(_407)], int(_419)).x, texelFetch(_20[nonuniformEXT(_407)], int(_419 + 1u)).x, texelFetch(_20[nonuniformEXT(_407)], int(_419 + 2u)).x, texelFetch(_20[nonuniformEXT(_407)], int(_419 + 3u)).x);
-    uint _440 = registers._m4 + (gl_GlobalInvocationID.x + 1u);
-    uint _443 = (_440 * 2u) + 1u;
+    uvec4 _431 = uvec4(texelFetch(_20[nonuniformEXT(_406)], int(_419)).x, texelFetch(_20[nonuniformEXT(_406)], int(_419 + 1u)).x, texelFetch(_20[nonuniformEXT(_406)], int(_419 + 2u)).x, texelFetch(_20[nonuniformEXT(_406)], int(_419 + 3u)).x);
+    uint _439 = registers._m4 + (gl_GlobalInvocationID.x + 1u);
+    uint _443 = (_439 * 2u) + 1u;
     uint _447 = ByteAddressMask(gl_GlobalInvocationID.x * 4u, 4u);
     uint _452 = (_447 < _13._m0[_443].y) ? (_447 + _13._m0[_443].x) : 1073741820u;
-    imageStore(_27[nonuniformEXT(_440)], int(_452), uvec4(_431.x));
-    imageStore(_27[nonuniformEXT(_440)], int(_452 + 1u), uvec4(_431.y));
-    imageStore(_27[nonuniformEXT(_440)], int(_452 + 2u), uvec4(_431.z));
-    imageStore(_27[nonuniformEXT(_440)], int(_452 + 3u), uvec4(_431.w));
+    imageStore(_27[nonuniformEXT(_439)], int(_452), uvec4(_431.x));
+    imageStore(_27[nonuniformEXT(_439)], int(_452 + 1u), uvec4(_431.y));
+    imageStore(_27[nonuniformEXT(_439)], int(_452 + 2u), uvec4(_431.z));
+    imageStore(_27[nonuniformEXT(_439)], int(_452 + 3u), uvec4(_431.w));
     uint _461 = (gl_GlobalInvocationID.x * 2u) + 1u;
     uint _469 = imageAtomicAdd(_30[registers._m4], int((_461 < _13._m0[_59].y) ? (_461 + _13._m0[_59].x) : 1073741820u), 1u);
     uint _473 = gl_GlobalInvocationID.x * 2u;
@@ -214,13 +214,13 @@ OpDecorate %34 Binding 0
 OpDecorate %34 NonReadable
 OpDecorate %103 BuiltIn GlobalInvocationId
 OpDecorate %107 BuiltIn WorkgroupId
-OpDecorate %302 NonUniform
+OpDecorate %301 NonUniform
 OpDecorate %303 NonUniform
-OpDecorate %327 NonUniform
+OpDecorate %326 NonUniform
 OpDecorate %328 NonUniform
-OpDecorate %407 NonUniform
+OpDecorate %406 NonUniform
 OpDecorate %408 NonUniform
-OpDecorate %440 NonUniform
+OpDecorate %439 NonUniform
 OpDecorate %441 NonUniform
 %1 = OpTypeVoid
 %2 = OpTypeFunction %1
@@ -254,16 +254,16 @@ OpDecorate %441 NonUniform
 %32 = OpTypeRuntimeArray %31
 %33 = OpTypePointer UniformConstant %32
 %34 = OpVariable %33 UniformConstant
-%35 = OpTypePointer UniformConstant %31
-%37 = OpTypePointer PushConstant %5
-%39 = OpConstant %5 4
+%35 = OpTypePointer PushConstant %5
+%37 = OpConstant %5 4
+%39 = OpTypePointer UniformConstant %31
 %43 = OpConstant %5 3
 %45 = OpConstant %5 2
 %47 = OpConstant %5 1
 %48 = OpTypePointer StorageBuffer %9
 %50 = OpConstant %5 0
-%52 = OpTypePointer UniformConstant %21
-%81 = OpTypePointer UniformConstant %14
+%54 = OpTypePointer UniformConstant %21
+%84 = OpTypePointer UniformConstant %14
 %101 = OpTypeVector %5 3
 %102 = OpTypePointer Input %101
 %103 = OpVariable %102 Input
@@ -282,58 +282,58 @@ OpDecorate %441 NonUniform
 %4 = OpLabel
 OpBranch %491
 %491 = OpLabel
-%38 = OpAccessChain %37 %8 %39
-%40 = OpLoad %5 %38
-%36 = OpAccessChain %35 %34 %40
-%41 = OpLoad %31 %36
-%42 = OpGroupNonUniformBroadcastFirst %5 %43 %40
+%36 = OpAccessChain %35 %8 %37
+%38 = OpLoad %5 %36
+%40 = OpAccessChain %39 %34 %38
+%41 = OpLoad %31 %40
+%42 = OpGroupNonUniformBroadcastFirst %5 %43 %38
 %44 = OpIMul %5 %42 %45
 %46 = OpIAdd %5 %44 %47
 %49 = OpAccessChain %48 %13 %50 %46
 %51 = OpLoad %9 %49
-%54 = OpAccessChain %37 %8 %39
-%55 = OpLoad %5 %54
-%53 = OpAccessChain %52 %30 %55
-%56 = OpLoad %21 %53
-%57 = OpGroupNonUniformBroadcastFirst %5 %43 %55
+%52 = OpAccessChain %35 %8 %37
+%53 = OpLoad %5 %52
+%55 = OpAccessChain %54 %30 %53
+%56 = OpLoad %21 %55
+%57 = OpGroupNonUniformBroadcastFirst %5 %43 %53
 %58 = OpIMul %5 %57 %45
 %59 = OpIAdd %5 %58 %47
 %60 = OpAccessChain %48 %13 %50 %59
 %61 = OpLoad %9 %60
-%63 = OpAccessChain %37 %8 %39
-%64 = OpLoad %5 %63
-%65 = OpIAdd %5 %64 %47
-%62 = OpAccessChain %52 %27 %65
-%66 = OpLoad %21 %62
-%67 = OpGroupNonUniformBroadcastFirst %5 %43 %65
+%62 = OpAccessChain %35 %8 %37
+%63 = OpLoad %5 %62
+%64 = OpIAdd %5 %63 %47
+%65 = OpAccessChain %54 %27 %64
+%66 = OpLoad %21 %65
+%67 = OpGroupNonUniformBroadcastFirst %5 %43 %64
 %68 = OpIMul %5 %67 %45
 %69 = OpIAdd %5 %68 %47
 %70 = OpAccessChain %48 %13 %50 %69
 %71 = OpLoad %9 %70
-%73 = OpAccessChain %37 %8 %39
-%74 = OpLoad %5 %73
-%72 = OpAccessChain %52 %24 %74
-%75 = OpLoad %21 %72
-%76 = OpGroupNonUniformBroadcastFirst %5 %43 %74
+%72 = OpAccessChain %35 %8 %37
+%73 = OpLoad %5 %72
+%74 = OpAccessChain %54 %24 %73
+%75 = OpLoad %21 %74
+%76 = OpGroupNonUniformBroadcastFirst %5 %43 %73
 %77 = OpIMul %5 %76 %45
 %78 = OpIAdd %5 %77 %47
 %79 = OpAccessChain %48 %13 %50 %78
 %80 = OpLoad %9 %79
-%83 = OpAccessChain %37 %8 %47
-%84 = OpLoad %5 %83
-%85 = OpIAdd %5 %84 %47
-%82 = OpAccessChain %81 %20 %85
-%86 = OpLoad %14 %82
-%87 = OpGroupNonUniformBroadcastFirst %5 %43 %85
+%81 = OpAccessChain %35 %8 %47
+%82 = OpLoad %5 %81
+%83 = OpIAdd %5 %82 %47
+%85 = OpAccessChain %84 %20 %83
+%86 = OpLoad %14 %85
+%87 = OpGroupNonUniformBroadcastFirst %5 %43 %83
 %88 = OpIMul %5 %87 %45
 %89 = OpIAdd %5 %88 %47
 %90 = OpAccessChain %48 %13 %50 %89
 %91 = OpLoad %9 %90
-%93 = OpAccessChain %37 %8 %47
-%94 = OpLoad %5 %93
-%92 = OpAccessChain %81 %17 %94
-%95 = OpLoad %14 %92
-%96 = OpGroupNonUniformBroadcastFirst %5 %43 %94
+%92 = OpAccessChain %35 %8 %47
+%93 = OpLoad %5 %92
+%94 = OpAccessChain %84 %17 %93
+%95 = OpLoad %14 %94
+%96 = OpGroupNonUniformBroadcastFirst %5 %43 %93
 %97 = OpIMul %5 %96 %45
 %98 = OpIAdd %5 %97 %47
 %99 = OpAccessChain %48 %13 %50 %98
@@ -370,9 +370,9 @@ OpImageWrite %75 %135 %138 NonPrivateTexel
 %139 = OpCompositeConstruct %118 %137 %137 %137 %137
 %140 = OpIAdd %5 %135 %47
 OpImageWrite %75 %140 %139 NonPrivateTexel
-%141 = OpShiftLeftLogical %5 %106 %39
-%142 = OpIMul %5 %106 %39
-%151 = OpFunctionCall %5 %146 %142 %39
+%141 = OpShiftLeftLogical %5 %106 %37
+%142 = OpIMul %5 %106 %37
+%151 = OpFunctionCall %5 %146 %142 %37
 %152 = OpCompositeExtract %5 %91 0
 %153 = OpCompositeExtract %5 %91 1
 %154 = OpIAdd %5 %151 %152
@@ -394,8 +394,8 @@ OpImageWrite %75 %140 %139 NonPrivateTexel
 %170 = OpCompositeExtract %5 %168 1
 %171 = OpCompositeExtract %5 %168 2
 %172 = OpCompositeExtract %5 %168 3
-%173 = OpIMul %5 %106 %39
-%174 = OpFunctionCall %5 %146 %173 %39
+%173 = OpIMul %5 %106 %37
+%174 = OpFunctionCall %5 %146 %173 %37
 %175 = OpCompositeExtract %5 %71 0
 %176 = OpCompositeExtract %5 %71 1
 %177 = OpIAdd %5 %174 %175
@@ -440,8 +440,8 @@ OpImageWrite %75 %207 %210 NonPrivateTexel
 %211 = OpCompositeConstruct %118 %209 %209 %209 %209
 %212 = OpIAdd %5 %207 %47
 OpImageWrite %75 %212 %211 NonPrivateTexel
-%213 = OpIMul %5 %106 %39
-%214 = OpFunctionCall %5 %146 %213 %39
+%213 = OpIMul %5 %106 %37
+%214 = OpFunctionCall %5 %146 %213 %37
 %215 = OpCompositeExtract %5 %91 0
 %216 = OpCompositeExtract %5 %91 1
 %217 = OpIAdd %5 %214 %215
@@ -463,8 +463,8 @@ OpImageWrite %75 %212 %211 NonPrivateTexel
 %233 = OpCompositeExtract %5 %231 1
 %234 = OpCompositeExtract %5 %231 2
 %235 = OpCompositeExtract %5 %231 3
-%236 = OpIMul %5 %106 %39
-%237 = OpFunctionCall %5 %146 %236 %39
+%236 = OpIMul %5 %106 %37
+%237 = OpFunctionCall %5 %146 %236 %37
 %238 = OpCompositeExtract %5 %71 0
 %239 = OpCompositeExtract %5 %71 1
 %240 = OpIAdd %5 %237 %238
@@ -482,12 +482,12 @@ OpImageWrite %66 %247 %246 NonPrivateTexel
 %249 = OpIAdd %5 %242 %43
 OpImageWrite %66 %249 %248 NonPrivateTexel
 %250 = OpIAdd %5 %109 %45
-%252 = OpAccessChain %37 %8 %47
-%253 = OpLoad %5 %252
-%254 = OpIAdd %5 %253 %250
-%251 = OpAccessChain %81 %17 %254
-%255 = OpLoad %14 %251
-%256 = OpGroupNonUniformBroadcastFirst %5 %43 %254
+%251 = OpAccessChain %35 %8 %47
+%252 = OpLoad %5 %251
+%253 = OpIAdd %5 %252 %250
+%254 = OpAccessChain %84 %17 %253
+%255 = OpLoad %14 %254
+%256 = OpGroupNonUniformBroadcastFirst %5 %43 %253
 %257 = OpIMul %5 %256 %45
 %258 = OpIAdd %5 %257 %47
 %259 = OpAccessChain %48 %13 %50 %258
@@ -508,12 +508,12 @@ OpImageWrite %66 %249 %248 NonPrivateTexel
 %274 = OpCompositeExtract %125 %273 0
 %275 = OpCompositeExtract %125 %273 1
 %276 = OpIAdd %5 %109 %50
-%278 = OpAccessChain %37 %8 %39
-%279 = OpLoad %5 %278
-%280 = OpIAdd %5 %279 %276
-%277 = OpAccessChain %52 %24 %280
-%281 = OpLoad %21 %277
-%282 = OpGroupNonUniformBroadcastFirst %5 %43 %280
+%277 = OpAccessChain %35 %8 %37
+%278 = OpLoad %5 %277
+%279 = OpIAdd %5 %278 %276
+%280 = OpAccessChain %54 %24 %279
+%281 = OpLoad %21 %280
+%282 = OpGroupNonUniformBroadcastFirst %5 %43 %279
 %283 = OpIMul %5 %282 %45
 %284 = OpIAdd %5 %283 %47
 %285 = OpAccessChain %48 %13 %50 %284
@@ -532,12 +532,12 @@ OpImageWrite %281 %292 %295 NonPrivateTexel
 %297 = OpIAdd %5 %292 %47
 OpImageWrite %281 %297 %296 NonPrivateTexel
 %298 = OpIAdd %5 %106 %45
-%300 = OpAccessChain %37 %8 %47
-%301 = OpLoad %5 %300
-%302 = OpIAdd %5 %301 %298
-%299 = OpAccessChain %81 %17 %302
-%303 = OpLoad %14 %299
-%304 = OpIMul %5 %302 %45
+%299 = OpAccessChain %35 %8 %47
+%300 = OpLoad %5 %299
+%301 = OpIAdd %5 %300 %298
+%302 = OpAccessChain %84 %17 %301
+%303 = OpLoad %14 %302
+%304 = OpIMul %5 %301 %45
 %305 = OpIAdd %5 %304 %47
 %306 = OpAccessChain %48 %13 %50 %305
 %307 = OpLoad %9 %306
@@ -557,12 +557,12 @@ OpImageWrite %281 %297 %296 NonPrivateTexel
 %321 = OpCompositeExtract %125 %320 0
 %322 = OpCompositeExtract %125 %320 1
 %323 = OpIAdd %5 %106 %50
-%325 = OpAccessChain %37 %8 %39
-%326 = OpLoad %5 %325
-%327 = OpIAdd %5 %326 %323
-%324 = OpAccessChain %52 %24 %327
-%328 = OpLoad %21 %324
-%329 = OpIMul %5 %327 %45
+%324 = OpAccessChain %35 %8 %37
+%325 = OpLoad %5 %324
+%326 = OpIAdd %5 %325 %323
+%327 = OpAccessChain %54 %24 %326
+%328 = OpLoad %21 %327
+%329 = OpIMul %5 %326 %45
 %330 = OpIAdd %5 %329 %47
 %331 = OpAccessChain %48 %13 %50 %330
 %332 = OpLoad %9 %331
@@ -580,18 +580,18 @@ OpImageWrite %328 %338 %341 NonPrivateTexel
 %343 = OpIAdd %5 %338 %47
 OpImageWrite %328 %343 %342 NonPrivateTexel
 %344 = OpIAdd %5 %109 %43
-%346 = OpAccessChain %37 %8 %47
-%347 = OpLoad %5 %346
-%348 = OpIAdd %5 %347 %344
-%345 = OpAccessChain %81 %20 %348
-%349 = OpLoad %14 %345
-%350 = OpGroupNonUniformBroadcastFirst %5 %43 %348
+%345 = OpAccessChain %35 %8 %47
+%346 = OpLoad %5 %345
+%347 = OpIAdd %5 %346 %344
+%348 = OpAccessChain %84 %20 %347
+%349 = OpLoad %14 %348
+%350 = OpGroupNonUniformBroadcastFirst %5 %43 %347
 %351 = OpIMul %5 %350 %45
 %352 = OpIAdd %5 %351 %47
 %353 = OpAccessChain %48 %13 %50 %352
 %354 = OpLoad %9 %353
-%355 = OpIMul %5 %106 %39
-%356 = OpFunctionCall %5 %146 %355 %39
+%355 = OpIMul %5 %106 %37
+%356 = OpFunctionCall %5 %146 %355 %37
 %357 = OpCompositeExtract %5 %354 0
 %358 = OpCompositeExtract %5 %354 1
 %359 = OpIAdd %5 %356 %357
@@ -614,18 +614,18 @@ OpImageWrite %328 %343 %342 NonPrivateTexel
 %376 = OpCompositeExtract %5 %373 2
 %377 = OpCompositeExtract %5 %373 3
 %378 = OpIAdd %5 %109 %47
-%380 = OpAccessChain %37 %8 %39
-%381 = OpLoad %5 %380
-%382 = OpIAdd %5 %381 %378
-%379 = OpAccessChain %52 %27 %382
-%383 = OpLoad %21 %379
-%384 = OpGroupNonUniformBroadcastFirst %5 %43 %382
+%379 = OpAccessChain %35 %8 %37
+%380 = OpLoad %5 %379
+%381 = OpIAdd %5 %380 %378
+%382 = OpAccessChain %54 %27 %381
+%383 = OpLoad %21 %382
+%384 = OpGroupNonUniformBroadcastFirst %5 %43 %381
 %385 = OpIMul %5 %384 %45
 %386 = OpIAdd %5 %385 %47
 %387 = OpAccessChain %48 %13 %50 %386
 %388 = OpLoad %9 %387
-%389 = OpIMul %5 %106 %39
-%390 = OpFunctionCall %5 %146 %389 %39
+%389 = OpIMul %5 %106 %37
+%390 = OpFunctionCall %5 %146 %389 %37
 %391 = OpCompositeExtract %5 %388 0
 %392 = OpCompositeExtract %5 %388 1
 %393 = OpIAdd %5 %390 %391
@@ -643,17 +643,17 @@ OpImageWrite %383 %400 %399 NonPrivateTexel
 %402 = OpIAdd %5 %395 %43
 OpImageWrite %383 %402 %401 NonPrivateTexel
 %403 = OpIAdd %5 %106 %43
-%405 = OpAccessChain %37 %8 %47
-%406 = OpLoad %5 %405
-%407 = OpIAdd %5 %406 %403
-%404 = OpAccessChain %81 %20 %407
-%408 = OpLoad %14 %404
-%409 = OpIMul %5 %407 %45
+%404 = OpAccessChain %35 %8 %47
+%405 = OpLoad %5 %404
+%406 = OpIAdd %5 %405 %403
+%407 = OpAccessChain %84 %20 %406
+%408 = OpLoad %14 %407
+%409 = OpIMul %5 %406 %45
 %410 = OpIAdd %5 %409 %47
 %411 = OpAccessChain %48 %13 %50 %410
 %412 = OpLoad %9 %411
-%413 = OpIMul %5 %106 %39
-%414 = OpFunctionCall %5 %146 %413 %39
+%413 = OpIMul %5 %106 %37
+%414 = OpFunctionCall %5 %146 %413 %37
 %415 = OpCompositeExtract %5 %412 0
 %416 = OpCompositeExtract %5 %412 1
 %417 = OpIAdd %5 %414 %415
@@ -676,17 +676,17 @@ OpImageWrite %383 %402 %401 NonPrivateTexel
 %434 = OpCompositeExtract %5 %431 2
 %435 = OpCompositeExtract %5 %431 3
 %436 = OpIAdd %5 %106 %47
-%438 = OpAccessChain %37 %8 %39
-%439 = OpLoad %5 %438
-%440 = OpIAdd %5 %439 %436
-%437 = OpAccessChain %52 %27 %440
-%441 = OpLoad %21 %437
-%442 = OpIMul %5 %440 %45
+%437 = OpAccessChain %35 %8 %37
+%438 = OpLoad %5 %437
+%439 = OpIAdd %5 %438 %436
+%440 = OpAccessChain %54 %27 %439
+%441 = OpLoad %21 %440
+%442 = OpIMul %5 %439 %45
 %443 = OpIAdd %5 %442 %47
 %444 = OpAccessChain %48 %13 %50 %443
 %445 = OpLoad %9 %444
-%446 = OpIMul %5 %106 %39
-%447 = OpFunctionCall %5 %146 %446 %39
+%446 = OpIMul %5 %106 %37
+%447 = OpFunctionCall %5 %146 %446 %37
 %448 = OpCompositeExtract %5 %445 0
 %449 = OpCompositeExtract %5 %445 1
 %450 = OpIAdd %5 %447 %448
@@ -710,7 +710,7 @@ OpImageWrite %441 %459 %458 NonPrivateTexel
 %464 = OpIAdd %5 %461 %462
 %465 = OpULessThan %114 %461 %463
 %466 = OpSelect %5 %465 %464 %117
-%468 = OpImageTexelPointer %467 %53 %466 %50
+%468 = OpImageTexelPointer %467 %55 %466 %50
 %469 = OpAtomicIAdd %5 %468 %470 %50 %47
 %471 = OpCompositeExtract %5 %80 1
 %472 = OpUDiv %5 %471 %45
@@ -720,7 +720,7 @@ OpImageWrite %441 %459 %458 NonPrivateTexel
 %476 = OpIAdd %5 %473 %474
 %477 = OpULessThan %114 %473 %475
 %478 = OpSelect %5 %477 %476 %117
-%479 = OpImageTexelPointer %467 %53 %478 %50
+%479 = OpImageTexelPointer %467 %55 %478 %50
 %480 = OpAtomicIAdd %5 %479 %470 %50 %472
 %481 = OpShiftLeftLogical %5 %106 %45
 %482 = OpBitwiseOr %5 %481 %47
