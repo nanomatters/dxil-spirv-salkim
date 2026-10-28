@@ -7,6 +7,7 @@
 #error No extension available for FP16.
 #endif
 #extension GL_EXT_shader_16bit_storage : require
+#extension GL_EXT_demote_to_helper_invocation : require
 #extension GL_EXT_shader_subgroup_extended_types_float16 : require
 #extension GL_KHR_shader_subgroup_arithmetic : require
 
@@ -16,27 +17,36 @@ layout(location = 0) out vec4 SV_Target;
 void main()
 {
     float16_t _17 = float16_t(TEXCOORD.x);
-    SV_Target.x = float(subgroupExclusiveAdd(gl_HelperInvocation ? float16_t(0.0) : _17)) + float(subgroupAdd(gl_HelperInvocation ? float16_t(0.0) : _17));
-    SV_Target.y = float(subgroupExclusiveMul(gl_HelperInvocation ? float16_t(1.0) : _17)) + float(subgroupMul(gl_HelperInvocation ? float16_t(1.0) : _17));
-    SV_Target.z = float(subgroupMin(gl_HelperInvocation ? float16_t(1.0 / 0.0) : _17));
-    SV_Target.w = float(subgroupMax(gl_HelperInvocation ? float16_t(-1.0 / 0.0) : _17));
+    bool _21 = helperInvocationEXT();
+    bool _26 = helperInvocationEXT();
+    bool _31 = helperInvocationEXT();
+    bool _36 = helperInvocationEXT();
+    bool _41 = helperInvocationEXT();
+    bool _45 = helperInvocationEXT();
+    SV_Target.x = float(subgroupExclusiveAdd(_41 ? float16_t(0.0) : _17)) + float(subgroupAdd(_21 ? float16_t(0.0) : _17));
+    SV_Target.y = float(subgroupExclusiveMul(_45 ? float16_t(1.0) : _17)) + float(subgroupMul(_26 ? float16_t(1.0) : _17));
+    SV_Target.z = float(subgroupMin(_31 ? float16_t(1.0 / 0.0) : _17));
+    SV_Target.w = float(subgroupMax(_36 ? float16_t(-1.0 / 0.0) : _17));
 }
 
 
 #if 0
 // SPIR-V disassembly
 ; SPIR-V
-; Version: 1.3
+; Version: 1.6
 ; Generator: Unknown(30017); 21022
-; Bound: 61
+; Bound: 58
 ; Schema: 0
 OpCapability Shader
 OpCapability Float16
 OpCapability GroupNonUniformArithmetic
 OpCapability DenormPreserve
+OpCapability VulkanMemoryModel
+OpCapability DemoteToHelperInvocation
+OpExtension "SPV_EXT_demote_to_helper_invocation"
 OpExtension "SPV_KHR_float_controls"
-OpMemoryModel Logical GLSL450
-OpEntryPoint Fragment %3 "main" %8 %10 %59
+OpMemoryModel Logical Vulkan
+OpEntryPoint Fragment %3 "main" %8 %10
 OpExecutionMode %3 OriginUpperLeft
 OpExecutionMode %3 DenormPreserve 16
 OpName %3 "main"
@@ -44,7 +54,6 @@ OpName %8 "TEXCOORD"
 OpName %10 "SV_Target"
 OpDecorate %8 Location 0
 OpDecorate %10 Location 0
-OpDecorate %59 BuiltIn HelperInvocation
 %1 = OpTypeVoid
 %2 = OpTypeFunction %1
 %5 = OpTypeFloat 32
@@ -66,8 +75,6 @@ OpDecorate %59 BuiltIn HelperInvocation
 %50 = OpTypePointer Output %5
 %53 = OpConstant %13 1
 %55 = OpConstant %13 2
-%58 = OpTypePointer Input %20
-%59 = OpVariable %58 Input
 %3 = OpFunction %1 None %2
 %4 = OpLabel
 OpBranch %57
@@ -75,27 +82,27 @@ OpBranch %57
 %12 = OpAccessChain %11 %8 %14
 %15 = OpLoad %5 %12
 %17 = OpFConvert %16 %15
-%21 = OpLoad %20 %59
+%21 = OpIsHelperInvocationEXT %20
 %23 = OpSelect %16 %21 %22 %17
 %18 = OpGroupNonUniformFAdd %16 %19 Reduce %23
 %24 = OpFConvert %5 %18
-%26 = OpLoad %20 %59
+%26 = OpIsHelperInvocationEXT %20
 %28 = OpSelect %16 %26 %27 %17
 %25 = OpGroupNonUniformFMul %16 %19 Reduce %28
 %29 = OpFConvert %5 %25
-%31 = OpLoad %20 %59
+%31 = OpIsHelperInvocationEXT %20
 %33 = OpSelect %16 %31 %32 %17
 %30 = OpGroupNonUniformFMin %16 %19 Reduce %33
 %34 = OpFConvert %5 %30
-%36 = OpLoad %20 %59
+%36 = OpIsHelperInvocationEXT %20
 %38 = OpSelect %16 %36 %37 %17
 %35 = OpGroupNonUniformFMax %16 %19 Reduce %38
 %39 = OpFConvert %5 %35
-%41 = OpLoad %20 %59
+%41 = OpIsHelperInvocationEXT %20
 %42 = OpSelect %16 %41 %22 %17
 %40 = OpGroupNonUniformFAdd %16 %19 ExclusiveScan %42
 %43 = OpFConvert %5 %40
-%45 = OpLoad %20 %59
+%45 = OpIsHelperInvocationEXT %20
 %46 = OpSelect %16 %45 %27 %17
 %44 = OpGroupNonUniformFMul %16 %19 ExclusiveScan %46
 %47 = OpFConvert %5 %44

@@ -42,7 +42,7 @@ OpDecorate %14 BuiltIn GlobalInvocationId
 %24 = OpTypePointer StorageBuffer %23
 %30 = OpConstant %22 4
 %35 = OpConstant %5 3
-%37 = OpConstant %5 1
+%36 = OpConstant %5 1
 %39 = OpTypeFunction %5 %5 %5
 %45 = OpConstant %5 4294967295
 %48 = OpConstant %5 8
@@ -64,16 +64,16 @@ OpBranch %57
 %33 = OpCompositeConstruct %23 %29 %31
 OpStore %32 %33 Aligned|NonPrivatePointer 4
 %34 = OpShiftLeftLogical %5 %18 %35
-%36 = OpAccessChain %20 %11 %37
+%37 = OpAccessChain %20 %11 %36
 %47 = OpFunctionCall %5 %42 %18 %48
-%38 = OpRawAccessChainNV %24 %36 %48 %47 %17 RobustnessPerElementNV
+%38 = OpRawAccessChainNV %24 %37 %48 %47 %17 RobustnessPerElementNV
 %49 = OpLoad %23 %38 Aligned|NonPrivatePointer 8
 %50 = OpCompositeExtract %22 %49 0
 %51 = OpCompositeExtract %22 %49 1
 %52 = OpFAdd %22 %50 %30
 %53 = OpFAdd %22 %51 %30
 %55 = OpFunctionCall %5 %42 %18 %48
-%54 = OpRawAccessChainNV %24 %36 %48 %55 %17 RobustnessPerElementNV
+%54 = OpRawAccessChainNV %24 %37 %48 %55 %17 RobustnessPerElementNV
 %56 = OpCompositeConstruct %23 %52 %53
 OpStore %54 %56 Aligned|NonPrivatePointer 8
 OpReturn
