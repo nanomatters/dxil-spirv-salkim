@@ -21,7 +21,7 @@ OpExtension "SPV_EXT_descriptor_indexing"
 OpExtension "SPV_KHR_ray_tracing"
 OpExtension "SPV_NV_linear_swept_spheres"
 OpMemoryModel Logical Vulkan
-OpEntryPoint ClosestHitKHR %3 "main" %8 %11 %16 %22 %49 %51
+OpEntryPoint ClosestHitKHR %3 "main" %8 %11 %16 %22 %47 %50
 OpName %3 "main"
 OpName %8 "Result"
 OpName %9 ""
@@ -32,8 +32,8 @@ OpDecorate %8 DescriptorSet 0
 OpDecorate %8 Binding 1
 OpDecorate %8 NonReadable
 OpDecorate %22 BuiltIn HitKindKHR
-OpDecorate %49 BuiltIn HitLSSPositionsNV
-OpDecorate %51 BuiltIn HitLSSRadiiNV
+OpDecorate %47 BuiltIn HitLSSPositionsNV
+OpDecorate %50 BuiltIn HitLSSRadiiNV
 %1 = OpTypeVoid
 %2 = OpTypeFunction %1
 %5 = OpTypeInt 32 0
@@ -62,10 +62,10 @@ OpDecorate %51 BuiltIn HitLSSRadiiNV
 %43 = OpTypeVector %12 3
 %44 = OpTypeArray %43 %38
 %45 = OpTypeArray %12 %38
-%48 = OpTypePointer Input %44
-%49 = OpVariable %48 Input
-%50 = OpTypePointer Input %45
-%51 = OpVariable %50 Input
+%46 = OpTypePointer Input %44
+%47 = OpVariable %46 Input
+%49 = OpTypePointer Input %45
+%50 = OpVariable %49 Input
 %69 = OpConstant %5 4
 %78 = OpConstant %5 8
 %3 = OpFunction %1 None %2
@@ -93,23 +93,23 @@ OpImageWrite %31 %40 %39 NonPrivateTexel
 OpSelectionMerge %88 None
 OpBranchConditional %27 %87 %88
 %87 = OpLabel
-%46 = OpLoad %44 %49
-%47 = OpLoad %45 %51
-%52 = OpCompositeExtract %12 %46 0 0
+%48 = OpLoad %44 %47
+%51 = OpLoad %45 %50
+%52 = OpCompositeExtract %12 %48 0 0
 %53 = OpBitcast %5 %52
-%54 = OpCompositeExtract %12 %46 0 1
+%54 = OpCompositeExtract %12 %48 0 1
 %55 = OpBitcast %5 %54
-%56 = OpCompositeExtract %12 %46 0 2
+%56 = OpCompositeExtract %12 %48 0 2
 %57 = OpBitcast %5 %56
-%58 = OpCompositeExtract %12 %47 0
+%58 = OpCompositeExtract %12 %51 0
 %59 = OpBitcast %5 %58
-%60 = OpCompositeExtract %12 %46 1 0
+%60 = OpCompositeExtract %12 %48 1 0
 %61 = OpBitcast %5 %60
-%62 = OpCompositeExtract %12 %46 1 1
+%62 = OpCompositeExtract %12 %48 1 1
 %63 = OpBitcast %5 %62
-%64 = OpCompositeExtract %12 %46 1 2
+%64 = OpCompositeExtract %12 %48 1 2
 %65 = OpBitcast %5 %64
-%66 = OpCompositeExtract %12 %47 1
+%66 = OpCompositeExtract %12 %51 1
 %67 = OpBitcast %5 %66
 %68 = OpLoad %6 %8
 %70 = OpCompositeConstruct %32 %53 %53 %53 %53

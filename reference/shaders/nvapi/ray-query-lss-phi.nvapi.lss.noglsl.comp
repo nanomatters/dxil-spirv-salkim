@@ -7,6 +7,7 @@ OpCapability Shader
 OpCapability ImageBuffer
 OpCapability RayQueryKHR
 OpCapability RayTraversalPrimitiveCullingKHR
+OpCapability ShaderNonUniform
 OpCapability VulkanMemoryModel
 OpCapability RayTracingLinearSweptSpheresGeometryNV
 OpExtension "SPV_KHR_ray_query"
@@ -20,6 +21,14 @@ OpDecorate %8 DescriptorSet 0
 OpDecorate %8 Binding 0
 OpDecorate %12 DescriptorSet 0
 OpDecorate %12 Binding 1
+OpDecorate %50 NonUniform
+OpDecorate %53 NonUniform
+OpDecorate %55 NonUniform
+OpDecorate %58 NonUniform
+OpDecorate %60 NonUniform
+OpDecorate %67 NonUniform
+OpDecorate %76 NonUniform
+OpDecorate %80 NonUniform
 %1 = OpTypeVoid
 %2 = OpTypeFunction %1
 %5 = OpTypeInt 32 1
@@ -49,8 +58,8 @@ OpDecorate %12 Binding 1
 %43 = OpConstant %9 3
 %47 = OpTypeBool
 %65 = OpConstantFalse %47
-%79 = OpTypeArray %29 %14
-%80 = OpTypeArray %26 %14
+%78 = OpTypeArray %29 %14
+%79 = OpTypeArray %26 %14
 %99 = OpConstant %9 4
 %107 = OpConstant %9 8
 %115 = OpTypePointer Function %47
@@ -141,9 +150,9 @@ OpBranchConditional %64 %129 %130
 %129 = OpLabel
 %76 = OpInBoundsAccessChain %23 %17 %49
 %77 = OpRayQueryGetRayFlagsKHR %9 %76
-%78 = OpInBoundsAccessChain %23 %17 %49
-%81 = OpRayQueryGetIntersectionLSSPositionsNV %79 %78 %22
-%82 = OpRayQueryGetIntersectionLSSRadiiNV %80 %78 %22
+%80 = OpInBoundsAccessChain %23 %17 %49
+%81 = OpRayQueryGetIntersectionLSSPositionsNV %78 %80 %22
+%82 = OpRayQueryGetIntersectionLSSRadiiNV %79 %80 %22
 %83 = OpCompositeExtract %26 %81 0 0
 %84 = OpBitcast %9 %83
 %85 = OpCompositeExtract %26 %81 0 1
