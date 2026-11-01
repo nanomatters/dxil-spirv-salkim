@@ -10,14 +10,22 @@ void main()
 #ifdef DIRECT_QUERY
     RayQuery<RAY_FLAG_NONE> query;
 #else
-    RayQuery<RAY_FLAG_NONE, RAYQUERY_FLAG_ALLOW_OPACITY_MICROMAPS> query;
+    RayQuery<RAY_FLAG_NONE, RAYQUERY_FLAG_ALLOW_OPACITY_MICROMAPS> query, a, b;
 #endif
     RayDesc ray;
     ray.Origin = float3(0, 0, 0);
     ray.Direction = float3(0, 0, 1);
     ray.TMin = 0;
     ray.TMax = 100;
+#ifdef DIRECT_QUERY
     query.TraceRayInline(AS, RAY_FLAG_NONE, 255, ray);
+#else
+    a.TraceRayInline(AS, RAY_FLAG_NONE, 255, ray);
+    ray.Origin.x = 1;
+    b.TraceRayInline(AS, RAY_FLAG_NONE, 255, ray);
+    // Select live queries so the heap path survives direct-query analysis.
+    query = (DispatchRaysIndex().x & 1) ? a : b;
+#endif
     while (query.Proceed()) {}
     Attributes attributes;
     attributes.uv = float2(1, 2);

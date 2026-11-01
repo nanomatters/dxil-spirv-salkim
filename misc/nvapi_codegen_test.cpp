@@ -66,7 +66,9 @@ static void test_lss(unsigned opcode, bool supported, bool analysis,
 	llvm::ConstantInt dx_opcode(uint_type, flags_mode == 1 ? 0 : unsigned(DXIL::Op::RayQuery_RayFlags));
 	llvm::FunctionType function_type(context, uint_type, { uint_type, uint_type });
 	llvm::ConstantInt alloc_opcode(uint_type, unsigned(DXIL::Op::AllocateRayQuery)), alloc_flags(uint_type, 0);
-	llvm::CallInst handle(&function_type, nullptr, { &alloc_opcode, &alloc_flags });
+	llvm::Function alloc_function(&function_type, 1, llvm_module);
+	llvm_module.add_value_name(1, "dx.op.allocateRayQuery.i32");
+	llvm::CallInst handle(&function_type, &alloc_function, { &alloc_opcode, &alloc_flags });
 	llvm::Function function(&function_type, 0, llvm_module);
 	llvm_module.add_value_name(0, "dx.op.rayQuery_RayFlags.i32");
 	llvm::CallInst flags(&function_type, &function, { &dx_opcode, &handle });
