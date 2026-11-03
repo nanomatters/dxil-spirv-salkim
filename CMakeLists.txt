@@ -1,5 +1,5 @@
 #
-# Salkim modifications by Erhan Bilgili on 2026-10-14.
+# Salkim modifications by Erhan Bilgili on 2026-10-14 and 2026-11-03.
 #
 # Copyright (c) 2019-2022 Hans-Kristian Arntzen for Valve Corporation
 #
@@ -248,6 +248,10 @@ if (DXIL_SPIRV_TESTS)
         target_link_libraries(raw-buffer-address-test PRIVATE dxil-converter external::llvm dxil-utils dxil-debug)
         target_compile_options(raw-buffer-address-test PRIVATE ${DXIL_SPV_CXX_FLAGS})
         add_test(NAME raw-buffer-address COMMAND raw-buffer-address-test)
+        add_executable(uav-coherence-test misc/uav_coherence_test.cpp)
+        target_link_libraries(uav-coherence-test PRIVATE dxil-converter external::llvm dxil-utils dxil-debug SPIRV-Tools-static)
+        target_compile_options(uav-coherence-test PRIVATE ${DXIL_SPV_CXX_FLAGS})
+        add_test(NAME uav-coherence COMMAND uav-coherence-test)
         add_executable(raw-buffer-alignment-test misc/raw_buffer_alignment_test.cpp)
         target_link_libraries(raw-buffer-alignment-test PRIVATE dxil-converter external::llvm dxil-utils dxil-debug)
         target_compile_options(raw-buffer-alignment-test PRIVATE ${DXIL_SPV_CXX_FLAGS})
