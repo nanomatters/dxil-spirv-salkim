@@ -1,4 +1,6 @@
-/* Copyright (c) 2019-2022 Hans-Kristian Arntzen for Valve Corporation
+/* Salkim modifications by Erhan Bilgili on 2026-11-03.
+ *
+ * Copyright (c) 2019-2022 Hans-Kristian Arntzen for Valve Corporation
  *
  * SPDX-License-Identifier: MIT
  *
@@ -1905,7 +1907,8 @@ bool Converter::Impl::emit_uavs(const llvm::MDNode *uavs, const llvm::MDNode *re
 		{
 			if (execution_mode_meta.memory_model == spv::MemoryModelGLSL450)
 				globally_coherent = true;
-			else if (execution_mode_meta.memory_model == spv::MemoryModelVulkan && !globally_coherent)
+			else if (execution_mode_meta.memory_model == spv::MemoryModelVulkan && !globally_coherent &&
+			         stage_supports_workgroups(*this))
 				locally_coherent = true;
 		}
 
@@ -3732,7 +3735,7 @@ bool Converter::Impl::emit_global_heaps()
 		if (execution_mode_meta.memory_model == spv::MemoryModelVulkan &&
 		    info.type == DXIL::ResourceType::UAV &&
 		    !annotation->coherent && !annotation->rov &&
-		    shader_analysis.require_uav_thread_group_coherence)
+		    shader_analysis.require_uav_thread_group_coherence && stage_supports_workgroups(*this))
 		{
 			locally_coherent = true;
 		}
