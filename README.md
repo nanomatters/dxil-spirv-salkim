@@ -26,6 +26,33 @@ cmake .. -DCMAKE_BUILD_TYPE=Release
 cmake --build . --config Release
 ```
 
+## DXBC frontend cache
+
+Legalized DXBC IR is cached in memory before pipeline-specific resource and I/O
+mapping. The cache is enabled by default, coordinates concurrent requests for the
+same shader within a process, and reconstructs an independent IR builder on each
+hit. Entries exist only for the lifetime of the process. The cache does not store
+final SPIR-V or driver binaries.
+
+Shader identity uses the embedded 128-bit DXBC checksum and bytecode length,
+as in DXVK. Frontend options are fixed at this boundary. Inputs without a usable
+checksum or header bypass caching; modified bytecode must carry an updated
+checksum. The original shader bytes are not retained.
+
+Memory retention defaults to 128 MiB with LRU eviction. The budget counts
+serialized IR and estimated bookkeeping. It excludes pending compilations,
+entries pinned by active requests after eviction, and callers' IR builders.
+
+| Environment variable | Effect |
+| --- | --- |
+| `DXIL_SPIRV_DXBC_CACHE=0` | Disable caching for comparison. |
+| `DXIL_SPIRV_DXBC_CACHE_MB=N` | Set retained memory budget in MiB; zero disables caching. |
+| `DXIL_SPIRV_DXBC_CACHE_VALIDATE=1` | Recompile hits and compare freshly compiled, stored and reconstructed IR. Report mismatches and use fresh results. |
+| `DXIL_SPIRV_DXBC_CACHE_STATS=1` | Log per-call duration, hits, compiles, waits, validation failures, evictions and retained bytes. |
+
+With vkd3d-proton, `VKD3D_SHADER_DEBUG=trace` forwards the statistics through
+its logger. Disable validation and statistics for performance measurements.
+
 ## Linking against dxil-spirv
 
 Only the C API is installed and is expected to be kept ABI/API stable when it releases.

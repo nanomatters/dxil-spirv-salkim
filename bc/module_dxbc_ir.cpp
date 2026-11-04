@@ -26,6 +26,7 @@
 
 #include "module.hpp"
 #include "context.hpp"
+#include "dxbc_ir_cache.hpp"
 #include "metadata.hpp"
 #include "cast.hpp"
 #include "function.hpp"
@@ -3979,10 +3980,8 @@ Module *parseDXBCIR(LLVMContext &context, ir::Builder &builder)
 	return module;
 }
 
-Module *parseDXBCBinary(LLVMContext &context, const void* data, size_t size)
+static std::unique_ptr<ir::Builder> compileDXBCIr(const void *data, size_t size)
 {
-	ScopedLogger logger;
-
 	dxbc::Converter::Options convertOptions = { };
 	convertOptions.includeDebugNames = false;
 	convertOptions.boundCheckShaderIo = true;
@@ -4032,6 +4031,13 @@ Module *parseDXBCBinary(LLVMContext &context, const void* data, size_t size)
 	options.descriptorIndexing.optimizeDescriptorIndexing = false;
 
 	auto builder = dxbc::compileShaderToLegalizedIr(data, size, convertOptions, options);
+	return builder ? std::make_unique<ir::Builder>(std::move(*builder)) : nullptr;
+}
+
+Module *parseDXBCBinary(LLVMContext &context, const void *data, size_t size)
+{
+	ScopedLogger logger;
+	auto builder = getCachedDxbcIr(data, size, compileDXBCIr);
 
 	if (!builder)
 		return nullptr;

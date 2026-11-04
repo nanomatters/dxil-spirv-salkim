@@ -7,8 +7,10 @@ add_library(llvm-bc STATIC
         context.hpp context.cpp
         type.hpp type.cpp
         module.hpp module.cpp module_dxbc_ir.cpp
+        dxbc_ir_cache.hpp dxbc_ir_cache.cpp
         metadata.hpp metadata.cpp
         disassembler.cpp)
+target_compile_features(llvm-bc PRIVATE cxx_std_17)
 target_compile_options(llvm-bc PRIVATE ${DXIL_SPV_CXX_FLAGS})
 target_compile_definitions(llvm-bc PUBLIC HAVE_LLVMBC)
 target_link_libraries(llvm-bc PRIVATE bc-decoder dxil-debug dxil-utils)
