@@ -26,6 +26,7 @@
 
 #include "module.hpp"
 #include "context.hpp"
+#include "dxbc_ir_cache.hpp"
 #include "metadata.hpp"
 #include "cast.hpp"
 #include "function.hpp"
@@ -38,7 +39,8 @@
 // dxbc-spirv
 #include "ir/ir.h"
 #include "ir/ir_builder.h"
-#include "dxbc/dxbc_api.h"
+#include "dxbc/dxbc_converter.h"
+#include "ir/ir_legalize.h"
 #include "util/util_log.h"
 using namespace dxbc_spv;
 
@@ -3979,10 +3981,8 @@ Module *parseDXBCIR(LLVMContext &context, ir::Builder &builder)
 	return module;
 }
 
-Module *parseDXBCBinary(LLVMContext &context, const void* data, size_t size)
+static std::unique_ptr<ir::Builder> compileDXBCIr(const void *data, size_t size)
 {
-	ScopedLogger logger;
-
 	dxbc::Converter::Options convertOptions = { };
 	convertOptions.includeDebugNames = false;
 	convertOptions.boundCheckShaderIo = true;
@@ -4031,7 +4031,28 @@ Module *parseDXBCBinary(LLVMContext &context, const void* data, size_t size)
 
 	options.descriptorIndexing.optimizeDescriptorIndexing = false;
 
-	auto builder = dxbc::compileShaderToLegalizedIr(data, size, convertOptions, options);
+	dxbc::Container container(data, size);
+	if (!container)
+	{
+		util::Logger::err("Failed to parse DXBC container.");
+		return nullptr;
+	}
+
+	auto builder = std::make_unique<ir::Builder>();
+	if (!dxbc::Converter(std::move(container), convertOptions).convertShader(*builder))
+	{
+		util::Logger::err("Failed to convert DXBC shader.");
+		return nullptr;
+	}
+
+	ir::legalizeIr(*builder, options);
+	return builder;
+}
+
+Module *parseDXBCBinary(LLVMContext &context, const void *data, size_t size)
+{
+	ScopedLogger logger;
+	auto builder = getCachedDxbcIr(data, size, compileDXBCIr);
 
 	if (!builder)
 		return nullptr;

@@ -107,7 +107,8 @@ dxbc_spirv_dep = dependency('dxbc-spirv',
   fallback        : [ 'dxbc-spirv', 'dxbc_spv_dep' ],
   default_options : [ 'cpp_std=c++17' ])
 
-dxbc_spv_module = static_library('dxbc_spv_module', files('bc/module_dxbc_ir.cpp'),
+dxbc_spv_module = static_library('dxbc_spv_module',
+  files('bc/module_dxbc_ir.cpp', 'bc/dxbc_ir_cache.cpp'),
   include_directories : [ dxil_spirv_include_dirs ],
   dependencies        : [ dxbc_spirv_dep ],
   override_options    : [ 'cpp_std=c++17' ])
