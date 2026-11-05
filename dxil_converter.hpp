@@ -282,6 +282,7 @@ enum class Option : uint32_t
 	ConservativeSSBOVectorization = 56,
 	LegacyStructurizer = 57,
 	ShaderFma = 58,
+	RayTracingLinearSweptSpheres = 59,
 	Count
 };
 
@@ -974,6 +975,16 @@ struct OptionShaderFma : OptionBase
 	bool supported_float16 = false;
 	bool supported_float32 = false;
 	bool supported_float64 = false;
+};
+
+struct OptionRayTracingLinearSweptSpheres : OptionBase
+{
+	OptionRayTracingLinearSweptSpheres()
+		: OptionBase(Option::RayTracingLinearSweptSpheres)
+	{
+	}
+
+	bool supported = false;
 };
 
 struct DescriptorTableEntry

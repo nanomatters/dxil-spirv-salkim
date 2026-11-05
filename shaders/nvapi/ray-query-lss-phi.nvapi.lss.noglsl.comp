@@ -1,0 +1,39 @@
+#define NV_SHADER_EXTN_SLOT u127
+#define NV_SHADER_EXTN_REGISTER_SPACE space0
+#include "nvHLSLExtns.h"
+
+RaytracingAccelerationStructure RTAS : register(t0);
+RWStructuredBuffer<uint4> Result : register(u1);
+
+[numthreads(1, 1, 1)]
+void main()
+{
+	RayQuery<RAY_FLAG_FORCE_OPAQUE> q, a, b;
+	RayDesc ray;
+	ray.Origin = float3(0, 0, 0);
+	ray.Direction = float3(0, 0, 1);
+	ray.TMin = 0.001;
+	ray.TMax = 10;
+	a.TraceRayInline(RTAS, 0, 0xff, ray);
+	ray.Origin.x = 1;
+	b.TraceRayInline(RTAS, 0, 0xff, ray);
+	// Keep two live query objects so the selected handle really uses the query heap.
+	[branch]
+	if (Result[0].w == 0)
+		q = a;
+	else
+		q = b;
+	// Initialize through the selected handle so the existing analysis allocates the query heap.
+	ray.Origin.x = 0;
+	q.TraceRayInline(RTAS, 0, 0xff, ray);
+	while (q.Proceed()) {}
+
+	bool is_lss = q.CommittedStatus() != COMMITTED_NOTHING && NvRtCommittedIsLss(q);
+	Result[0] = uint4(is_lss, q.CommittedStatus(), 0, 0);
+	if (is_lss)
+	{
+		float2x4 positions = NvRtCommittedLssObjectPositionsAndRadii(q);
+		Result[1] = asuint(positions[0]);
+		Result[2] = asuint(positions[1]);
+	}
+}

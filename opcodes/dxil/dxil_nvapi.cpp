@@ -1154,6 +1154,19 @@ static bool emit_nvapi_extn_op_rt_get_intersection_cluster_id(Converter::Impl &i
 	return false;
 }
 
+static bool build_nvapi_ray_query_object(Converter::Impl &impl, spv::Id &ray_query)
+{
+	auto *flags = llvm::dyn_cast<llvm::CallInst>(impl.nvapi.fake_doorbell_inputs[NVAPI_ARGUMENT_SRC0U]);
+	if (!flags || flags->getNumArgOperands() != 2 || !flags->getCalledFunction() ||
+	    !value_is_dx_op_instrinsic(flags, DXIL::Op::RayQuery_RayFlags))
+	{
+		LOGE("NVAPI ray query argument is not a RayFlags intrinsic.\n");
+		return false;
+	}
+
+	return build_ray_query_object(impl, flags->getOperand(1), ray_query);
+}
+
 static void emit_nvapi_sphere_position_and_radius(Converter::Impl &impl, spv::Id position, spv::Id radius)
 {
 	auto &builder = impl.builder();
@@ -1313,6 +1326,13 @@ static bool emit_nvapi_extn_op_hit_object_get_lss_positions_and_radii(Converter:
 
 static bool emit_nvapi_extn_op_rt_lss_positions_and_radii(Converter::Impl &impl)
 {
+	if (impl.execution_model != spv::ExecutionModelAnyHitKHR &&
+	    impl.execution_model != spv::ExecutionModelClosestHitKHR)
+	{
+		LOGE("NVAPI LSS hit positions require an any-hit or closest-hit shader.\n");
+		return false;
+	}
+
 	auto &builder = impl.builder();
 
 	auto float32 = builder.makeFloatType(32);
@@ -1347,28 +1367,24 @@ static bool emit_nvapi_extn_op_rt_get_position_and_radii(Converter::Impl &impl, 
 	auto array2vec3float32 = builder.makeArrayType(vec3float32, builder.makeUintConstant(2), 0);
 	auto array2float32 = builder.makeArrayType(float32, builder.makeUintConstant(2), 0);
 
-	auto *ray_flags = llvm::dyn_cast<llvm::CallInst>(impl.nvapi.fake_doorbell_inputs[NVAPI_ARGUMENT_SRC0U + 0]);
-	if (ray_flags != nullptr)
-	{
-		spv::Id ray_object_id = 0;
-		if (!build_ray_query_object(impl, ray_flags->getOperand(1), ray_object_id))
-			return false;
+	spv::Id ray_object_id = 0;
+	if (!build_nvapi_ray_query_object(impl, ray_object_id))
+		return false;
 
-		builder.addExtension("SPV_NV_linear_swept_spheres");
-		builder.addCapability(spv::CapabilityRayTracingLinearSweptSpheresGeometryNV);
+	builder.addExtension("SPV_NV_linear_swept_spheres");
+	builder.addCapability(spv::CapabilityRayTracingLinearSweptSpheresGeometryNV);
 
-		auto *positions_op = impl.allocate(spv::OpRayQueryGetIntersectionLSSPositionsNV, array2vec3float32);
-		positions_op->add_id(ray_object_id);
-		positions_op->add_id(builder.makeUintConstant(intersection));
-		impl.add(positions_op);
+	auto *positions_op = impl.allocate(spv::OpRayQueryGetIntersectionLSSPositionsNV, array2vec3float32);
+	positions_op->add_id(ray_object_id);
+	positions_op->add_id(builder.makeUintConstant(intersection));
+	impl.add(positions_op);
 
-		auto *radii_op = impl.allocate(spv::OpRayQueryGetIntersectionLSSRadiiNV, array2float32);
-		radii_op->add_id(ray_object_id);
-		radii_op->add_id(builder.makeUintConstant(intersection));
-		impl.add(radii_op);
+	auto *radii_op = impl.allocate(spv::OpRayQueryGetIntersectionLSSRadiiNV, array2float32);
+	radii_op->add_id(ray_object_id);
+	radii_op->add_id(builder.makeUintConstant(intersection));
+	impl.add(radii_op);
 
-		emit_nvapi_lss_positions_and_radii(impl, positions_op->id, radii_op->id);
-	}
+	emit_nvapi_lss_positions_and_radii(impl, positions_op->id, radii_op->id);
 
 	return true;
 }
@@ -1410,45 +1426,39 @@ static bool emit_nvapi_extn_op_rt_is_primitive_hit(Converter::Impl &impl, spv::B
 static bool emit_nvapi_extn_op_rt_is_primitive(Converter::Impl &impl, spv::Op opcode,
                                                spv::RayQueryIntersection intersection)
 {
-	auto *ray_flags = llvm::dyn_cast<llvm::CallInst>(impl.nvapi.fake_doorbell_inputs[NVAPI_ARGUMENT_SRC0U + 0]);
-	if (ray_flags != nullptr)
+	auto &builder = impl.builder();
+	spv::Id ray_object_id = 0;
+	if (!build_nvapi_ray_query_object(impl, ray_object_id))
+		return false;
+
+	builder.addExtension("SPV_NV_linear_swept_spheres");
+	switch (opcode)
 	{
-		auto &builder = impl.builder();
-		spv::Id ray_object_id = 0;
-		if (!build_ray_query_object(impl, ray_flags->getOperand(1), ray_object_id))
-			return false;
+	case spv::OpRayQueryIsLSSHitNV:
+		builder.addCapability(spv::CapabilityRayTracingLinearSweptSpheresGeometryNV);
+		break;
 
-		builder.addExtension("SPV_NV_linear_swept_spheres");
-		switch (opcode)
-		{
-		case spv::OpRayQueryIsLSSHitNV:
-			builder.addCapability(spv::CapabilityRayTracingLinearSweptSpheresGeometryNV);
-			break;
+	case spv::OpRayQueryIsSphereHitNV:
+		builder.addCapability(spv::CapabilityRayTracingSpheresGeometryNV);
+		break;
 
-		case spv::OpRayQueryIsSphereHitNV:
-			builder.addCapability(spv::CapabilityRayTracingSpheresGeometryNV);
-			break;
-
-		default:
-			return false;
-		}
-
-		auto *op = impl.allocate(opcode, builder.makeBoolType());
-		op->add_id(ray_object_id);
-		op->add_id(builder.makeUintConstant(intersection));
-		impl.add(op);
-
-		auto *select_op = impl.allocate(spv::OpSelect, builder.makeUintType(32));
-		select_op->add_id(op->id);
-		select_op->add_id(builder.makeUintConstant(1));
-		select_op->add_id(builder.makeUintConstant(0));
-		impl.add(select_op);
-
-		impl.nvapi.fake_doorbell_outputs[0] = select_op->id;
-		return true;
+	default:
+		return false;
 	}
 
-	return false;
+	auto *op = impl.allocate(opcode, builder.makeBoolType());
+	op->add_id(ray_object_id);
+	op->add_id(builder.makeUintConstant(intersection));
+	impl.add(op);
+
+	auto *select_op = impl.allocate(spv::OpSelect, builder.makeUintType(32));
+	select_op->add_id(op->id);
+	select_op->add_id(builder.makeUintConstant(1));
+	select_op->add_id(builder.makeUintConstant(0));
+	impl.add(select_op);
+
+	impl.nvapi.fake_doorbell_outputs[0] = select_op->id;
+	return true;
 }
 
 static bool emit_nvapi_extn_op_rt_intersection_float(Converter::Impl &impl, spv::Op opcode,
@@ -1638,6 +1648,15 @@ bool NVAPIState::commit_opcode(Converter::Impl &impl, bool analysis)
 	if (c != nullptr)
 	{
 		auto opcode = uint32_t(c->getUniqueInteger().getZExtValue());
+		if ((opcode == NV_EXTN_OP_RT_LSS_OBJECT_POSITIONS_AND_RADII ||
+		     opcode == NV_EXTN_OP_RT_COMMITTED_LSS_OBJECT_POSITIONS_AND_RADII ||
+		     opcode == NV_EXTN_OP_RT_COMMITTED_IS_LSS) &&
+		    !impl.options.supports_ray_tracing_linear_swept_spheres)
+		{
+			LOGE("NVAPI opcode %u requires ray tracing linear swept spheres support.\n", opcode);
+			return false;
+		}
+
 		switch (opcode)
 		{
 		case NV_EXTN_OP_SHFL:

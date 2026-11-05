@@ -1,0 +1,142 @@
+; SPIR-V
+; Version: 1.4
+; Generator: Unknown(30017); 21022
+; Bound: 90
+; Schema: 0
+OpCapability Shader
+OpCapability UniformBufferArrayDynamicIndexing
+OpCapability SampledImageArrayDynamicIndexing
+OpCapability StorageBufferArrayDynamicIndexing
+OpCapability StorageImageArrayDynamicIndexing
+OpCapability ImageBuffer
+OpCapability RayTracingKHR
+OpCapability RuntimeDescriptorArray
+OpCapability UniformBufferArrayNonUniformIndexing
+OpCapability SampledImageArrayNonUniformIndexing
+OpCapability StorageBufferArrayNonUniformIndexing
+OpCapability StorageImageArrayNonUniformIndexing
+OpCapability RayTracingLinearSweptSpheresGeometryNV
+OpExtension "SPV_EXT_descriptor_indexing"
+OpExtension "SPV_KHR_ray_tracing"
+OpExtension "SPV_NV_linear_swept_spheres"
+OpMemoryModel Logical GLSL450
+OpEntryPoint ClosestHitKHR %3 "main" %8 %11 %16 %22 %49 %51
+OpName %3 "main"
+OpName %8 "Result"
+OpName %9 ""
+OpName %11 "payload"
+OpName %14 ""
+OpName %16 "hit"
+OpDecorate %8 DescriptorSet 0
+OpDecorate %8 Binding 1
+OpDecorate %8 NonReadable
+OpDecorate %22 BuiltIn HitKindKHR
+OpDecorate %49 BuiltIn HitLSSPositionsNV
+OpDecorate %51 BuiltIn HitLSSRadiiNV
+%1 = OpTypeVoid
+%2 = OpTypeFunction %1
+%5 = OpTypeInt 32 0
+%6 = OpTypeImage %5 Buffer 0 0 0 2 R32ui
+%7 = OpTypePointer UniformConstant %6
+%8 = OpVariable %7 UniformConstant
+%9 = OpTypeStruct %5
+%10 = OpTypePointer IncomingRayPayloadKHR %9
+%11 = OpVariable %10 IncomingRayPayloadKHR
+%12 = OpTypeFloat 32
+%13 = OpTypeVector %12 2
+%14 = OpTypeStruct %13
+%15 = OpTypePointer HitAttributeKHR %14
+%16 = OpVariable %15 HitAttributeKHR
+%17 = OpTypePointer IncomingRayPayloadKHR %5
+%19 = OpConstant %5 0
+%21 = OpTypePointer Input %5
+%22 = OpVariable %21 Input
+%25 = OpConstant %5 4294967294
+%26 = OpTypeBool
+%28 = OpConstant %5 254
+%29 = OpConstant %5 1
+%32 = OpTypeVector %5 4
+%38 = OpConstant %5 2
+%41 = OpConstant %5 3
+%43 = OpTypeVector %12 3
+%44 = OpTypeArray %43 %38
+%45 = OpTypeArray %12 %38
+%48 = OpTypePointer Input %44
+%49 = OpVariable %48 Input
+%50 = OpTypePointer Input %45
+%51 = OpVariable %50 Input
+%69 = OpConstant %5 4
+%78 = OpConstant %5 8
+%3 = OpFunction %1 None %2
+%4 = OpLabel
+OpBranch %86
+%86 = OpLabel
+%18 = OpInBoundsAccessChain %17 %11 %19
+%20 = OpLoad %5 %18
+%23 = OpLoad %5 %22
+%24 = OpBitwiseAnd %5 %23 %25
+%27 = OpINotEqual %26 %24 %28
+%30 = OpSelect %5 %27 %29 %19
+%31 = OpLoad %6 %8
+%33 = OpCompositeConstruct %32 %30 %30 %30 %30
+OpImageWrite %31 %19 %33
+%34 = OpCompositeConstruct %32 %29 %29 %29 %29
+%35 = OpIAdd %5 %19 %29
+OpImageWrite %31 %35 %34
+%36 = OpCompositeConstruct %32 %19 %19 %19 %19
+%37 = OpIAdd %5 %19 %38
+OpImageWrite %31 %37 %36
+%39 = OpCompositeConstruct %32 %19 %19 %19 %19
+%40 = OpIAdd %5 %19 %41
+OpImageWrite %31 %40 %39
+OpSelectionMerge %88 None
+OpBranchConditional %27 %87 %88
+%87 = OpLabel
+%46 = OpLoad %44 %49
+%47 = OpLoad %45 %51
+%52 = OpCompositeExtract %12 %46 0 0
+%53 = OpBitcast %5 %52
+%54 = OpCompositeExtract %12 %46 0 1
+%55 = OpBitcast %5 %54
+%56 = OpCompositeExtract %12 %46 0 2
+%57 = OpBitcast %5 %56
+%58 = OpCompositeExtract %12 %47 0
+%59 = OpBitcast %5 %58
+%60 = OpCompositeExtract %12 %46 1 0
+%61 = OpBitcast %5 %60
+%62 = OpCompositeExtract %12 %46 1 1
+%63 = OpBitcast %5 %62
+%64 = OpCompositeExtract %12 %46 1 2
+%65 = OpBitcast %5 %64
+%66 = OpCompositeExtract %12 %47 1
+%67 = OpBitcast %5 %66
+%68 = OpLoad %6 %8
+%70 = OpCompositeConstruct %32 %53 %53 %53 %53
+OpImageWrite %68 %69 %70
+%71 = OpCompositeConstruct %32 %55 %55 %55 %55
+%72 = OpIAdd %5 %69 %29
+OpImageWrite %68 %72 %71
+%73 = OpCompositeConstruct %32 %57 %57 %57 %57
+%74 = OpIAdd %5 %69 %38
+OpImageWrite %68 %74 %73
+%75 = OpCompositeConstruct %32 %59 %59 %59 %59
+%76 = OpIAdd %5 %69 %41
+OpImageWrite %68 %76 %75
+%77 = OpLoad %6 %8
+%79 = OpCompositeConstruct %32 %61 %61 %61 %61
+OpImageWrite %77 %78 %79
+%80 = OpCompositeConstruct %32 %63 %63 %63 %63
+%81 = OpIAdd %5 %78 %29
+OpImageWrite %77 %81 %80
+%82 = OpCompositeConstruct %32 %65 %65 %65 %65
+%83 = OpIAdd %5 %78 %38
+OpImageWrite %77 %83 %82
+%84 = OpCompositeConstruct %32 %67 %67 %67 %67
+%85 = OpIAdd %5 %78 %41
+OpImageWrite %77 %85 %84
+OpBranch %88
+%88 = OpLabel
+OpStore %18 %20
+OpReturn
+OpFunctionEnd
+
