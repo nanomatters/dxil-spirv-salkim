@@ -151,6 +151,7 @@ add_library(dxbc-spirv-test STATIC
         ${DXBC_SPV_SOURCE_DIR}/tests/dxbc/test_dxbc_writer.cpp
         ${DXBC_SPV_SOURCE_DIR}/tests/ir/test_ir.h
         ${DXBC_SPV_SOURCE_DIR}/tests/ir/test_ir_arithmetic.cpp
+        ${DXBC_SPV_SOURCE_DIR}/tests/ir/test_ir_buffer_indexing.cpp
         ${DXBC_SPV_SOURCE_DIR}/tests/ir/test_ir_builder.cpp
         ${DXBC_SPV_SOURCE_DIR}/tests/ir/test_ir_conditions.cpp
         ${DXBC_SPV_SOURCE_DIR}/tests/ir/test_ir_cse.cpp
