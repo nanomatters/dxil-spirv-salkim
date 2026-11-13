@@ -211,6 +211,9 @@ void CFGStructurizer::rewrite_degenerate_interposing_frontiers()
 
 void CFGStructurizer::convert_phi_to_variables()
 {
+	const bool has_loops = std::any_of(forward_post_visit_order.begin(), forward_post_visit_order.end(),
+	                                  [](const CFGNode *node) { return node->pred_back_edge != nullptr; });
+
 	// Go out of SSA by writing to alloca variable on a branch.
 	bool rewrote_cfg = false;
 
@@ -218,6 +221,7 @@ void CFGStructurizer::convert_phi_to_variables()
 	{
 		if (node->ir.phi.empty())
 			continue;
+		auto *dominator = node->immediate_dominator;
 
 		// An incoming block must not have more than one successor,
 		// otherwise we cannot meaningfully write to a phi variable.
@@ -227,24 +231,35 @@ void CFGStructurizer::convert_phi_to_variables()
 		for (auto &phi : node->ir.phi)
 		{
 			spv::Id alloca_id = module.create_variable(spv::StorageClassFunction, phi.type_id);
+
 			if (phi.relaxed)
 				module.get_builder().addDecoration(alloca_id, spv::DecorationRelaxedPrecision);
 
+			spv::Id undefined_incoming = 0;
 			for (auto &incoming : phi.incoming)
 			{
-				// If the incoming is undefined, it's more idiomatic to simply leave the variable uninitialized.
-				// It accomplishes the same thing and less likely to confuse compilers.
-				// For loops, it's possible the variable is already initialized by a previous iteration somehow,
-				// but that's okay. Undef is undef.
+				// Undefined inputs need no incoming assignment.
 				if (auto *inst = module.get_builder().getInstruction(incoming.id))
 					if (inst->getOpCode() == spv::OpUndef)
+					{
+						undefined_incoming = incoming.id;
 						continue;
+					}
 
 				assert(incoming.block->ir.terminator.type == Terminator::Type::Branch);
 				auto *store_op = module.allocate_op(spv::OpStore);
 				store_op->add_id(alloca_id);
 				store_op->add_id(incoming.id);
 				incoming.block->ir.operations.push_back(store_op);
+			}
+
+			if (undefined_incoming && has_loops && dominator && dominator != node)
+			{
+				// Reset the temporary before incoming assignments to avoid carrying stale values around loops.
+				auto *reset = module.allocate_op(spv::OpStore);
+				reset->add_id(alloca_id);
+				reset->add_id(undefined_incoming);
+				dominator->ir.operations.insert(dominator->ir.operations.begin(), reset);
 			}
 
 			// Back to SSA since future opcodes depend on it.

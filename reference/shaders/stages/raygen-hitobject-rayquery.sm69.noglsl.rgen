@@ -112,6 +112,7 @@ OpDecorate %25 BuiltIn LaunchIdKHR
 %89 = OpUndef %22
 OpBranch %125
 %125 = OpLabel
+OpStore %118 %53
 %27 = OpAccessChain %26 %25 %28
 %29 = OpLoad %22 %27
 %30 = OpAccessChain %26 %25 %31
@@ -127,6 +128,7 @@ OpBranchConditional %50 %127 %126
 OpStore %120 %28
 OpBranch %141
 %127 = OpLabel
+OpStore %123 %53
 OpStore %124 %28
 OpBranch %128
 %128 = OpLabel
