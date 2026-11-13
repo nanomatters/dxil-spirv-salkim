@@ -1,0 +1,11 @@
+#include "ags_shader_intrinsics_dx12.inc"
+
+ByteAddressBuffer Inputs : register(t0);
+RWByteAddressBuffer Outputs : register(u0);
+
+[numthreads(64, 1, 1)]
+void main(uint3 tid : SV_DispatchThreadID)
+{
+    float3 value = asfloat(Inputs.Load3(12 * tid.x));
+    Outputs.Store3(12 * tid.x, AmdExtD3DShaderIntrinsics_ConvertF32toF16Near(value));
+}
