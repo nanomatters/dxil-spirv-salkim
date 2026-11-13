@@ -2327,6 +2327,63 @@ bool analyze_magic_ags_instruction(Converter::Impl &impl)
 		return true;
 }
 
+static void emit_f32_to_f16_nearest(Converter::Impl &impl, const llvm::CallInst *instruction)
+{
+	auto &builder = impl.builder();
+	auto uint_type = builder.makeUintType(32);
+	auto constant = [&](uint32_t value) { return builder.makeUintConstant(value); };
+	auto binary = [&](spv::Op opcode, spv::Id type, spv::Id a, spv::Id b) {
+		auto *op = impl.allocate(opcode, type);
+		op->add_id(a);
+		op->add_id(b);
+		impl.add(op);
+		return op->id;
+	};
+	auto select = [&](spv::Id condition, spv::Id a, spv::Id b) {
+		auto *op = impl.allocate(spv::OpSelect, uint_type);
+		op->add_id(condition);
+		op->add_id(a);
+		op->add_id(b);
+		impl.add(op);
+		return op->id;
+	};
+
+	// The shader's FP16 rounding mode also affects OpFConvert, so round the bits directly.
+	auto input = impl.get_id_for_value(instruction->getOperand(5));
+	auto magnitude = binary(spv::OpBitwiseAnd, uint_type, input, constant(0x7fffffff));
+	auto exponent = binary(spv::OpShiftRightLogical, uint_type, magnitude, constant(23));
+	auto normal = binary(spv::OpUGreaterThanEqual, builder.makeBoolType(), exponent, constant(113));
+	auto shift = binary(spv::OpISub, uint_type, constant(126), exponent);
+	shift = select(binary(spv::OpUGreaterThan, builder.makeBoolType(), shift, constant(24)), constant(24), shift);
+	shift = select(normal, constant(13), shift);
+
+	auto significand = binary(spv::OpBitwiseAnd, uint_type, magnitude, constant(0x7fffff));
+	significand = binary(spv::OpBitwiseOr, uint_type, significand, constant(0x800000));
+	auto retained = binary(spv::OpShiftRightLogical, uint_type, significand, shift);
+	auto odd = binary(spv::OpBitwiseAnd, uint_type, retained, constant(1));
+	auto halfway = binary(spv::OpShiftLeftLogical, uint_type, constant(1),
+	                      binary(spv::OpISub, uint_type, shift, constant(1)));
+	auto bias = binary(spv::OpIAdd, uint_type, binary(spv::OpISub, uint_type, halfway, constant(1)), odd);
+	auto rounded = binary(spv::OpShiftRightLogical, uint_type,
+	                      binary(spv::OpIAdd, uint_type, significand, bias), shift);
+	auto rebased_exponent = binary(spv::OpShiftLeftLogical, uint_type,
+	                              binary(spv::OpISub, uint_type, exponent, constant(113)), constant(10));
+	auto result = binary(spv::OpIAdd, uint_type, rounded, select(normal, rebased_exponent, constant(0)));
+
+	result = select(binary(spv::OpULessThan, builder.makeBoolType(), exponent, constant(102)), constant(0), result);
+	result = select(binary(spv::OpUGreaterThanEqual, builder.makeBoolType(), exponent, constant(143)), constant(0x7c00), result);
+	auto payload = binary(spv::OpBitwiseAnd, uint_type,
+	                      binary(spv::OpShiftRightLogical, uint_type, magnitude, constant(13)), constant(0x3ff));
+	payload = binary(spv::OpBitwiseOr, uint_type, payload, constant(0x7e00));
+	result = select(binary(spv::OpUGreaterThan, builder.makeBoolType(), magnitude, constant(0x7f800000)), payload, result);
+	auto sign = binary(spv::OpBitwiseAnd, uint_type,
+	                   binary(spv::OpShiftRightLogical, uint_type, input, constant(16)), constant(0x8000));
+	auto *op = impl.allocate(spv::OpBitwiseOr, instruction);
+	op->add_id(sign);
+	op->add_id(result);
+	impl.add(op);
+}
+
 bool emit_magic_ags_instruction(Converter::Impl &impl, const llvm::CallInst *instruction)
 {
 	auto &builder = impl.builder();
@@ -2364,6 +2421,16 @@ bool emit_magic_ags_instruction(Converter::Impl &impl, const llvm::CallInst *ins
 		impl.ags.num_instructions = 0;
 		break;
 	}
+
+	case AmdExtD3DShaderIntrinsicsOpcode_FloatConversion:
+		if (impl.ags.instructions[0].immediate != AmdExtD3DShaderIntrinsicsFloatConversionOp_FToF16Near)
+		{
+			LOGE("Unsupported AGS float conversion mode %u.\n", impl.ags.instructions[0].immediate);
+			return false;
+		}
+		emit_f32_to_f16_nearest(impl, instruction);
+		impl.ags.num_instructions = 0;
+		break;
 
 	case AmdExtD3DShaderIntrinsicsOpcode_LaneId:
 	{
