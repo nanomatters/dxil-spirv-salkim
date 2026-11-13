@@ -2472,15 +2472,15 @@ void CFGStructurizer::fixup_broken_value_dominance()
 
 		if (orig.rematerialize_op)
 		{
-			auto *rematerialize_op = module.allocate_op();
-			*rematerialize_op = *orig.rematerialize_op;
-			rematerialize_op->id = module.allocate_id();
-
-			if (module.get_builder().hasDecoration(orig.rematerialize_op->id, spv::DecorationNonUniform))
-				module.get_builder().addDecoration(rematerialize_op->id, spv::DecorationNonUniform);
-
 			for (auto *consumer : *rewrite.consumers)
 			{
+				auto *rematerialize_op = module.allocate_op();
+				*rematerialize_op = *orig.rematerialize_op;
+				rematerialize_op->id = module.allocate_id();
+
+				if (module.get_builder().hasDecoration(orig.rematerialize_op->id, spv::DecorationNonUniform))
+					module.get_builder().addDecoration(rematerialize_op->id, spv::DecorationNonUniform);
+
 				rewrite_consumed_ids(consumer->ir, rewrite.id, rematerialize_op->id);
 				consumer->ir.operations.insert(consumer->ir.operations.begin(), rematerialize_op);
 			}
