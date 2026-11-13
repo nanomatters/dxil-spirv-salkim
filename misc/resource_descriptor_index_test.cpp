@@ -38,7 +38,7 @@ static void test_handle(DXIL::ResourceType resource_type, IndexSource source,
 	auto *type = llvm::Type::getInt32Ty(context);
 	llvm::ConstantInt opcode(type, 57), resource_class(type, unsigned(resource_type)), range(type, 0);
 	llvm::ConstantInt uniform(type, non_uniform);
-	llvm::Argument index(type, 0);
+	llvm::Argument index(type, 0, false);
 	llvm::FunctionType function(context, type, { type, type, type, type, type });
 	llvm::CallInst call(&function, nullptr, { &opcode, &resource_class, &range, &index, &uniform });
 	llvm::CallInst other_call(&function, nullptr, { &opcode, &resource_class, &range, &index, &uniform });
@@ -216,7 +216,7 @@ static void test_rtas(bool local, bool non_uniform, bool force, bool constant_in
 	auto *type = llvm::Type::getInt32Ty(context);
 	llvm::ConstantInt opcode(type, 57), resource_class(type, unsigned(DXIL::ResourceType::SRV));
 	llvm::ConstantInt range(type, 0), zero(type, 0), divergent(type, non_uniform);
-	llvm::Argument index(type, 0);
+	llvm::Argument index(type, 0, false);
 	llvm::FunctionType function(context, type, { type, type, type, type, type });
 	llvm::CallInst call(&function, nullptr, { &opcode, &resource_class, &range,
 	    constant_index ? static_cast<llvm::Value *>(&zero) : &index, &divergent });

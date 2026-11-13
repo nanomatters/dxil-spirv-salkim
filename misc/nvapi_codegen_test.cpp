@@ -35,7 +35,7 @@ static void test_instance(bool custom_id, bool lss)
 	auto *type = llvm::Type::getInt32Ty(context);
 	// NVAPI GetInstanceID is 74; GetInstanceIndex is 75.
 	llvm::ConstantInt opcode(type, custom_id ? 74 : 75);
-	llvm::Argument object(type, 0);
+	llvm::Argument object(type, 0, false);
 	impl.nvapi.fake_doorbell_inputs[NVAPI_ARGUMENT_OPCODE] = &opcode;
 	impl.nvapi.fake_doorbell_inputs[NVAPI_ARGUMENT_SRC0U] = &object;
 	check(impl.nvapi.commit_opcode(impl, false));
@@ -185,7 +185,7 @@ static void test_raw_atomic(bool half, bool physical, bool non_uniform, unsigned
 	auto &builder = impl.builder();
 	auto *type = llvm::Type::getInt32Ty(context);
 	llvm::ConstantInt opcode(type, half ? 12 : 13), operation(type, 3), addr(type, address), value(type, 0);
-	llvm::Argument handle(type, 0);
+	llvm::Argument handle(type, 0, false);
 	auto uint_type = builder.makeUintType(32);
 	auto storage = physical ? spv::StorageClassPhysicalStorageBuffer : spv::StorageClassStorageBuffer;
 	spv::Id id = physical ? builder.makeNullConstant(builder.makeVectorType(uint_type, 2)) :
@@ -285,7 +285,7 @@ static void test_nvapi_store_failure(bool raw, bool wrong_doorbell)
 	auto *type = llvm::Type::getInt32Ty(context);
 	// GET_SPECIAL is opcode 19; selector 9 reads the timer, while 0 is unsupported.
 	llvm::ConstantInt opcode(type, 19), selector(type, wrong_doorbell ? 9 : 0);
-	llvm::Argument handle(type, 0), counter(type, 1), other_counter(type, 2);
+	llvm::Argument handle(type, 0, false), counter(type, 1, false), other_counter(type, 2, false);
 	impl.nvapi.magic_ptr_id = module.allocate_id();
 	impl.rewrite_value(&handle, impl.nvapi.magic_ptr_id);
 	impl.nvapi.doorbell = &counter;
@@ -309,7 +309,7 @@ static void test_nonmagic_buffer_store(bool raw)
 	auto &builder = impl.builder();
 	auto *type = llvm::Type::getInt32Ty(context);
 	llvm::ConstantInt index(type, 0), value(type, 42);
-	llvm::Argument handle(type, 0);
+	llvm::Argument handle(type, 0, false);
 	auto id = builder.createVariable(spv::StorageClassStorageBuffer,
 	    builder.makeStructType({ builder.makeRuntimeArray(builder.makeUintType(32)) }, "raw"));
 	impl.rewrite_value(&handle, id);
@@ -344,7 +344,7 @@ static void test_lss_store_failure(bool raw, unsigned failure)
 	auto *type = llvm::Type::getInt32Ty(context);
 	llvm::ConstantInt dx_opcode(type, unsigned(raw ? DXIL::Op::RawBufferStore : DXIL::Op::BufferStore));
 	llvm::ConstantInt nv_opcode(type, failure == 2 ? 114 : 104), zero(type, 0), mask(type, 1);
-	llvm::Argument handle(type, 0), counter(type, 1), not_ray_flags(type, 2);
+	llvm::Argument handle(type, 0, false), counter(type, 1, false), not_ray_flags(type, 2, false);
 	impl.nvapi.magic_ptr_id = impl.builder().makeUintConstant(1);
 	impl.rewrite_value(&handle, impl.nvapi.magic_ptr_id);
 	impl.nvapi.doorbell = &counter;

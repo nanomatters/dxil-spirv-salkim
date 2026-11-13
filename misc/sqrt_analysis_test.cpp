@@ -59,7 +59,7 @@ static void test_analysis()
 	impl.current_block = &block;
 	auto *type = llvm::Type::getFloatTy(context);
 	auto *uint_type = llvm::Type::getInt32Ty(context);
-	llvm::Argument x(type, 0), y(type, 1);
+	llvm::Argument x(type, 0, false), y(type, 1, false);
 	llvm::ConstantFP one(type, 0x3f800000), two(type, 0x40000000), negative_one(type, 0xbf800000);
 	llvm::ConstantInt dot_opcode(uint_type, unsigned(DXIL::Op::Dot2));
 	llvm::ConstantInt rsqrt_opcode(uint_type, unsigned(DXIL::Op::Rsqrt));

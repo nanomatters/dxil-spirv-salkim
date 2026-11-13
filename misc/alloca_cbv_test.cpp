@@ -23,7 +23,7 @@ static void test(const unsigned (&words)[6], bool forward, unsigned stride)
 	auto *pointer = llvm::PointerType::get(type, 0);
 	llvm::ConstantInt zero(uint_type, 0), one(uint_type, 1);
 	llvm::AllocaInst allocation(llvm::PointerType::get(array, 0), array, &one);
-	llvm::Argument handle(uint_type, 0);
+	llvm::Argument handle(uint_type, 0, false);
 	auto *result = llvm::StructType::get(context, { type, type, type, type }, "cbuffer");
 	llvm::FunctionType function(context, result, { uint_type, uint_type, uint_type });
 	llvm::Function load(&function, 1, llvm_module);

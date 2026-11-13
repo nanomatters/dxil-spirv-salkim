@@ -25,7 +25,7 @@ static void test_expressions()
 {
 	llvm::LLVMContext context;
 	auto *type = llvm::Type::getInt32Ty(context);
-	llvm::Argument x(type, 0), y(type, 1), condition(llvm::Type::getInt1Ty(context), 2);
+	llvm::Argument x(type, 0, false), y(type, 1, false), condition(llvm::Type::getInt1Ty(context), 2, false);
 	llvm::ConstantInt zero(type, 0), four(type, 4), twelve(type, 12), mask(type, 0xfffffff0u);
 	llvm::BinaryOperator aligned(&x, &mask, Op::And);
 	llvm::BinaryOperator reversed(&mask, &x, Op::And);
@@ -58,7 +58,7 @@ static void test_expressions()
 	llvm::CastInst trunc(llvm::Type::getInt8Ty(context), &shl, llvm::Instruction::Trunc);
 	llvm::CastInst zext(type, &trunc, llvm::Instruction::ZExt);
 	llvm::CastInst sext(type, &trunc, llvm::Instruction::SExt);
-	llvm::Argument floating(llvm::Type::getFloatTy(context), 3);
+	llvm::Argument floating(llvm::Type::getFloatTy(context), 3, false);
 	llvm::CastInst bitcast(type, &floating, llvm::Instruction::BitCast);
 	check(get_known_trailing_zeros(&trunc) == 8);
 	check(get_known_trailing_zeros(&zext) >= 8);
@@ -88,7 +88,7 @@ static void test_low_bits()
 		uint64_t type_mask = UINT64_MAX >> (64 - width);
 		uint64_t a_mask = (UINT64_MAX << a_bits) & type_mask;
 		uint64_t b_mask = (UINT64_MAX << b_bits) & type_mask;
-		llvm::Argument x(type, 0), y(type, 1);
+		llvm::Argument x(type, 0, false), y(type, 1, false);
 		llvm::ConstantInt ca(type, a_mask), cb(type, b_mask);
 		llvm::BinaryOperator a(&x, &ca, Op::And), b(&y, &cb, Op::And);
 		for (Op opcode : { Op::And, Op::Or, Op::Xor, Op::Add, Op::Sub, Op::Mul })
@@ -128,7 +128,7 @@ static void test_vectorization_guards()
 	dxil_spv::SPIRVModule module;
 	dxil_spv::Converter::Impl impl(parser, nullptr, module);
 	auto *type = llvm::Type::getInt32Ty(context);
-	llvm::Argument offset(type, 0), index(type, 1);
+	llvm::Argument offset(type, 0, false), index(type, 1, false);
 	llvm::ConstantInt mask16(type, 0xfffffff0u), mask8(type, 0xfffffff8u), mask64(type, 0xffffffc0u);
 	llvm::BinaryOperator aligned(&offset, &mask16, Op::And);
 	llvm::BinaryOperator weaker(&offset, &mask8, Op::And);
