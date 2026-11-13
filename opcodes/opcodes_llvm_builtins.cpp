@@ -3051,11 +3051,16 @@ static bool emit_composite_construct_instruction(Converter::Impl &impl, const ll
 }
 #endif
 
-static void emit_copy_memory(Converter::Impl &impl, spv::Id target, spv::Id source)
+static void emit_copy_memory(Converter::Impl &impl, spv::Id target, spv::Id source, spv::Id condition)
 {
-	auto *copy = impl.allocate(spv::OpCopyMemory);
+	auto *copy = impl.allocate(condition ? spv::PseudoOpMaskedCopyMemory : spv::OpCopyMemory);
 	copy->add_id(target);
 	copy->add_id(source);
+	if (condition)
+	{
+		copy->add_id(condition);
+		impl.combined_image_sampler_cache.clear();
+	}
 	impl.add(copy);
 }
 
@@ -3065,6 +3070,7 @@ bool emit_call_instruction(Converter::Impl &impl, const llvm::CallInst &inst)
 	{
 		spv::Id pointer;
 		spv::Id temp;
+		spv::Id condition;
 	};
 	Vector<WriteBack> write_backs;
 	Vector<spv::Id> args;
@@ -3096,14 +3102,25 @@ bool emit_call_instruction(Converter::Impl &impl, const llvm::CallInst &inst)
 			}
 		}
 
+		auto robust_itr = impl.handle_to_robustness.find(arg);
+		spv::Id condition = robust_itr != impl.handle_to_robustness.end() ? robust_itr->second : 0;
 		bool declared = llvm::isa<llvm::AllocaInst>(arg) || llvm::isa<llvm::Argument>(arg);
-		if (declared &&
+		if (declared && !condition &&
 		    impl.get_effective_storage_class_fixed(arg, spv::StorageClassFunction) == spv::StorageClassFunction)
 			continue;
 
-		spv::Id temp = impl.create_variable(spv::StorageClassFunction, impl.get_type_id(type->getPointerElementType()));
-		emit_copy_memory(impl, temp, args.back());
-		write_backs.push_back({ args.back(), temp });
+		spv::Id value_type = impl.get_type_id(type->getPointerElementType());
+		spv::Id temp = impl.create_variable(spv::StorageClassFunction, value_type);
+		if (condition)
+		{
+			// Reinitialize on every call, including repeated calls in loops.
+			auto *clear = impl.allocate(spv::OpStore);
+			clear->add_id(temp);
+			clear->add_id(impl.builder().makeNullConstant(value_type));
+			impl.add(clear);
+		}
+		emit_copy_memory(impl, temp, args.back(), condition);
+		write_backs.push_back({ args.back(), temp, condition });
 		args.back() = temp;
 	}
 
@@ -3114,7 +3131,7 @@ bool emit_call_instruction(Converter::Impl &impl, const llvm::CallInst &inst)
 	impl.add(call);
 
 	for (auto &write_back : write_backs)
-		emit_copy_memory(impl, write_back.pointer, write_back.temp);
+		emit_copy_memory(impl, write_back.pointer, write_back.temp, write_back.condition);
 	return true;
 }
 
