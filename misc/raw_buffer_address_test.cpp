@@ -25,7 +25,7 @@ static void test_bitwise_case(Op opcode, uint32_t scale, uint32_t bias, bool shi
 {
 	llvm::LLVMContext context;
 	auto *type = llvm::Type::getInt32Ty(context);
-	llvm::Argument index(type, 0);
+	llvm::Argument index(type, 0, false);
 	unsigned shift_count = 0;
 	if (shift)
 	{
@@ -102,7 +102,7 @@ static void test_arithmetic()
 	{
 		llvm::LLVMContext context;
 		auto *type = llvm::Type::getInt32Ty(context);
-		llvm::Argument index(type, 0);
+		llvm::Argument index(type, 0, false);
 		llvm::ConstantInt factor(type, scale);
 		llvm::ConstantInt constant(type, bias);
 		llvm::BinaryOperator scaled(&index, &factor, Op::Mul);

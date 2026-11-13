@@ -34,7 +34,7 @@ static void test_composition(bool outer_exp, bool inner_exp, unsigned precise)
 	impl.options.force_precise = precise == 1;
 	auto *type = llvm::Type::getFloatTy(context);
 	auto *uint_type = llvm::Type::getInt32Ty(context);
-	llvm::Argument input(type, 0);
+	llvm::Argument input(type, 0, false);
 	llvm::ConstantInt inner_opcode(uint_type, unsigned(inner_exp ? DXIL::Op::Exp : DXIL::Op::Log));
 	llvm::ConstantInt outer_opcode(uint_type, unsigned(outer_exp ? DXIL::Op::Exp : DXIL::Op::Log));
 	llvm::FunctionType function(context, type, { uint_type, type });

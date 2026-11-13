@@ -57,8 +57,8 @@ static void test_derivatives(unsigned dimensions, bool arrayed, DXIL::Op opcode)
 
 	auto *float_type = llvm::Type::getFloatTy(context);
 	auto *int_type = llvm::Type::getInt32Ty(context);
-	llvm::Argument image_arg(int_type, 0), sampler_arg(int_type, 1);
-	llvm::Argument u(float_type, 2), v(float_type, 3), w(float_type, 4), bias(float_type, 5);
+	llvm::Argument image_arg(int_type, 0, false), sampler_arg(int_type, 1, false);
+	llvm::Argument u(float_type, 2, false), v(float_type, 3, false), w(float_type, 4, false), bias(float_type, 5, false);
 	llvm::ConstantInt op(int_type, unsigned(opcode)), zero(int_type, 0);
 	llvm::UndefValue unused_float(float_type);
 	impl.rewrite_value(&image_arg, image->id);

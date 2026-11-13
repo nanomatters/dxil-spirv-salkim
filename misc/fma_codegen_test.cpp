@@ -49,7 +49,7 @@ static void test_fma(unsigned width, unsigned lanes, bool native, unsigned featu
 	auto *uint_type = llvm::Type::getInt32Ty(context);
 	llvm::FunctionType function_type(context, type, { uint_type, type, type, type });
 	llvm::ConstantInt opcode(uint_type, unsigned(operation ? DXIL::Op::FMad : DXIL::Op::Fma));
-	llvm::Argument a(type, 0), b(type, 1), c(type, 2);
+	llvm::Argument a(type, 0, false), b(type, 1, false), c(type, 2, false);
 	llvm::CallInst call(&function_type, nullptr, { &opcode, &a, &b, &c });
 	if (precise)
 		call.setMetadata("dx.precise", nullptr);

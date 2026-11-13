@@ -47,7 +47,7 @@ static void test_scan(unsigned lanes, GLSLstd450 opcode)
 	impl.current_block = &block;
 	auto *scalar = llvm::Type::getInt64Ty(context);
 	llvm::Type *type = lanes == 1 ? scalar : llvm::VectorType::get(lanes, scalar);
-	llvm::Argument input(type, 0);
+	llvm::Argument input(type, 0, false);
 	spv::Id result = emit_native_bitscan(opcode, impl, nullptr, &input);
 	auto &builder = impl.builder();
 	std::unordered_map<spv::Id, uint64_t> values;

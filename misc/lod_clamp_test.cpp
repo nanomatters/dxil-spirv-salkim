@@ -39,7 +39,7 @@ static void test_clamp(bool clamped)
 
 	auto *float_type = llvm::Type::getFloatTy(context);
 	auto *int_type = llvm::Type::getInt32Ty(context);
-	llvm::Argument image_arg(int_type, 0), sampler_arg(int_type, 1), u(float_type, 2), v(float_type, 3);
+	llvm::Argument image_arg(int_type, 0, false), sampler_arg(int_type, 1, false), u(float_type, 2, false), v(float_type, 3, false);
 	llvm::ConstantInt opcode(int_type, unsigned(DXIL::Op::CalculateLOD)), clamp(int_type, clamped);
 	llvm::UndefValue unused(float_type);
 	impl.rewrite_value(&image_arg, image->id);

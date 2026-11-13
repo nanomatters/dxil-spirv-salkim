@@ -39,7 +39,7 @@ static void test_cast(unsigned input_width, unsigned output_width, unsigned lane
 	impl.options.arithmetic_relaxed_precision = relaxed;
 	auto *input_type = float_type(context, input_width, lanes);
 	auto *output_type = float_type(context, output_width, lanes);
-	llvm::Argument input(input_type, 0);
+	llvm::Argument input(input_type, 0, false);
 	bool trunc = input_width > output_width;
 	llvm::CastInst cast(output_type, &input, trunc ? llvm::Instruction::FPTrunc : llvm::Instruction::FPExt);
 	check(emit_cast_instruction(impl, &cast));
