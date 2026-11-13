@@ -6541,7 +6541,7 @@ static bool instruction_has_side_effects(const llvm::Instruction &instruction)
 bool Converter::Impl::emit_instruction(CFGNode *block, const llvm::Instruction &instruction)
 {
 	if (instruction.isTerminator())
-		return true;
+		return validate_ags_wmma_operands(*this, instruction);
 
 	// We really shouldn't have to do this, but DXC misses some dead SSA ops.
 	// Helps sanitize repro suite output in some cases.
@@ -6551,6 +6551,9 @@ bool Converter::Impl::emit_instruction(CFGNode *block, const llvm::Instruction &
 	{
 		return true;
 	}
+
+	if (!validate_ags_wmma_operands(*this, instruction))
+		return false;
 
 	current_block = &block->ir.operations;
 
