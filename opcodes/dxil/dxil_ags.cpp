@@ -318,6 +318,86 @@ static bool validate_wmma_io_registers(Converter::Impl &impl, uint32_t base_argu
 	return true;
 }
 
+static bool ags_accepts_matrix_operand(Converter::Impl &impl, const llvm::CallInst *instruction, unsigned operand)
+{
+	if (operand != 5 && operand != 6)
+		return false;
+	if (!value_is_dx_op_instrinsic(instruction, DXIL::Op::AtomicCompareExchange))
+		return false;
+
+	auto resource = impl.llvm_value_to_uav_resource_index_map.find(instruction->getOperand(1));
+	if (resource == impl.llvm_value_to_uav_resource_index_map.end() ||
+	    resource->second != impl.ags.uav_magic_resource_type_index)
+		return false;
+
+	uint32_t code;
+	if (!get_constant_operand(instruction, 2, &code) || !is_ags_magic(code))
+		return false;
+
+	auto inst = decode_ags_instruction(code);
+	switch (inst.opcode)
+	{
+	case AmdExtD3DShaderIntrinsicsOpcode_WaveMatrixUavStore:
+	case AmdExtD3DShaderIntrinsicsOpcode_WaveMatrixLdsStore:
+		return inst.phase == 1;
+	case AmdExtD3DShaderIntrinsicsOpcode_WaveMatrixCopy:
+	case AmdExtD3DShaderIntrinsicsOpcode_WaveMatrixMulAcc:
+	case AmdExtD3DShaderIntrinsicsOpcode_WaveMatrixElementFill:
+	case AmdExtD3DShaderIntrinsicsOpcode_WaveMatrixElementExtract:
+	case AmdExtD3DShaderIntrinsicsOpcode_MatrixElementWiseArithmetic:
+		return inst.phase == 0;
+	default:
+		return false;
+	}
+}
+
+static bool is_ags_wmma_fragment(Converter::Impl &impl, const llvm::Value *value)
+{
+	return value && impl.ags.coopmat_component_mapping.count(value) &&
+	       value->getType()->getTypeID() != llvm::Type::TypeID::PointerTyID;
+}
+
+static bool validate_ags_wmma_terminator_operand(Converter::Impl &impl, const llvm::Value *value, const char *opcode)
+{
+	if (!is_ags_wmma_fragment(impl, value))
+		return true;
+
+	LOGE("Raw AGS WMMA fragment access is not supported (%s operand 0).\n", opcode);
+	return false;
+}
+
+bool validate_ags_wmma_operands(Converter::Impl &impl, const llvm::Instruction &instruction)
+{
+	if (impl.ags.coopmat_component_mapping.empty())
+		return true;
+
+	// LLVMBC stores terminator values separately from the operand array.
+	if (auto *ret = llvm::dyn_cast<llvm::ReturnInst>(&instruction))
+		return validate_ags_wmma_terminator_operand(impl, ret->getReturnValue(), "ret");
+	if (auto *sw = llvm::dyn_cast<llvm::SwitchInst>(&instruction))
+		return validate_ags_wmma_terminator_operand(impl, sw->getCondition(), "switch");
+	if (auto *br = llvm::dyn_cast<llvm::BranchInst>(&instruction))
+		return validate_ags_wmma_terminator_operand(impl, br->isConditional() ? br->getCondition() : nullptr, "br");
+
+	for (unsigned i = 0; i < instruction.getNumOperands(); i++)
+	{
+		const auto *value = instruction.getOperand(i);
+		if (!is_ags_wmma_fragment(impl, value))
+			continue;
+
+		if (llvm::isa<llvm::PHINode>(&instruction) || (i == 0 && llvm::isa<llvm::StoreInst>(&instruction)))
+			continue;
+		if (const auto *call = llvm::dyn_cast<llvm::CallInst>(&instruction))
+			if (ags_accepts_matrix_operand(impl, call, i))
+				continue;
+
+		LOGE("Raw AGS WMMA fragment access is not supported (operand %u).\n", i);
+		return false;
+	}
+
+	return true;
+}
+
 static bool emit_wmma_return_values(Converter::Impl &impl, spv::Id type_id, spv::Id id, uint32_t phase)
 {
 	if (!validate_wmma_io_registers(impl, impl.ags.num_instructions - 8,
